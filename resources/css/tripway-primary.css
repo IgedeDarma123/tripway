@@ -1,0 +1,44 @@
+.tripway-primary {
+    --primary-dark-teal: #1b3a4b;
+    --primary-hover: #14505f;
+}
+
+.tripway-primary .pilihan-paket-title {
+    background: linear-gradient(
+        to right,
+        var(--primary-dark-teal),
+        var(--primary-hover)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.tripway-primary .cek-button,
+.tripway-primary .cek-search-button {
+    background-color: var(--primary-dark-teal);
+}
+
+.tripway-primary .cek-button:hover,
+.tripway-primary .cek-search-button:hover {
+    background-color: var(--primary-hover);
+}
+
+.tripway-primary .selected-paket {
+    border-color: var(--primary-dark-teal) !important;
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark-teal),
+        var(--primary-hover)
+    ) !important;
+    color: white !important;
+}
+
+.tripway-primary .diskon-badge {
+    background-color: var(--primary-dark-teal) !important;
+}
+
+.tripway-primary .diskon-banner {
+    background: linear-gradient(to right, #f8fafc, #f1f5f9);
+    border-color: #cbd5e1 !important;
+}
