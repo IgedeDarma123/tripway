@@ -1,0 +1,96 @@
+name: Deploy to Niagahoster
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Flatten structure for server
+        run: |
+          SERVER_PATH="$HOME/domains/tripwaytour.com/public_html"
+
+          # prepare temp dir with flattened structure
+          rm -rf /tmp/deploy
+          mkdir -p /tmp/deploy
+
+          # copy everything from repo (excluding .git, public/)
+          rsync -a \
+            --exclude='.git' \
+            --exclude='public' \
+            . /tmp/deploy/
+
+          # copy public/ contents to root (overwrite index.php, .htaccess, build/, etc.)
+          rsync -a public/ /tmp/deploy/
+
+          # fix index.php paths: remove ../ since everything is at same level
+          sed -i \
+            -e "s|__DIR__.'/\.\./vendor/|__DIR__.'/vendor/|g" \
+            -e "s|__DIR__.'/\.\./bootstrap/|__DIR__.'/bootstrap/|g" \
+            -e "s|__DIR__.'/\.\./storage/|__DIR__.'/storage/|g" \
+            /tmp/deploy/index.php
+
+      - name: Sync files to server
+        run: |
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='storage' \
+            --exclude='vendor' \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            /tmp/deploy/ \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/home/u966953872/domains/tripwaytour.com/public_html/
+
+      - name: Server-side commands
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd /home/u966953872/domains/tripwaytour.com/public_html
+
+            echo "=== Composer ==="
+            composer install --no-dev --optimize-autoloader --no-interaction
+
+            echo "=== Migrate ==="
+            php artisan migrate --force
+
+            echo "=== Cache ==="
+            php artisan optimize:clear || true
+            php artisan view:cache || true
+            php artisan config:cache || true
+
+            echo "=== Permissions ==="
+            chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+
+            echo "=== DEPLOY SUCCESS ==="
+
+      - name: Deployment status
+        if: failure()
+        run: echo "::error::Deploy gagal. Cek secrets & koneksi server."
