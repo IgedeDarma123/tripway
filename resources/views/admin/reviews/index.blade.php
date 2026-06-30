@@ -13,7 +13,7 @@
                 <h2>Tambah Review Manual</h2>
             </div>
             <div class="card-body">
-                <form action="{{ route('admin.reviews.store') }}" method="POST">
+                <form action="{{ route('admin.reviews.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
                         <label>Tour *</label>
@@ -49,6 +49,11 @@
                     <div class="form-group">
                         <label>Tanggal Review</label>
                         <input type="date" name="reviewed_at" value="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Foto (opsional)</label>
+                        <input type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/jpg,image/webp">
+                        <small style="color: var(--text-light);">Format: JPG, PNG, WebP. Maks 5MB per foto.</small>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">
@@ -104,6 +109,7 @@
                             <th>Nama</th>
                             <th>Rating</th>
                             <th>Komentar</th>
+                            <th>Foto</th>
                             <th>Tanggal</th>
                             <th>Tipe</th>
                             <th>Aksi</th>
@@ -112,39 +118,55 @@
                     <tbody>
                         @forelse($reviews as $review)
                         <tr>
-                            <td>#{{ $review->id }}</td>
-                            <td>{{ Str::limit($review->tour->title, 25) }}</td>
-                            <td>{{ $review->user_name }}</td>
-                            <td>
-                                <span style="color: #ffc107;">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star{{ $i > $review->rating ? '-half-alt' : '' }}" style="opacity: {{ $i > $review->rating ? '0.3' : '1' }};"></i>
-                                    @endfor
-                                </span>
-                                {{ $review->rating }}
-                            </td>
-                            <td>{{ Str::limit($review->comment, 50) }}</td>
-                            <td>{{ $review->reviewed_at ? $review->reviewed_at->format('d M Y') : '-' }}</td>
-                            <td>
-                                @if($review->is_fake)
-                                    <span class="badge badge-fake">Fake</span>
-                                @else
-                                    <span class="badge badge-active">Real</span>
-                                @endif
-                            </td>
-                            <td>
-                                <form action="{{ route('admin.reviews.destroy', $review) }}" method="POST" id="del-review-{{ $review->id }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" class="btn btn-sm btn-danger btn-icon" title="Hapus" onclick="confirmAdminDelete('del-review-{{ $review->id }}', '{{ addslashes($review->user_name) }} - {{ addslashes(Str::limit($review->comment, 30)) }}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                             <td>#{{ $review->id }}</td>
+                             <td>{{ Str::limit($review->tour->title, 25) }}</td>
+                             <td>{{ $review->user_name }}</td>
+                             <td>
+                                 <span style="color: #ffc107;">
+                                     @for($i = 1; $i <= 5; $i++)
+                                         <i class="fas fa-star{{ $i > $review->rating ? '-half-alt' : '' }}" style="opacity: {{ $i > $review->rating ? '0.3' : '1' }};"></i>
+                                     @endfor
+                                 </span>
+                                 {{ $review->rating }}
+                             </td>
+                             <td>{{ Str::limit($review->comment, 50) }}</td>
+                             <td>
+                                 @if($review->photos && count($review->photos) > 0)
+                                     <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                         @foreach(array_slice($review->photos, 0, 3) as $photo)
+                                             <a href="{{ Storage::url($photo) }}" target="_blank" title="Lihat foto">
+                                                 <img src="{{ Storage::url($photo) }}" alt="Review foto" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+                                             </a>
+                                         @endforeach
+                                         @if(count($review->photos) > 3)
+                                             <span style="font-size: 11px; color: var(--text-light); align-self: center;">+{{ count($review->photos) - 3 }}</span>
+                                         @endif
+                                     </div>
+                                 @else
+                                     <span style="color: var(--text-light); font-size: 12px;">-</span>
+                                 @endif
+                             </td>
+                             <td>{{ $review->reviewed_at ? $review->reviewed_at->format('d M Y') : '-' }}</td>
+                             <td>
+                                 @if($review->is_fake)
+                                     <span class="badge badge-fake">Fake</span>
+                                 @else
+                                     <span class="badge badge-active">Real</span>
+                                 @endif
+                             </td>
+                             <td>
+                                 <form action="{{ route('admin.reviews.destroy', $review) }}" method="POST" id="del-review-{{ $review->id }}">
+                                     @csrf
+                                     @method('DELETE')
+                                     <button type="button" class="btn btn-sm btn-danger btn-icon" title="Hapus" onclick="confirmAdminDelete('del-review-{{ $review->id }}', '{{ addslashes($review->user_name) }} - {{ addslashes(Str::limit($review->comment, 30)) }}')">
+                                         <i class="fas fa-trash"></i>
+                                     </button>
+                                 </form>
+                             </td>
+                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" style="text-align: center; color: var(--text-light);">Belum ada review.</td>
+                            <td colspan="9" style="text-align: center; color: var(--text-light);">Belum ada review.</td>
                         </tr>
                         @endforelse
                     </tbody>

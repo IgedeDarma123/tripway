@@ -195,12 +195,26 @@
         }
         .footer-social a:hover { color: var(--primary); }
 
-        main { min-height: calc(100vh - 64px); padding-top: 32px; }
+        main { min-height: calc(100vh - 64px); }
+
+        /* Hamburger */
+        .hamburger { display: none; font-size: 22px; background: none; border: none; cursor: pointer; color: var(--text-dark); padding: 4px; }
+        .mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 999; }
+        .mobile-menu.open { display: block; }
+        .mobile-menu-inner { background: white; padding: 0 24px 16px; }
+        .mobile-menu-inner a { display: block; padding: 12px 0; font-size: 15px; font-weight: 500; color: var(--text-medium); border-bottom: 1px solid #f1f5f9; }
+        .mobile-menu-inner a:last-child { border-bottom: none; }
+        .mobile-menu-inner a:hover { color: var(--primary); }
+        .mobile-menu-btn { display: block; width: 100%; text-align: left; padding: 12px 0; font-size: 15px; font-weight: 500; border: none; background: none; cursor: pointer; border-bottom: 1px solid #f1f5f9; color: var(--text-medium); }
+        .mobile-menu-btn:hover { color: var(--primary); }
+        .mobile-menu-btn:last-of-type { border-bottom: none; }
 
         /* Responsive */
         @media (max-width: 768px) {
             .footer-grid { grid-template-columns: repeat(2, 1fr); }
             .nav-links { display: none; }
+            .nav-auth { display: none !important; }
+            .hamburger { display: flex; align-items: center; justify-content: center; margin-left: 8px; }
         }
         @media (max-width: 480px) {
             .footer-grid { grid-template-columns: 1fr; }
@@ -222,7 +236,7 @@
 
 </head>
 <body>
-    <nav class="navbar">
+    <nav class="navbar" x-data="{ mobileOpen: false }" x-effect="document.body.style.overflow = mobileOpen ? 'hidden' : ''">
         <div class="navbar-inner">
             <a href="{{ url('/') }}" class="logo">
                 <i class="fas fa-paper-plane"></i>
@@ -237,24 +251,48 @@
 
             <div class="nav-actions">
                 @guest
-                    <a href="{{ route('login') }}" class="btn btn-outline btn-sm">Masuk</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Daftar</a>
+                    <a href="{{ route('login') }}" class="btn btn-outline btn-sm nav-auth">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm nav-auth">Daftar</a>
                 @else
                     @if(Auth::user()->is_admin)
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-primary btn-sm">
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-primary btn-sm nav-auth">
                             <i class="fas fa-cog"></i> Admin
                         </a>
                     @endif
-                    <a href="{{ route('home') }}" class="btn btn-outline btn-sm">
+                    <a href="{{ route('home') }}" class="btn btn-outline btn-sm nav-auth">
                         <i class="fas fa-user"></i>
                         {{ Auth::user()->name }}
                     </a>
-                    <a href="{{ route('logout') }}" class="btn btn-outline btn-sm"
+                    <a href="{{ route('logout') }}" class="btn btn-outline btn-sm nav-auth"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Keluar
                     </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
+                    </form>
+                @endguest
+                <button class="hamburger" @click="mobileOpen = !mobileOpen" :aria-expanded="mobileOpen">
+                    <i :class="mobileOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="mobile-menu" :class="{ open: mobileOpen }" @click.self="mobileOpen = false">
+            <div class="mobile-menu-inner">
+                <a href="{{ route('tours.index') }}" @click="mobileOpen = false">Tour & Aktivitas</a>
+                <a href="{{ route('tours.index', ['destination' => 'ubud']) }}" @click="mobileOpen = false">Destinasi</a>
+                <a href="#" @click="mobileOpen = false">Tentang Kami</a>
+                @guest
+                    <a href="{{ route('login') }}" @click="mobileOpen = false" style="color: var(--primary); font-weight: 600; border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px;">Masuk</a>
+                    <a href="{{ route('register') }}" @click="mobileOpen = false" style="color: var(--primary); font-weight: 600;">Daftar</a>
+                @else
+                    @if(Auth::user()->is_admin)
+                        <a href="{{ route('admin.dashboard') }}" @click="mobileOpen = false" style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px;"><i class="fas fa-cog"></i> Admin Panel</a>
+                    @endif
+                    <a href="{{ route('home') }}" @click="mobileOpen = false"><i class="fas fa-user"></i> {{ Auth::user()->name }}</a>
+                    <form action="{{ route('logout') }}" method="POST" style="display:block; border-top:1px solid #f1f5f9;">
+                        @csrf
+                        <button type="submit" class="mobile-menu-btn" style="color:#ef4444;"><i class="fas fa-sign-out-alt"></i> Keluar</button>
                     </form>
                 @endguest
             </div>

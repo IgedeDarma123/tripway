@@ -155,17 +155,24 @@
         .related-grid { grid-template-columns: repeat(2, 1fr); }
         .booking-card { position: static; }
     }
-    @media (max-width: 480px) {
+    @media (max-width: 1023px) {
+        .tour-layout-grid { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 768px) {
+        html, body { overflow-x: hidden; }
         .related-grid { grid-template-columns: 1fr; }
+        .tour-gallery { height: 260px !important; }
+        .tour-gallery-carousel { height: 260px !important; }
+        .tour-page { padding-left: 16px !important; padding-right: 16px !important; }
     }
 </style>
 @endsection
 
 @section('content')
-<div class="container" style="max-width:1400px; margin:0 auto; padding:32px 48px;">
+<div class="tour-page" style="max-width:1400px; margin:0 auto; padding:32px 48px; box-sizing:border-box; width:100%;">
 
     {{-- Layout: 2 kolom atas (kiri: info, kanan: booking+rincian) --}}
-    <div style="display:grid; grid-template-columns:420px 1fr; gap:32px; align-items:start; width:100%; box-sizing:border-box;">
+    <div class="tour-layout-grid" style="display:grid; grid-template-columns:420px 1fr; gap:32px; align-items:start; width:100%; box-sizing:border-box;">
 
         {{-- Kolom Kiri: Info Tour --}}
         <div style="min-width:0;">
@@ -403,6 +410,126 @@
         </div>
 
     </div>
+
+    {{-- Ulasan --}}
+    @if($reviews->count() > 0 || $tour->rating > 0)
+    @php
+        $ratingCounts = [5,4,3,2,1];
+        $ratings = [];
+        foreach ($ratingCounts as $r) {
+            $count = $reviewStats[$r] ?? 0;
+            $pct = $totalReviews > 0 ? round($count / $totalReviews * 100) : 0;
+            $ratings[$r] = ['count' => $count, 'pct' => $pct];
+        }
+        $sortOptions = [
+            'terbaru' => 'Terbaru',
+            'terlama' => 'Terlama',
+            'rating_tertinggi' => 'Rating Tertinggi',
+            'rating_terendah' => 'Rating Terendah',
+        ];
+        $ratingTabs = [
+            '' => 'Semua',
+            '5' => '5 ',
+            '4' => '4 ',
+            '3' => '3 ',
+            '2' => '2 ',
+            '1' => '1 ',
+        ];
+    @endphp
+    <div style="margin-top:48px; padding-top:32px; border-top:1px solid #e2e8f0;">
+        <h2 style="font-size:20px; font-weight:700; color:#1B3A4B; margin-bottom:24px;">Ulasan</h2>
+        <div class="review-layout" style="display:flex; gap:40px; align-items:flex-start;">
+            <div class="review-summary" style="width:35%; flex-shrink:0;">
+                <div style="padding:24px; background:#f8fafc; border-radius:12px;">
+                    <div style="text-align:center;">
+                        <div style="font-size:44px; font-weight:800; color:#1B3A4B; line-height:1;">{{ number_format($tour->rating, 1) }}</div>
+                        <div style="color:#ffc107; font-size:16px; margin:6px 0;">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fas fa-star" style="{{ $i > round($tour->rating) ? 'opacity:0.2' : '' }}"></i>
+                            @endfor
+                        </div>
+                        <div style="font-size:14px; color:#64748b;">{{ $totalReviews }} ulasan</div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        @foreach($ratingCounts as $r)
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                            <span style="font-size:13px; color:#475569; min-width:36px; white-space:nowrap;">{{ $r }} <i class="fas fa-star" style="color:#ffc107; font-size:10px;"></i></span>
+                            <div style="flex:1; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                                <div style="height:100%; width:{{ $ratings[$r]['pct'] }}%; background:#ffc107; border-radius:4px; transition:width 0.3s;"></div>
+                            </div>
+                            <span style="font-size:12px; color:#64748b; min-width:30px; text-align:right;">{{ $ratings[$r]['pct'] }}%</span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            <div class="review-list" style="flex:1; min-width:0;">
+                <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+                    @foreach($ratingTabs as $key => $label)
+                    <a href="{{ request()->fullUrlWithQuery(['rating' => $key ?: null, 'page' => null]) }}" style="padding:6px 14px; font-size:13px; border-radius:20px; text-decoration:none; transition:all 0.2s; font-weight:{{ $ratingFilter == $key ? '600' : '400' }}; background:{{ $ratingFilter == $key ? '#1B3A4B' : '#f1f5f9' }}; color:{{ $ratingFilter == $key ? '#fff' : '#475569' }};">
+                        {{ $label }}@if($key)<i class="fas fa-star" style="font-size:10px;"></i>@endif
+                    </a>
+                    @endforeach
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+                    <span style="font-size:14px; color:#475569; font-weight:500;">Urutkan:</span>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        @foreach($sortOptions as $key => $label)
+                        <a href="{{ request()->fullUrlWithQuery(['sort' => $key]) }}" style="padding:6px 14px; font-size:13px; border-radius:20px; text-decoration:none; transition:all 0.2s; font-weight:{{ $sort === $key ? '600' : '400' }}; background:{{ $sort === $key ? '#1B3A4B' : '#f1f5f9' }}; color:{{ $sort === $key ? '#fff' : '#475569' }};">
+                            {{ $label }}
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                @forelse($reviews as $review)
+                <div style="padding:20px 0; border-bottom:1px solid #e2e8f0;">
+                    <div style="display:flex; gap:12px;">
+                        <div style="width:40px; height:40px; border-radius:50%; background:#1B3A4B; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:16px; flex-shrink:0;">
+                            {{ strtoupper(substr($review->user_name, 0, 1)) }}
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                                <span style="font-weight:600; font-size:14px; color:#1e293b;">{{ $review->user_name }}</span>
+                                <span style="color:#ffc107; font-size:12px;">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <i class="fas fa-star" style="{{ $i > $review->rating ? 'opacity:0.2' : '' }}"></i>
+                                    @endfor
+                                </span>
+                                <span style="font-size:12px; color:#94a3b8;">
+                                    {{ $review->reviewed_at ? $review->reviewed_at->format('d M Y') : $review->created_at->format('d M Y') }}
+                                </span>
+                            </div>
+                            <p style="margin:8px 0 0; font-size:14px; color:#475569; line-height:1.6;">{{ $review->comment }}</p>
+                            @if($review->photos && count($review->photos) > 0)
+                            <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                                @foreach($review->photos as $photo)
+                                <a href="{{ Storage::url($photo) }}" target="_blank">
+                                    <img src="{{ Storage::url($photo) }}" alt="Foto review" style="width:80px; height:80px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0;">
+                                </a>
+                                @endforeach
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <p style="text-align:center; color:#94a3b8; padding:40px 0;">Belum ada ulasan.</p>
+                @endforelse
+
+                <div style="margin-top:24px;">
+                    {{ $reviews->appends(['rating' => $ratingFilter, 'sort' => $sort])->links('vendor.pagination.admin') }}
+                </div>
+            </div>
+        </div>
+        <style>
+            @media (max-width: 768px) {
+                .review-layout { flex-direction: column !important; gap: 24px !important; }
+                .review-summary { width: 100% !important; }
+            }
+        </style>
+    </div>
+    @endif
 
     {{-- Tour Serupa: di bawah, berjejer horizontal --}}
     @if($relatedTours->count() > 0)

@@ -72,9 +72,6 @@ class AdminController extends Controller
             'slug' => 'nullable|string|max:255|unique:tours',
             'description' => 'required|string',
             'highlights' => 'nullable|string',
-            'itinerary' => 'nullable|string',
-            'inclusions' => 'nullable|string',
-            'exclusions' => 'nullable|string',
             'duration' => 'required|string|max:50',
             'duration_type' => 'required|in:hours,days',
             'price' => 'required|numeric|min:0',
@@ -141,9 +138,6 @@ class AdminController extends Controller
             'slug' => 'nullable|string|max:255|unique:tours,slug,' . $tour->id,
             'description' => 'required|string',
             'highlights' => 'nullable|string',
-            'itinerary' => 'nullable|string',
-            'included' => 'nullable|string',
-            'excluded' => 'nullable|string',
             'duration' => 'required|string|max:50',
             'duration_type' => 'required|in:hours,days',
             'price' => 'required|numeric|min:0',
@@ -646,10 +640,20 @@ public function bookingsDestroy(Booking $booking)
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string',
             'reviewed_at' => 'nullable|date',
+            'photos' => 'nullable|array',
+            'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $validated['is_fake'] = true;
         $validated['reviewed_at'] = $validated['reviewed_at'] ?? now();
+
+        if ($request->hasFile('photos')) {
+            $paths = [];
+            foreach ($request->file('photos') as $photo) {
+                $paths[] = $photo->store('reviews', 'public');
+            }
+            $validated['photos'] = $paths;
+        }
 
         Review::create($validated);
 
@@ -679,6 +683,9 @@ public function bookingsDestroy(Booking $booking)
 
         $tour = Tour::find($validated['tour_id']);
         $count = $validated['count'];
+
+        $fakePhotos = glob(storage_path('app/public/reviews/fake/*.jpg'));
+        $fakePhotos = $fakePhotos ?: [];
 
         $fakeNames = [
             'Budi Santoso', 'Ani Wijaya', 'Dewi Kusuma', 'Agus Pratama', 'Siti Rahayu',
@@ -720,6 +727,16 @@ public function bookingsDestroy(Booking $booking)
             $daysAgo = rand(1, 180);
             $reviewedAt = now()->subDays($daysAgo)->subHours(rand(0, 23));
 
+            $selectedPhotos = [];
+            if ($fakePhotos && rand(1, 10) <= 7) {
+                $photoCount = rand(1, min(2, count($fakePhotos)));
+                $keys = array_rand($fakePhotos, $photoCount);
+                $keys = is_array($keys) ? $keys : [$keys];
+                foreach ($keys as $k) {
+                    $selectedPhotos[] = 'reviews/fake/' . basename($fakePhotos[$k]);
+                }
+            }
+
             Review::create([
                 'tour_id' => $tour->id,
                 'user_name' => $fakeNames[array_rand($fakeNames)],
@@ -727,6 +744,7 @@ public function bookingsDestroy(Booking $booking)
                 'rating' => rand(4, 5),
                 'comment' => $fakeComments[array_rand($fakeComments)],
                 'is_fake' => true,
+                'photos' => $selectedPhotos ?: null,
                 'reviewed_at' => $reviewedAt,
                 'created_at' => $reviewedAt,
                 'updated_at' => $reviewedAt,

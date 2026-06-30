@@ -57,7 +57,32 @@ class TourController extends Controller
 
     public function show($slug)
     {
-        $tour = Tour::with(['category', 'destination', 'activePackages.groups' => fn($q) => $q->where('is_active', true)->orderBy('group_size'), 'activePackages.addons' => fn($q) => $q->where('is_active', true)->orderBy('sort_order')])->where('slug', $slug)->firstOrFail();
+        $tour = Tour::with(['category', 'destination', 'activePackages.groups' => fn($q) => $q->where('is_active', true)->orderBy('group_size'), 'activePackages.addons' => fn($q) => $q->where('is_active', true)->orderBy('sort_order')])->withCount('reviews')->where('slug', $slug)->firstOrFail();
+        $sort = request('sort', 'terbaru');
+        $ratingFilter = request('rating');
+        $reviewsQuery = \App\Models\Review::where('tour_id', $tour->id);
+
+        if ($ratingFilter && in_array((int)$ratingFilter, [1,2,3,4,5])) {
+            $reviewsQuery->where('rating', (int)$ratingFilter);
+        }
+
+        match ($sort) {
+            'terlama' => $reviewsQuery->orderBy('created_at', 'asc'),
+            'rating_tertinggi' => $reviewsQuery->orderBy('rating', 'desc')->orderBy('created_at', 'desc'),
+            'rating_terendah' => $reviewsQuery->orderBy('rating', 'asc')->orderBy('created_at', 'desc'),
+            default => $reviewsQuery->orderBy('created_at', 'desc'),
+        };
+
+        $reviews = $reviewsQuery->paginate(10)->appends(array_filter([
+            'sort' => $sort,
+            'rating' => $ratingFilter,
+        ]));
+
+        $reviewStats = \App\Models\Review::where('tour_id', $tour->id)
+            ->selectRaw('rating, COUNT(*) as total')
+            ->groupBy('rating')
+            ->pluck('total', 'rating');
+        $totalReviews = $reviewStats->sum();
         $relatedTours = Tour::with(['category', 'destination'])
             ->where('is_active', true)
             ->where('id', '!=', $tour->id)
@@ -68,7 +93,7 @@ class TourController extends Controller
             ->take(4)
             ->get();
 
-        return view('tours.show', compact('tour', 'relatedTours'));
+        return view('tours.show', compact('tour', 'relatedTours', 'reviews', 'reviewStats', 'totalReviews', 'sort', 'ratingFilter'));
     }
 
     public function packages(Tour $tour)

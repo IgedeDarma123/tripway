@@ -45,7 +45,12 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Kategori *</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="margin: 0;">Kategori *</label>
+                            <a href="{{ route('admin.categories.index') }}" target="_blank" style="font-size: 12px; color: var(--primary); text-decoration: none;">
+                                <i class="fas fa-plus"></i> Tambah Kategori
+                            </a>
+                        </div>
                         <select name="category_id" required>
                             <option value="">Pilih Kategori</option>
                             @foreach($categories as $cat)
@@ -54,7 +59,12 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Destinasi *</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="margin: 0;">Destinasi *</label>
+                            <a href="{{ route('admin.destinations.index') }}" target="_blank" style="font-size: 12px; color: var(--primary); text-decoration: none;">
+                                <i class="fas fa-plus"></i> Tambah Destinasi
+                            </a>
+                        </div>
                         <select name="destination_id" required>
                             <option value="">Pilih Destinasi</option>
                             @foreach($destinations as $dest)
@@ -166,24 +176,6 @@
                 <div class="form-group">
                     <label>Highlight (satu per baris)</label>
                     <textarea name="highlights" rows="4">{{ old('highlights', $tour->highlights) }}</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Jadwal Perjalanan (Itinerary)</label>
-                    <div style="background:#fffbeb; border:1px solid #fbbf24; color:#92400e; border-radius:8px; padding:12px 16px; font-size:13px;">
-                        <i class="fas fa-info-circle"></i> Itinerary dikelola per paket di halaman <a href="{{ route('admin.packages.index') }}" style="font-weight:700; color:#92400e; text-decoration:underline;">Kelola Paket</a>.
-                    </div>
-                    <input type="hidden" name="itinerary" value="{{ $tour->itinerary }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Termasuk (satu per baris)</label>
-                    <textarea name="inclusions" rows="4">{{ old('inclusions', $tour->inclusions) }}</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Tidak Termasuk (satu per baris)</label>
-                    <textarea name="exclusions" rows="4">{{ old('exclusions', $tour->exclusions) }}</textarea>
                 </div>
 
                 <div class="form-row">

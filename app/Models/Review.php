@@ -15,6 +15,7 @@ class Review extends Model
         'user_email',
         'rating',
         'comment',
+        'photos',
         'is_fake',
         'reviewed_at',
     ];
@@ -23,6 +24,7 @@ class Review extends Model
         'rating' => 'integer',
         'is_fake' => 'boolean',
         'reviewed_at' => 'datetime',
+        'photos' => 'array',
     ];
 
     public function tour()
