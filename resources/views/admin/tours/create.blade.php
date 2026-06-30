@@ -133,21 +133,6 @@
                     <textarea name="highlights" rows="4" placeholder="Rafting di sungai sepanjang 12 km&#10;Pemandangan hutan tropis">{{ old('highlights') }}</textarea>
                 </div>
 
-                <div class="form-group">
-                    <label>Itinerary (format: Waktu: Kegiatan)</label>
-                    <textarea name="itinerary" rows="4" placeholder="08:00: Penjemputan di hotel&#10;09:30: Briefing">{{ old('itinerary') }}</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Termasuk (satu per baris)</label>
-                    <textarea name="inclusions" rows="4" placeholder="Penjemputan dari hotel&#10;Peralatan rafting">{{ old('inclusions') }}</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Tidak Termasuk (satu per baris)</label>
-                    <textarea name="exclusions" rows="4" placeholder="Pengeluaran pribadi&#10;Tips">{{ old('exclusions') }}</textarea>
-                </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-check">
