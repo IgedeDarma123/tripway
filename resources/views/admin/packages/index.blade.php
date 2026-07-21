@@ -187,12 +187,7 @@
 
                             {{-- Itinerary --}}
                             <div class="form-group" style="margin-top:8px;">
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                    <label style="margin:0;"><i class="fas fa-route"></i> Jadwal Perjalanan (Itinerary)</label>
-                                    <button type="button" onclick="addItineraryRow('itin-{{ $pkg->id }}')" class="btn btn-sm btn-primary" style="font-size:12px;">
-                                        <i class="fas fa-plus"></i> Tambah Item
-                                    </button>
-                                </div>
+                                <label style="margin:0; margin-bottom:8px; display:block;"><i class="fas fa-route"></i> Jadwal Perjalanan (Itinerary)</label>
                                 <div id="itin-{{ $pkg->id }}" style="display:flex; flex-direction:column; gap:10px; padding:12px; background:#f8fafc; border:1px solid var(--border); border-radius:8px;">
                                     @php $pkgItems = $pkg->itinerary_items['items'] ?? []; @endphp
                                     @if(count($pkgItems) > 0)
@@ -226,6 +221,9 @@
                                         <p style="margin:0; color:#94a3b8; font-size:13px;">Belum ada itinerary. Klik "Tambah Item".</p>
                                     @endif
                                 </div>
+                                <button type="button" onclick="addItineraryRow('itin-{{ $pkg->id }}')" class="btn btn-sm btn-primary" style="font-size:12px; margin-top:8px; float:right;">
+                                    <i class="fas fa-plus"></i> Tambah Item
+                                </button>
                             </div>
 
                             <div style="display:flex; gap:8px; margin-top:8px;">
@@ -525,15 +523,13 @@
 
                         {{-- Itinerary --}}
                         <div class="form-group" style="margin-top:8px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                <label style="margin:0;"><i class="fas fa-route"></i> Jadwal Perjalanan (Itinerary)</label>
-                                <button type="button" onclick="addItineraryRow('itin-new-{{ $tour->id }}')" class="btn btn-sm btn-primary" style="font-size:12px;">
-                                    <i class="fas fa-plus"></i> Tambah Item
-                                </button>
-                            </div>
+                            <label style="margin:0; margin-bottom:8px; display:block;"><i class="fas fa-route"></i> Jadwal Perjalanan (Itinerary)</label>
                             <div id="itin-new-{{ $tour->id }}" style="display:flex; flex-direction:column; gap:10px; padding:12px; background:#f8fafc; border:1px solid var(--border); border-radius:8px;">
                                 <p style="margin:0; color:#94a3b8; font-size:13px;">Belum ada itinerary. Klik "Tambah Item".</p>
                             </div>
+                            <button type="button" onclick="addItineraryRow('itin-new-{{ $tour->id }}')" class="btn btn-sm btn-primary" style="font-size:12px; margin-top:8px; float:right;">
+                                <i class="fas fa-plus"></i> Tambah Item
+                            </button>
                         </div>
 
                         <div style="display:flex; gap:8px;">

@@ -1,5 +1,5 @@
-<div style="width:100%; background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.1); overflow:hidden; box-sizing:border-box;">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+<div style="width:100%; background:#f1f5f9; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.1); overflow:hidden; box-sizing:border-box;">
+    <div class="rounded-2xl shadow-xl border border-slate-200 overflow-hidden" style="background:#f1f5f9;">
 
         <!-- Header -->
         <div class="p-4 md:p-6 pb-3 md:pb-4 border-b border-slate-200 bg-gradient-to-br from-slate-50/80 to-slate-100/80">
@@ -73,9 +73,9 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Jenis paket <span class="text-[#1B3A4B]">*</span></label>
                         <div class="space-y-1.5" id="paket-list">
-                            @foreach($tour->activePackages as $package)
+                            @foreach($tour->activePackages as $index => $package)
                             <button type="button"
-                                class="pilihan-paket-btn w-full p-2.5 md:p-3 rounded-xl border-2 border-gray-200 hover:border-[#1B3A4B] hover:shadow-sm transition-all text-left"
+                                class="pilihan-paket-btn w-full p-2.5 md:p-3 rounded-xl border-2 border-gray-200 hover:border-[#1B3A4B] hover:shadow-sm transition-all text-left paket-item {{ $index > 0 ? 'paket-hidden' : '' }}"
                                 data-package-id="{{ $package->id }}"
                                 data-price="{{ $package->price }}"
                                 data-sharing-price="{{ $package->sharing_price > 0 ? $package->sharing_price : $package->price }}"
@@ -86,7 +86,7 @@
                                 <div class="flex justify-between items-start gap-2">
                                     <div class="min-w-0">
                                         <div class="font-bold text-xs mb-0.5">{{ $package->name }}</div>
-                                        <div class="text-sm font-black text-[#1B3A4B]">Rp{{ number_format($package->price, 0, ',', '.') }}</div>
+                                        <div class="text-xs font-bold text-[#1B3A4B]">Rp{{ number_format($package->price, 0, ',', '.') }}</div>
                                         <div class="text-xs text-gray-500 mt-0.5">Maks {{ $package->max_people }} orang</div>
                                         @if($package->description)
                                         <div class="text-xs text-gray-400 mt-0.5">{{ $package->description }}</div>
@@ -106,6 +106,11 @@
                                 </div>
                             </button>
                             @endforeach
+                            @if($tour->activePackages->count() > 1)
+                            <button type="button" id="btn-toggle-paket" onclick="toggleMorePaket()" style="width:100%; padding:6px; background:#e2e8f0; border:none; border-radius:8px; color:#475569; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">
+                                <span id="toggle-paket-text">Lihat semua ({{ $tour->activePackages->count() }})</span> <i class="fas fa-chevron-down" id="toggle-paket-icon" style="font-size:10px;"></i>
+                            </button>
+                            @endif
                         </div>
                     </div>
 
@@ -196,8 +201,10 @@
     let selectedPackage = null;
     let selectedTravelType = null;
     let selectedGroupId = null;
+    let groupQuantities = {};
     let sharingCount = 1;
     let selectedAddonIds = [];
+    let paketExpanded = false;
 
     const hiddenPackageId  = document.getElementById('selected_package_id');
     const hiddenTravelType = document.getElementById('selected_travel_type');
@@ -208,6 +215,25 @@
     const btnPesan         = document.getElementById('btn-pesan');
 
     function fmt(n) { return 'Rp' + parseInt(n).toLocaleString('id-ID'); }
+
+    window.toggleMorePaket = function() {
+        paketExpanded = !paketExpanded;
+        const items = document.querySelectorAll('.paket-item');
+        items.forEach((item, i) => {
+            if (i === 0) return;
+            item.classList.toggle('paket-hidden', !paketExpanded);
+        });
+        const text = document.getElementById('toggle-paket-text');
+        const icon = document.getElementById('toggle-paket-icon');
+        const total = items.length;
+        if (paketExpanded) {
+            text.textContent = 'Tutup';
+            icon.className = 'fas fa-chevron-up';
+        } else {
+            text.textContent = 'Lihat semua (' + total + ')';
+            icon.className = 'fas fa-chevron-down';
+        }
+    };
 
     function recalc() {
         if (!selectedPackage || !selectedTravelType) {
@@ -221,17 +247,22 @@
         let breakdown = [];
 
         if (selectedTravelType === 'private') {
-            if (!selectedGroupId) {
+            const activeGroups = Object.entries(groupQuantities).filter(([, q]) => q > 0);
+            if (activeGroups.length === 0) {
                 totalDisplay.textContent = 'Rp0';
                 document.getElementById('price-breakdown').innerHTML = '';
                 updateBtn();
                 return;
             }
-            const group = selectedPackage.groups.find(g => g.id == selectedGroupId);
-            if (group) {
-                total = group.price;
-                breakdown.push(`<div class="flex justify-between"><span>${group.label} (${fmt(Math.round(group.price / group.group_size))}/org)</span><span class="font-semibold">${fmt(group.price)}</span></div>`);
-            }
+            activeGroups.forEach(([gid, qty]) => {
+                const group = selectedPackage.groups.find(g => g.id == gid);
+                if (group) {
+                    const lineTotal = group.price * qty;
+                    total += lineTotal;
+                    const suffix = qty > 1 ? ` &times; ${qty}` : '';
+                    breakdown.push(`<div class="flex justify-between"><span>${group.label} (${fmt(Math.round(group.price / group.group_size))}/org)${suffix}</span><span class="font-semibold">${fmt(lineTotal)}</span></div>`);
+                }
+            });
         } else {
             const pricePerPerson = selectedPackage.sharingPrice;
             total = pricePerPerson * sharingCount;
@@ -279,6 +310,7 @@
 
             selectedTravelType = null;
             selectedGroupId = null;
+            groupQuantities = {};
             sharingCount = 1;
             document.getElementById('sharing-count').textContent = 1;
             hiddenTravelType.value = '';
@@ -336,29 +368,68 @@
             return;
         }
         selectedPackage.groups.forEach(g => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'group-btn w-full p-2.5 rounded-xl border-2 border-gray-200 hover:border-[#1B3A4B] hover:shadow-sm transition-all text-left';
-            btn.dataset.groupId = g.id;
-            btn.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-xs">${g.label}</div>
-                        <div class="text-xs text-gray-400">${g.group_size} orang</div>
-                    </div>
-                    <div class="text-sm font-black text-[#1B3A4B]">${fmt(Math.round(g.price / g.group_size))}/orang</div>
+            groupQuantities[g.id] = groupQuantities[g.id] || 0;
+            const row = document.createElement('div');
+            row.className = 'group-counter-row flex items-center justify-between p-2.5 rounded-xl border shadow-sm';
+            row.dataset.groupId = g.id;
+            row.innerHTML = `
+                <div class="min-w-0">
+                    <div class="font-bold text-xs">${g.label}</div>
+                    <div class="text-xs text-gray-400">${g.group_size} orang &middot; ${fmt(g.price)}</div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" class="group-minus w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded-lg flex items-center justify-center font-bold transition-all text-gray-600 text-sm" data-group-id="${g.id}">-</button>
+                    <span class="group-qty text-sm font-bold w-6 text-center text-gray-900" data-group-id="${g.id}">${groupQuantities[g.id]}</span>
+                    <button type="button" class="group-plus w-7 h-7 bg-[#1B3A4B] hover:bg-[#14505F] text-white rounded-lg flex items-center justify-center font-bold shadow-sm transition-all text-sm" data-group-id="${g.id}">+</button>
                 </div>`;
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.group-btn').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedGroupId = this.dataset.groupId;
-                hiddenGroupId.value = selectedGroupId;
-                const grp = selectedPackage.groups.find(x => x.id == selectedGroupId);
-                hiddenNumPersons.value = grp ? grp.group_size : 1;
+            row.querySelector('.group-minus').addEventListener('click', function () {
+                const gid = this.dataset.groupId;
+                groupQuantities[gid] = 0;
+                updateGroupCounters();
+                syncGroupSelection();
                 recalc();
             });
-            list.appendChild(btn);
+            row.querySelector('.group-plus').addEventListener('click', function () {
+                const gid = this.dataset.groupId;
+                const grp = selectedPackage.groups.find(x => x.id == gid);
+                groupQuantities[gid] = grp ? grp.group_size : 1;
+                updateGroupCounters();
+                syncGroupSelection();
+                recalc();
+            });
+            list.appendChild(row);
         });
+        updateGroupCounters();
+    }
+
+    function updateGroupCounters() {
+        document.querySelectorAll('.group-counter-row').forEach(row => {
+            const gid = row.dataset.groupId;
+            const qty = groupQuantities[gid] || 0;
+            row.querySelector('.group-qty').textContent = qty;
+            const minusBtn = row.querySelector('.group-minus');
+            minusBtn.disabled = qty <= 0;
+            minusBtn.classList.toggle('opacity-40', qty <= 0);
+            minusBtn.classList.toggle('cursor-not-allowed', qty <= 0);
+            row.classList.toggle('group-row-active', qty > 0);
+        });
+    }
+
+    function syncGroupSelection() {
+        const activeGroups = Object.entries(groupQuantities).filter(([, q]) => q > 0);
+        if (activeGroups.length > 0) {
+            selectedGroupId = activeGroups[0][0];
+            hiddenGroupId.value = selectedGroupId;
+            const totalQty = activeGroups.reduce((sum, [gid, q]) => {
+                const grp = selectedPackage.groups.find(x => x.id == gid);
+                return sum + (grp ? grp.group_size * q : 0);
+            }, 0);
+            hiddenNumPersons.value = totalQty;
+        } else {
+            selectedGroupId = null;
+            hiddenGroupId.value = '';
+            hiddenNumPersons.value = 1;
+        }
     }
 
     function renderAddons() {
@@ -421,7 +492,7 @@
         if (!document.getElementById('travel_date').value) errors.push('Tanggal partisipasi wajib diisi.');
         if (!selectedPackage) errors.push('Pilih jenis paket terlebih dahulu.');
         if (!selectedTravelType) errors.push('Pilih tipe perjalanan (Private/Sharing).');
-        if (selectedTravelType === 'private' && !selectedGroupId) errors.push('Pilih pilihan grup terlebih dahulu.');
+        if (selectedTravelType === 'private' && Object.values(groupQuantities).every(q => q <= 0)) errors.push('Pilih pilihan grup terlebih dahulu.');
         if (!document.querySelector('[name=contact_name]').value) errors.push('Nama lengkap wajib diisi.');
         if (!document.querySelector('[name=contact_email]').value) errors.push('Email wajib diisi.');
         if (!document.querySelector('[name=contact_phone]').value) errors.push('Nomor HP wajib diisi.');
@@ -445,6 +516,9 @@
 </script>
 
 <style>
+.paket-hidden {
+    display: none !important;
+}
 .pilihan-paket-btn.selected {
     border-color: #1B3A4B !important;
     background: linear-gradient(135deg, #1B3A4B 0%, #14505F 100%) !important;
@@ -459,8 +533,15 @@
     background: linear-gradient(135deg, #1B3A4B 0%, #14505F 100%) !important;
     color: white !important;
 }
-.group-btn.selected {
+.group-counter-row {
+    border-color: #e5e7eb !important;
+    background: white !important;
+}
+.group-counter-row.group-row-active {
     border-color: #1B3A4B !important;
     background: #f0f9ff !important;
+}
+.group-counter-row.group-row-active .font-bold.text-xs {
+    color: #1B3A4B !important;
 }
 </style>

@@ -4,17 +4,6 @@
 
 @section('styles')
 <style>
-    .tour-detail {
-        @apply grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-8 lg:gap-8 py-8 max-w-6xl mx-auto px-6;
-        align-items: start;
-    }
-    .tour-detail > div:nth-child(2) {
-        @apply sticky top-20 self-start max-h-[calc(100vh-5rem)] overflow-visible z-10 min-w-[440px];
-    }
-    @media (max-width: 1023px) {
-        .tour-detail { grid-template-columns: 1fr; }
-    }
-
     .tour-gallery {
         border-radius: var(--radius);
         overflow: hidden;
@@ -83,7 +72,6 @@
         top: 140px;
     }
 
-    /* Panel itinerary (render via JS) */
     #detail-itinerary-items .it-item { 
         display: flex; 
         gap: 16px; 
@@ -100,7 +88,6 @@
         border-top: 1px solid var(--border);
     }
     .related-tours h2 { font-size: 22px; font-weight: 700; margin-bottom: 24px; }
-    .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 
     .tour-card {
         background: white;
@@ -152,18 +139,17 @@
     .tour-price { font-size: 18px; font-weight: 700; color: var(--text-dark); }
 
     @media (max-width: 1024px) {
-        .related-grid { grid-template-columns: repeat(2, 1fr); }
         .booking-card { position: static; }
-    }
-    @media (max-width: 1023px) {
-        .tour-layout-grid { grid-template-columns: 1fr !important; }
     }
     @media (max-width: 768px) {
         html, body { overflow-x: hidden; }
-        .related-grid { grid-template-columns: 1fr; }
-        .tour-gallery { height: 260px !important; }
-        .tour-gallery-carousel { height: 260px !important; }
+        .tour-gallery-grid { height: 300px !important; grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
+        .gallery-main { grid-row: auto !important; }
+        .gallery-side { display: none; }
         .tour-page { padding-left: 16px !important; padding-right: 16px !important; }
+        .tour-header h1 { font-size: 22px !important; }
+        .review-layout { flex-direction: column !important; gap: 24px !important; }
+        .review-summary { width: 100% !important; }
     }
 </style>
 @endsection
@@ -171,244 +157,332 @@
 @section('content')
 <div class="tour-page" style="max-width:1400px; margin:0 auto; padding:32px 48px; box-sizing:border-box; width:100%;">
 
-    {{-- Layout: 2 kolom atas (kiri: info, kanan: booking+rincian) --}}
-    <div class="tour-layout-grid" style="display:grid; grid-template-columns:420px 1fr; gap:32px; align-items:start; width:100%; box-sizing:border-box;">
+    {{-- Gallery: 5-panel layout (1 big left + 2x2 grid right) --}}
+    @php
+        $mediaList = [];
+        if($tour->image) {
+            $mediaList[] = ['type' => 'image', 'url' => $tour->image];
+        }
+        if(!empty($tour->gallery) && is_array($tour->gallery)) {
+            foreach($tour->gallery as $g) {
+                if(count($mediaList) >= 5) break;
+                $isVideo = preg_match('/\.(mp4|mov|webm)$/i', $g);
+                $mediaList[] = ['type' => $isVideo ? 'video' : 'image', 'url' => $g];
+            }
+        }
+        if(count($mediaList) == 0) {
+            $mediaList[] = ['type' => 'image', 'url' => 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200'];
+        }
+        $mainMedia = $mediaList[0];
+        $sideMedia1 = $mediaList[1] ?? null;
+        $sideMedia2 = $mediaList[2] ?? null;
+        $sideMedia3 = $mediaList[3] ?? null;
+        $sideMedia4 = $mediaList[4] ?? null;
+    @endphp
 
-        {{-- Kolom Kiri: Info Tour --}}
-        <div style="min-width:0;">
-                <div class="tour-gallery-carousel" style="position:relative; border-radius:var(--radius); overflow:hidden; height:420px; background:#1B3A4B; margin-bottom: 24px; box-shadow: var(--shadow-md);">
-                    @php
-                        $mediaList = [];
-                        if($tour->image) {
-                            $mediaList[] = ['type' => 'image', 'url' => $tour->image];
-                        }
-                        if(!empty($tour->gallery) && is_array($tour->gallery)) {
-                            foreach($tour->gallery as $g) {
-                                $isVideo = preg_match('/\.(mp4|mov|webm)$/i', $g);
-                                $mediaList[] = ['type' => $isVideo ? 'video' : 'image', 'url' => $g];
-                            }
-                        }
-                        if(count($mediaList) == 0) {
-                            $mediaList[] = ['type' => 'image', 'url' => 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200'];
-                        }
-                    @endphp
+    <div class="tour-gallery-grid" style="display:grid; grid-template-columns:2.8fr 1.2fr 1.2fr; grid-template-rows:1fr 1fr; gap:6px; height:350px; border-radius:16px; overflow:hidden; margin-bottom:40px; box-shadow:var(--shadow-md); max-width:1024px; margin-left:auto; margin-right:auto;">
+        {{-- Main Image --}}
+        <div class="gallery-main" style="grid-column:1; grid-row:1/3; position:relative; background:#1B3A4B; overflow:hidden;">
+            @if($mainMedia['type'] == 'video')
+                <video src="{{ $mainMedia['url'] }}" controls style="width:100%; height:100%; object-fit:contain; background:#000;"></video>
+            @else
+                <img src="{{ $mainMedia['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="openGalleryModal(0)">
+            @endif
+            <div style="position:absolute; bottom:12px; left:12px; background:rgba(0,0,0,0.5); color:white; font-size:12px; font-weight:600; padding:4px 10px; border-radius:8px; backdrop-filter:blur(4px);">
+                <i class="fas fa-camera" style="margin-right:4px;"></i> {{ count($mediaList) }} foto
+            </div>
+        </div>
 
-                    @foreach($mediaList as $index => $media)
-                        <div class="carousel-slide" data-index="{{ $index }}" style="display: {{ $index == 0 ? 'block' : 'none' }}; width:100%; height:100%; transition: opacity 0.3s ease;">
-                            @if($media['type'] == 'video')
-                                <video src="{{ $media['url'] }}" controls style="width:100%; height:100%; object-fit:contain; background:#000;"></video>
-                            @else
-                                <img src="{{ $media['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover;">
-                            @endif
-                        </div>
-                    @endforeach
-
-                    @if(count($mediaList) > 1)
-                        <button onclick="prevSlide()" style="position:absolute; top:50%; left:16px; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10; backdrop-filter:blur(4px); transition: background 0.2s;">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button onclick="nextSlide()" style="position:absolute; top:50%; right:16px; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:white; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10; backdrop-filter:blur(4px); transition: background 0.2s;">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                        <div style="position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:10; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:20px; backdrop-filter:blur(4px);">
-                            @foreach($mediaList as $index => $media)
-                                <div class="carousel-dot" onclick="goToSlide({{ $index }})" data-index="{{ $index }}" style="width:8px; height:8px; border-radius:50%; background:{{ $index == 0 ? '#fff' : 'rgba(255,255,255,0.4)' }}; cursor:pointer; transition:all 0.3s ease; transform: {{ $index == 0 ? 'scale(1.2)' : 'scale(1)' }};"></div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-
-                <script>
-                    let currentSlide = 0;
-                    const slides = document.querySelectorAll('.carousel-slide');
-                    const dots = document.querySelectorAll('.carousel-dot');
-
-                    function showSlide(index) {
-                        if(slides.length === 0) return;
-                        
-                        slides.forEach(slide => {
-                            const video = slide.querySelector('video');
-                            if(video) video.pause();
-                        });
-
-                        if(index >= slides.length) currentSlide = 0;
-                        else if(index < 0) currentSlide = slides.length - 1;
-                        else currentSlide = index;
-
-                        slides.forEach((slide, i) => {
-                            slide.style.display = i === currentSlide ? 'block' : 'none';
-                        });
-                        dots.forEach((dot, i) => {
-                            dot.style.background = i === currentSlide ? '#fff' : 'rgba(255,255,255,0.4)';
-                            dot.style.transform = i === currentSlide ? 'scale(1.2)' : 'scale(1)';
-                        });
-                    }
-
-                    function nextSlide() { showSlide(currentSlide + 1); }
-                    function prevSlide() { showSlide(currentSlide - 1); }
-                    function goToSlide(index) { showSlide(index); }
-                </script>
-
-                 <div class="tour-header">
-                     <div class="category">{{ $tour->category->name }} &middot; {{ $tour->destination->name }}</div>
-                     <h1 style="font-size:28px; font-weight:700; margin-bottom:12px; line-height:1.3;">{{ $tour->title }}</h1>
-                     @if($tour->price)
-                     <div class="tour-price" style="font-size:18px; font-weight:700; color:#1B3A4B; margin:8px 0;">
-                         Harga Tour: Rp {{ number_format($tour->price, 0, ',', '.') }}
-                         @if($tour->original_price && $tour->original_price > $tour->price)
-                             <span style="font-size:14px; color:#9ca3af; text-decoration:line-through; margin-left:8px; font-weight:400;">Rp {{ number_format($tour->original_price, 0, ',', '.') }}</span>
-                         @endif
-                     </div>
-                     @endif
-                     <div class="meta">
-                         <span><i class="far fa-clock"></i> {{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</span>
-                         <span><i class="fas fa-users"></i> Max {{ $tour->max_people }} orang</span>
-                         <span><i class="fas fa-map-marker-alt"></i> {{ $tour->destination->name }}</span>
-                     </div>
-                 </div>
-
-                @if($tour->rating > 0)
-                <div class="tour-rating-big">
-                    <span class="stars">
-                        @for($i = 1; $i <= 5; $i++)
-                            <i class="fas fa-star" style="{{ $i > round($tour->rating) ? 'opacity:0.3' : '' }}"></i>
-                        @endfor
-                    </span>
-                    <span class="score">{{ $tour->rating }}</span>
-                    <span class="reviews">({{ $tour->review_count }} ulasan)</span>
-                </div>
+        {{-- Side Image 1 (top-left) --}}
+        <div class="gallery-side" style="grid-column:2; grid-row:1; background:#1B3A4B; overflow:hidden; position:relative;">
+            @if($sideMedia1)
+                @if($sideMedia1['type'] == 'video')
+                    <video src="{{ $sideMedia1['url'] }}" controls style="width:100%; height:100%; object-fit:cover;"></video>
+                @else
+                    <img src="{{ $sideMedia1['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="openGalleryModal(1)">
                 @endif
-
-                <div class="info-section">
-                    <h2>Tentang Aktivitas Ini</h2>
-                    <p>{{ $tour->description }}</p>
+            @else
+                <div style="width:100%; height:100%; background:linear-gradient(135deg,#1B3A4B,#14505F); display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-image" style="color:rgba(255,255,255,0.2); font-size:32px;"></i>
                 </div>
+            @endif
+        </div>
 
-                @if($tour->highlights)
-                <div class="info-section">
-                    <h2>Highlight</h2>
-                    <ul class="highlights-list">
-                        @foreach(explode("\n", $tour->highlights) as $highlight)
-                            @if(trim($highlight))
-                            <li><i class="fas fa-check-circle"></i> {{ trim($highlight) }}</li>
-                            @endif
-                        @endforeach
-                    </ul>
+        {{-- Side Image 2 (top-right) --}}
+        <div class="gallery-side" style="grid-column:3; grid-row:1; background:#1B3A4B; overflow:hidden; position:relative;">
+            @if($sideMedia2)
+                @if($sideMedia2['type'] == 'video')
+                    <video src="{{ $sideMedia2['url'] }}" controls style="width:100%; height:100%; object-fit:cover;"></video>
+                @else
+                    <img src="{{ $sideMedia2['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="openGalleryModal(2)">
+                @endif
+            @else
+                <div style="width:100%; height:100%; background:linear-gradient(135deg,#1B3A4B,#14505F); display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-image" style="color:rgba(255,255,255,0.2); font-size:32px;"></i>
+                </div>
+            @endif
+        </div>
+
+        {{-- Side Image 3 (bottom-left) --}}
+        <div class="gallery-side" style="grid-column:2; grid-row:2; background:#1B3A4B; overflow:hidden; position:relative;">
+            @if($sideMedia3)
+                @if($sideMedia3['type'] == 'video')
+                    <video src="{{ $sideMedia3['url'] }}" controls style="width:100%; height:100%; object-fit:cover;"></video>
+                @else
+                    <img src="{{ $sideMedia3['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="openGalleryModal(3)">
+                @endif
+            @else
+                <div style="width:100%; height:100%; background:linear-gradient(135deg,#1B3A4B,#14505F); display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-image" style="color:rgba(255,255,255,0.2); font-size:32px;"></i>
+                </div>
+            @endif
+        </div>
+
+        {{-- Side Image 4 (bottom-right) --}}
+        <div class="gallery-side" style="grid-column:3; grid-row:2; background:#1B3A4B; overflow:hidden; position:relative;">
+            @if($sideMedia4)
+                @if($sideMedia4['type'] == 'video')
+                    <video src="{{ $sideMedia4['url'] }}" controls style="width:100%; height:100%; object-fit:cover;"></video>
+                @else
+                    <img src="{{ $sideMedia4['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="openGalleryModal(4)">
+                @endif
+            @else
+                <div style="width:100%; height:100%; background:linear-gradient(135deg,#1B3A4B,#14505F); display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-image" style="color:rgba(255,255,255,0.2); font-size:32px;"></i>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Gallery Lightbox Modal --}}
+    <div id="gallery-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.9); backdrop-filter:blur(8px);" onclick="closeGalleryModal(event)">
+        <button onclick="closeGalleryModal(event)" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.15); color:white; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; font-size:18px; z-index:10; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+            <i class="fas fa-times"></i>
+        </button>
+        <button onclick="prevGallerySlide(event)" style="position:absolute; top:50%; left:16px; transform:translateY(-50%); background:rgba(255,255,255,0.15); color:white; border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:16px; z-index:10; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button onclick="nextGallerySlide(event)" style="position:absolute; top:50%; right:16px; transform:translateY(-50%); background:rgba(255,255,255,0.15); color:white; border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:16px; z-index:10; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <div id="gallery-modal-content" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:60px 60px 80px;">
+        </div>
+        <div id="gallery-modal-dots" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:10;">
+        </div>
+    </div>
+
+    <script>
+        const allMedia = @json($mediaList);
+        let galleryIndex = 0;
+
+        function openGalleryModal(index) {
+            galleryIndex = index;
+            const modal = document.getElementById('gallery-modal');
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            renderGalleryModal();
+        }
+
+        function closeGalleryModal(e) {
+            if (e) e.stopPropagation();
+            const modal = document.getElementById('gallery-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function prevGallerySlide(e) {
+            if (e) e.stopPropagation();
+            galleryIndex = (galleryIndex - 1 + allMedia.length) % allMedia.length;
+            renderGalleryModal();
+        }
+
+        function nextGallerySlide(e) {
+            if (e) e.stopPropagation();
+            galleryIndex = (galleryIndex + 1) % allMedia.length;
+            renderGalleryModal();
+        }
+
+        function renderGalleryModal() {
+            const content = document.getElementById('gallery-modal-content');
+            const dotsContainer = document.getElementById('gallery-modal-dots');
+            const media = allMedia[galleryIndex];
+
+            if (media.type === 'video') {
+                content.innerHTML = '<video src="' + media.url + '" controls style="max-width:90%; max-height:85vh; object-fit:contain; border-radius:8px;"></video>';
+            } else {
+                content.innerHTML = '<img src="' + media.url + '" alt="Gallery" style="max-width:90%; max-height:85vh; object-fit:contain; border-radius:8px;">';
+            }
+
+            let dotsHtml = '';
+            allMedia.forEach((m, i) => {
+                dotsHtml += '<div onclick="galleryIndex=' + i + '; renderGalleryModal();" style="width:8px; height:8px; border-radius:50%; cursor:pointer; transition:all 0.2s; background:' + (i === galleryIndex ? '#fff' : 'rgba(255,255,255,0.4)') + '; transform:' + (i === galleryIndex ? 'scale(1.3)' : 'scale(1)') + ';"></div>';
+            });
+            dotsContainer.innerHTML = dotsHtml;
+        }
+    </script>
+
+    {{-- Tour Info --}}
+    <div style="max-width:1024px; margin:0 auto 48px;">
+        <div class="tour-header">
+            <div class="category">{{ $tour->category->name }} &middot; {{ $tour->destination->name }}</div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:12px;">
+                <h1 style="font-size:28px; font-weight:700; line-height:1.3; margin:0; flex:1; min-width:0;">{{ $tour->title }}</h1>
+                @if($tour->price)
+                <div style="text-align:right; flex-shrink:0;">
+                    <div style="display:flex; align-items:baseline; gap:6px; justify-content:flex-end;">
+                        <span style="font-size:11px; color:#94a3b8; font-weight:400;">Mulai dari</span>
+                        <span style="font-size:20px; font-weight:900; color:#1B3A4B; line-height:1.2;">Rp{{ number_format($tour->price, 0, ',', '.') }}</span>
+                    </div>
+                    <div style="font-size:11px; color:#64748b; margin-bottom:6px;">per orang</div>
+                    @if($tour->original_price && $tour->original_price > $tour->price)
+                        <div style="font-size:13px; color:#9ca3af; text-decoration:line-through; font-weight:400;">Rp{{ number_format($tour->original_price, 0, ',', '.') }}</div>
+                    @endif
+                    <div onclick="document.querySelector('.tour-booking-anchor')?.scrollIntoView({behavior:'smooth',block:'center'})" style="display:inline-block; margin-top:6px; padding:6px 14px; background:#1B3A4B; color:white; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#14505F'" onmouseout="this.style.background='#1B3A4B'">
+                        Pilih Paket <i class="fas fa-arrow-down" style="margin-left:4px; font-size:10px;"></i>
+                    </div>
                 </div>
                 @endif
             </div>
+            <div class="meta">
+                <span><i class="far fa-clock"></i> {{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</span>
+                <span><i class="fas fa-users"></i> Max {{ $tour->max_people }} orang</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{ $tour->destination->name }}</span>
+            </div>
+        </div>
 
-        {{-- Kolom Kanan: Booking + Rincian Paket --}}
-        <div style="min-width:0;">
-            <div style="display:flex; gap:20px; align-items:stretch; width:100%;">
-                <!-- Panel Booking -->
-                <div style="flex:1; min-width:0; overflow:hidden;">
-                    @include('tours.booking-pilihan-paket-green')
-                </div>
+        @if($tour->rating > 0)
+        <div class="tour-rating-big">
+            <span class="stars">
+                @for($i = 1; $i <= 5; $i++)
+                    <i class="fas fa-star" style="{{ $i > round($tour->rating) ? 'opacity:0.3' : '' }}"></i>
+                @endfor
+            </span>
+            <span class="score">{{ $tour->rating }}</span>
+            <span class="reviews">({{ $tour->review_count }} ulasan)</span>
+        </div>
+        @endif
 
-                <!-- Panel Detail Paket -->
-                <div id="panel-detail-paket" style="flex:1; min-width:0; overflow:hidden; display:none; align-self:stretch;">
-                    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden" style="height:100%;">
-                        <div class="p-5 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-slate-100">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Rincian Paket</p>
-                                    <h3 id="detail-nama" class="text-lg font-black text-[#1B3A4B]"></h3>
-                                </div>
-                                <button onclick="document.getElementById('panel-detail-paket').style.display='none'" class="text-gray-400 hover:text-gray-600 text-lg">
-                                    <i class="fas fa-times"></i>
-                                </button>
+        <div class="info-section">
+            <h2>Tentang Aktivitas Ini</h2>
+            <p>{{ $tour->description }}</p>
+        </div>
+
+        @if($tour->highlights)
+        <div class="info-section">
+            <h2>Highlight</h2>
+            <ul class="highlights-list">
+                @foreach(explode("\n", $tour->highlights) as $highlight)
+                    @if(trim($highlight))
+                    <li><i class="fas fa-check-circle"></i> {{ trim($highlight) }}</li>
+                    @endif
+                @endforeach
+            </ul>
+        </div>
+        @endif
+    </div>
+
+    {{-- Booking Panel: 2 kolom (booking + rincian) --}}
+    <div class="tour-booking-anchor" style="max-width:1024px; margin:0 auto 48px;">
+        <div style="display:flex; gap:20px; align-items:start;">
+            <!-- Panel Booking -->
+            <div style="flex:1; min-width:0; overflow:hidden;">
+                @include('tours.booking-pilihan-paket-green')
+            </div>
+
+            <!-- Panel Detail Paket -->
+            <div id="panel-detail-paket" style="flex:1; min-width:0; overflow:hidden; display:none;">
+                <div class="rounded-2xl shadow-xl border border-slate-200 overflow-hidden" style="background:#f1f5f9;">
+                    <div class="p-5 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-slate-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Rincian Paket</p>
+                                <h3 id="detail-nama" class="text-lg font-black text-[#1B3A4B]"></h3>
                             </div>
-                            <div class="mt-3 flex items-end gap-2">
-                                <span id="detail-harga" class="text-2xl font-black text-[#1B3A4B]"></span>
-                                <span id="detail-harga-asli" class="text-sm text-gray-400 line-through"></span>
-                                <span id="detail-diskon" class="text-xs font-bold bg-[#1B3A4B] text-white px-2 py-0.5 rounded-full"></span>
+                            <button onclick="document.getElementById('panel-detail-paket').style.display='none'" class="text-gray-400 hover:text-gray-600 text-lg">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mt-3 flex items-end gap-2">
+                            <span id="detail-harga" class="text-sm font-bold text-[#1B3A4B]"></span>
+                            <span id="detail-harga-asli" class="text-sm text-gray-400 line-through"></span>
+                            <span id="detail-diskon" class="text-xs font-bold bg-[#1B3A4B] text-white px-2 py-0.5 rounded-full"></span>
+                        </div>
+                    </div>
+
+                    <div class="p-5 space-y-5 overflow-y-auto">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-slate-50 rounded-xl p-3 text-center">
+                                <i class="fas fa-users text-[#1B3A4B] mb-1"></i>
+                                <p class="text-xs text-gray-500">Maks Peserta</p>
+                                <p id="detail-max" class="font-bold text-sm text-gray-800"></p>
+                            </div>
+                            <div class="bg-slate-50 rounded-xl p-3 text-center">
+                                <i class="fas fa-clock text-[#1B3A4B] mb-1"></i>
+                                <p class="text-xs text-gray-500">Durasi</p>
+                                <p class="font-bold text-sm text-gray-800">{{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
                             </div>
                         </div>
 
-                        <div class="p-5 space-y-5 overflow-y-auto">
-                            <!-- Info Paket -->
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-slate-50 rounded-xl p-3 text-center">
-                                    <i class="fas fa-users text-[#1B3A4B] mb-1"></i>
-                                    <p class="text-xs text-gray-500">Maks Peserta</p>
-                                    <p id="detail-max" class="font-bold text-sm text-gray-800"></p>
-                                </div>
-                                <div class="bg-slate-50 rounded-xl p-3 text-center">
-                                    <i class="fas fa-clock text-[#1B3A4B] mb-1"></i>
-                                    <p class="text-xs text-gray-500">Durasi</p>
-                                    <p class="font-bold text-sm text-gray-800">{{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
-                                </div>
-                            </div>
+                        <div id="detail-desc-wrap">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Deskripsi</p>
+                            <p id="detail-desc" class="text-sm text-gray-600 leading-relaxed"></p>
+                        </div>
 
-                            <!-- Deskripsi Paket -->
-                            <div id="detail-desc-wrap">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Deskripsi</p>
-                                <p id="detail-desc" class="text-sm text-gray-600 leading-relaxed"></p>
-                            </div>
-
-                            <!-- Itinerary Paket (render via JS) - TAMPIL PERTAMA -->
-                            <div id="detail-itinerary-container">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Jadwal Perjalanan</p>
-                                <div class="relative">
-                                    <div class="absolute left-[14px] top-0 bottom-0 w-0.5 bg-slate-200"></div>
-                                    <div class="space-y-3">
-                                        <div class="space-y-3" id="detail-itinerary-items"></div>
-                                    </div>
+                        <div id="detail-itinerary-container">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Jadwal Perjalanan</p>
+                            <div class="relative">
+                                <div class="absolute left-[14px] top-0 bottom-0 w-0.5 bg-slate-200"></div>
+                                <div class="space-y-3">
+                                    <div class="space-y-3" id="detail-itinerary-items"></div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Termasuk (Tour Level) -->
-                            @if($tour->inclusions)
-                            <div id="tour-inclusions">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sudah Termasuk</p>
-                                <ul class="space-y-1.5">
-                                    @foreach(explode("\n", $tour->inclusions) as $item)
-                                        @if(trim($item))
-                                        <li class="flex items-start gap-2 text-sm text-gray-600">
-                                            <i class="fas fa-check-circle text-[#1B3A4B] mt-0.5 shrink-0"></i>
-                                            {{ trim($item) }}
-                                        </li>
-                                        @endif
-                                    @endforeach
-                                </ul>
-                            </div>
-                            @endif
+                        @if($tour->inclusions)
+                        <div id="tour-inclusions">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sudah Termasuk</p>
+                            <ul class="space-y-1.5">
+                                @foreach(explode("\n", $tour->inclusions) as $item)
+                                    @if(trim($item))
+                                    <li class="flex items-start gap-2 text-sm text-gray-600">
+                                        <i class="fas fa-check-circle text-[#1B3A4B] mt-0.5 shrink-0"></i>
+                                        {{ trim($item) }}
+                                    </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
 
-                            <!-- Termasuk (Package Level) -->
-                            <div id="package-included" style="display:none;">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sudah Termasuk (Paket)</p>
-                                <ul class="space-y-1.5" id="package-included-list"></ul>
-                            </div>
+                        <div id="package-included" style="display:none;">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sudah Termasuk (Paket)</p>
+                            <ul class="space-y-1.5" id="package-included-list"></ul>
+                        </div>
 
-                            <!-- Tidak Termasuk (Tour Level) -->
-                            @if($tour->exclusions)
-                            <div id="tour-exclusions">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tidak Termasuk</p>
-                                <ul class="space-y-1.5">
-                                    @foreach(explode("\n", $tour->exclusions) as $item)
-                                        @if(trim($item))
-                                        <li class="flex items-start gap-2 text-sm text-gray-600">
-                                            <i class="fas fa-times-circle text-red-400 mt-0.5 shrink-0"></i>
-                                            {{ trim($item) }}
-                                        </li>
-                                        @endif
-                                    @endforeach
-                                </ul>
-                            </div>
-                            @endif
+                        @if($tour->exclusions)
+                        <div id="tour-exclusions">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tidak Termasuk</p>
+                            <ul class="space-y-1.5">
+                                @foreach(explode("\n", $tour->exclusions) as $item)
+                                    @if(trim($item))
+                                    <li class="flex items-start gap-2 text-sm text-gray-600">
+                                        <i class="fas fa-times-circle text-red-400 mt-0.5 shrink-0"></i>
+                                        {{ trim($item) }}
+                                    </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
 
-                            <!-- Tidak Termasuk (Package Level) -->
-                            <div id="package-excluded" style="display:none;">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tidak Termasuk (Paket)</p>
-                                <ul class="space-y-1.5" id="package-excluded-list"></ul>
-                            </div>
+                        <div id="package-excluded" style="display:none;">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tidak Termasuk (Paket)</p>
+                            <ul class="space-y-1.5" id="package-excluded-list"></ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     {{-- Ulasan --}}
@@ -613,7 +687,6 @@ function renderItinerary(items) {
                 if (!uniq.has(key)) uniq.set(key, it);
             });
         }
-        items = uniq.size ? Array.from(uniq.values()) : items;
         items = uniq.size ? Array.from(uniq.values()) : items;
 
         // Hilangkan item “yang terlalu banyak” dengan cara batasi render.

@@ -135,17 +135,31 @@
 
                     @if(!empty($tour->gallery) && is_array($tour->gallery) && count($tour->gallery) > 0)
                         <hr style="margin: 16px 0; border-top: 1px solid var(--border);">
-                        <label style="font-size:13px; font-weight:600; color:var(--text-medium);">Galeri Saat Ini:</label>
-                        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
-                            @foreach($tour->gallery as $g)
+                        <label style="font-size:13px; font-weight:600; color:var(--text-medium);">Galeri Saat Ini: <span style="font-weight:400; color:var(--text-light);">(geser untuk mengubah urutan, foto pertama = foto utama)</span></label>
+                        <div id="gallery-sortable" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
+                            @foreach($tour->gallery as $gi => $g)
                                 @php $isVideo = preg_match('/\.(mp4|mov|webm)$/i', $g); @endphp
-                                @if($isVideo)
-                                    <video src="{{ $g }}" controls style="width:160px; height:90px; border:1px solid var(--border); border-radius:8px; object-fit:cover; background:#000;"></video>
-                                @else
-                                    <img src="{{ $g }}" alt="gallery" style="width:160px; height:90px; object-fit:cover; border:1px solid var(--border); border-radius:8px;">
-                                @endif
+                                <div class="gallery-sort-item" draggable="true" data-index="{{ $gi }}" data-url="{{ $g }}" style="position:relative; cursor:grab; border-radius:8px; overflow:hidden; border:2px solid {{ $gi === 0 ? '#1B3A4B' : '#e2e8f0' }}; background:#000; transition:border-color 0.2s, box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)'" onmouseout="this.style.boxShadow='none'">
+                                    @if($isVideo)
+                                        <video src="{{ $g }}" muted style="width:160px; height:90px; object-fit:cover; display:block;"></video>
+                                    @else
+                                        <img src="{{ $g }}" alt="gallery" style="width:160px; height:90px; object-fit:cover; display:block;">
+                                    @endif
+                                    @if($gi === 0)
+                                    <div style="position:absolute; top:4px; left:4px; background:#1B3A4B; color:white; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px;">UTAMA</div>
+                                    @endif
+                                    <div style="position:absolute; top:4px; right:4px; display:flex; gap:3px;">
+                                        <button type="button" onclick="galleryMove(-1, {{ $gi }})" title="Geser ke kiri" style="width:20px; height:20px; border-radius:4px; border:none; background:rgba(0,0,0,0.5); color:white; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(2px);">◀</button>
+                                        <button type="button" onclick="galleryMove(1, {{ $gi }})" title="Geser ke kanan" style="width:20px; height:20px; border-radius:4px; border:none; background:rgba(0,0,0,0.5); color:white; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(2px);">▶</button>
+                                        <button type="button" onclick="galleryRemove({{ $gi }})" title="Hapus" style="width:20px; height:20px; border-radius:4px; border:none; background:rgba(220,38,38,0.8); color:white; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(2px);">×</button>
+                                    </div>
+                                    @if($isVideo)
+                                    <div style="position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.5); color:white; font-size:9px; padding:2px 6px; border-radius:4px;">🎬 Video</div>
+                                    @endif
+                                </div>
                             @endforeach
                         </div>
+                        <div id="gallery-order-inputs"></div>
                     @endif
                 </div>
 
@@ -170,6 +184,104 @@
                         });
                     }
                 }
+                </script>
+
+                <script>
+                // Gallery reorder
+                let galleryOrder = @json($tour->gallery ?? []);
+
+                function renderGalleryOrder() {
+                    const container = document.getElementById('gallery-sortable');
+                    if (!container) return;
+                    const inputs = document.getElementById('gallery-order-inputs');
+                    inputs.innerHTML = '';
+                    galleryOrder.forEach((url, i) => {
+                        const inp = document.createElement('input');
+                        inp.type = 'hidden';
+                        inp.name = 'gallery[]';
+                        inp.value = url;
+                        inputs.appendChild(inp);
+                    });
+                    // Re-render items
+                    container.innerHTML = '';
+                    galleryOrder.forEach((url, i) => {
+                        const isVideo = /\.(mp4|mov|webm)$/i.test(url);
+                        const item = document.createElement('div');
+                        item.className = 'gallery-sort-item';
+                        item.draggable = true;
+                        item.dataset.index = i;
+                        item.dataset.url = url;
+                        item.style.cssText = 'position:relative; cursor:grab; border-radius:8px; overflow:hidden; border:2px solid ' + (i === 0 ? '#1B3A4B' : '#e2e8f0') + '; background:#000; transition:border-color 0.2s, box-shadow 0.2s;';
+                        item.innerHTML = (isVideo
+                            ? '<video src="' + url + '" muted style="width:160px; height:90px; object-fit:cover; display:block;"></video>'
+                            : '<img src="' + url + '" alt="gallery" style="width:160px; height:90px; object-fit:cover; display:block;">')
+                            + (i === 0 ? '<div style="position:absolute; top:4px; left:4px; background:#1B3A4B; color:white; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px;">UTAMA</div>' : '')
+                            + '<div style="position:absolute; top:4px; right:4px; display:flex; gap:3px;">'
+                            + '<button type="button" onclick="galleryMove(-1,' + i + ')" title="Geser ke kiri" style="width:20px; height:20px; border-radius:4px; border:none; background:rgba(0,0,0,0.5); color:white; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;">◀</button>'
+                            + '<button type="button" onclick="galleryMove(1,' + i + ')" title="Geser ke kanan" style="width:20px; height:20px; border-radius:4px; border:none; background:rgba(0,0,0,0.5); color:white; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;">▶</button>'
+                            + '<button type="button" onclick="galleryRemove(' + i + ')" title="Hapus" style="width:20px; height:20px; border-radius:4px; border:none; background:rgba(220,38,38,0.8); color:white; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>'
+                            + '</div>'
+                            + (isVideo ? '<div style="position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.5); color:white; font-size:9px; padding:2px 6px; border-radius:4px;">🎬 Video</div>' : '');
+                        container.appendChild(item);
+                    });
+                    // Re-attach drag events
+                    initGalleryDrag();
+                }
+
+                function galleryMove(dir, idx) {
+                    const newIdx = idx + dir;
+                    if (newIdx < 0 || newIdx >= galleryOrder.length) return;
+                    const temp = galleryOrder[idx];
+                    galleryOrder[idx] = galleryOrder[newIdx];
+                    galleryOrder[newIdx] = temp;
+                    renderGalleryOrder();
+                }
+
+                function galleryRemove(idx) {
+                    if (!confirm('Hapus foto/video ini dari galeri?')) return;
+                    galleryOrder.splice(idx, 1);
+                    renderGalleryOrder();
+                }
+
+                function initGalleryDrag() {
+                    const container = document.getElementById('gallery-sortable');
+                    if (!container) return;
+                    let dragIdx = null;
+                    container.querySelectorAll('.gallery-sort-item').forEach(item => {
+                        item.addEventListener('dragstart', function(e) {
+                            dragIdx = parseInt(this.dataset.index);
+                            this.style.opacity = '0.4';
+                            e.dataTransfer.effectAllowed = 'move';
+                        });
+                        item.addEventListener('dragend', function() {
+                            this.style.opacity = '1';
+                            container.querySelectorAll('.gallery-sort-item').forEach(i => i.style.border = '2px solid #e2e8f0');
+                            if (container.querySelector('.gallery-sort-item')) {
+                                container.querySelector('.gallery-sort-item').style.border = '2px solid #1B3A4B';
+                            }
+                        });
+                        item.addEventListener('dragover', function(e) {
+                            e.preventDefault();
+                            e.dataTransfer.dropEffect = 'move';
+                            this.style.border = '2px solid #1B3A4B';
+                            this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                        });
+                        item.addEventListener('dragleave', function() {
+                            this.style.border = '2px solid #e2e8f0';
+                            this.style.boxShadow = 'none';
+                        });
+                        item.addEventListener('drop', function(e) {
+                            e.preventDefault();
+                            const dropIdx = parseInt(this.dataset.index);
+                            if (dragIdx === null || dragIdx === dropIdx) return;
+                            const moved = galleryOrder.splice(dragIdx, 1)[0];
+                            galleryOrder.splice(dropIdx, 0, moved);
+                            renderGalleryOrder();
+                        });
+                    });
+                }
+
+                document.addEventListener('DOMContentLoaded', initGalleryDrag);
                 </script>
 
 
@@ -251,6 +363,20 @@
                         <div class="form-group">
                             <label>Urutan Tampil</label>
                             <input type="number" name="sort_order" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipe Perjalanan *</label>
+                            <select name="travel_type" required>
+                                <option value="private">Private</option>
+                                <option value="sharing">Sharing</option>
+                                <option value="both" selected>Private & Sharing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Harga Sharing (Rp)</label>
+                            <input type="number" name="sharing_price" min="0" placeholder="Kosong = ikuti harga paket">
                         </div>
                     </div>
                     <div class="form-group">
@@ -345,6 +471,20 @@
                                             <input type="checkbox" name="is_active" value="1" {{ $pkg->is_active ? 'checked' : '' }}> Aktif
                                         </label>
                                     </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Tipe Perjalanan</label>
+                                            <select name="travel_type" required>
+                                                <option value="private" {{ $pkg->travel_type === 'private' ? 'selected' : '' }}>Private</option>
+                                                <option value="sharing" {{ $pkg->travel_type === 'sharing' ? 'selected' : '' }}>Sharing</option>
+                                                <option value="both" {{ ($pkg->travel_type ?? 'both') === 'both' ? 'selected' : '' }}>Private & Sharing</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Harga Sharing (Rp)</label>
+                                            <input type="number" name="sharing_price" value="{{ $pkg->sharing_price }}" placeholder="Kosong = ikuti harga paket">
+                                        </div>
+                                    </div>
                                     <button type="submit" class="btn btn-primary" style="font-size:13px;"><i class="fas fa-save"></i> Update</button>
                                     <button type="button" onclick="toggleEditPaket({{ $pkg->id }})" class="btn btn-secondary" style="font-size:13px;">Batal</button>
                                 </form>
@@ -364,106 +504,6 @@
 function toggleEditPaket(id) {
     const el = document.getElementById('edit-paket-' + id);
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}
-
-    @php
-        $itemsData = $tour->itinerary_items ?? [];
-        $items = is_array($itemsData) && array_key_exists('items', $itemsData) ? $itemsData['items'] : $itemsData;
-        $itemCount = count($items);
-    @endphp
-    let itemCount = {{ $itemCount }};
-
-function addItineraryItem() {
-    const list = document.getElementById('itinerary-list');
-    const emptyMsg = document.getElementById('empty-msg');
-    if (emptyMsg) emptyMsg.remove();
-
-    const idx = itemCount++;
-    const num = list.querySelectorAll('.itinerary-item-row').length + 1;
-
-    const div = document.createElement('div');
-    div.className = 'itinerary-item-row';
-    div.style.cssText = 'background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; position:relative;';
-    div.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-            <div style="width:28px; height:28px; background:#1B3A4B; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">${num}</div>
-<select name="itinerary_time[]" style="flex:1; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px;">
-                @php
-                    $defaultTime = '06:00';
-                @endphp
-                @for($h=6;$h<=20;$h++)
-                    @foreach(['00','30'] as $m)
-                        @php $t = sprintf('%02d:%s', $h, $m); @endphp
-                        <option value="{{ $t }}" {{ $defaultTime === $t ? 'selected' : '' }}>{{ $t }}</option>
-                    @endforeach
-                @endfor
-            </select>
-            <button type="button" onclick="removeItem(this)" style="background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:14px;">×</button>
-        </div>
-        <textarea name="itinerary_desc[]" placeholder="Deskripsi kegiatan..."
-            style="width:100%; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; resize:vertical; min-height:60px; margin-bottom:12px;"></textarea>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
-            <div>
-                <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:6px;">What's Included</label>
-                <textarea name="itinerary_included[]" placeholder="Termasuk..." style="width:100%; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; resize:vertical; min-height:80px;"></textarea>
-            </div>
-            <div>
-                <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:6px;">What's Excluded</label>
-                <textarea name="itinerary_excluded[]" placeholder="Tidak termasuk..." style="width:100%; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; resize:vertical; min-height:80px;"></textarea>
-            </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <div style="flex:1;">
-                <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:6px;"><i class="fas fa-camera"></i> Foto Lokasi</label>
-                <input type="file" name="itinerary_photo[${idx}]" accept="image/*" onchange="previewPhoto(this)" style="font-size:12px; width:100%;">
-                <input type="hidden" name="itinerary_photo_existing[${idx}]" value="">
-            </div>
-            <div style="width:100px; height:70px; background:#f1f5f9; border:2px dashed #cbd5e1; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                <img class="photo-preview" style="display:none; width:100%; height:100%; object-fit:cover;">
-                <i class="fas fa-image" style="color:#94a3b8; font-size:22px;"></i>
-            </div>
-        </div>
-    `;
-    list.appendChild(div);
-    renumberItems();
-}
-
-function removeItem(btn) {
-    btn.closest('.itinerary-item-row').remove();
-    renumberItems();
-    const list = document.getElementById('itinerary-list');
-    if (list.querySelectorAll('.itinerary-item-row').length === 0) {
-        list.innerHTML = '<p id="empty-msg" style="text-align:center; color:#94a3b8; font-size:13px; padding:16px 0;">Belum ada item. Klik "Tambah Item" untuk mulai.</p>';
-    }
-}
-
-function renumberItems() {
-    document.querySelectorAll('.itinerary-item-row').forEach((row, i) => {
-        const badge = row.querySelector('div[style*="border-radius:50%"]');
-        if (badge) badge.textContent = i + 1;
-    });
-}
-
-function previewPhoto(input) {
-    const row = input.closest('.itinerary-item-row');
-    const preview = row.querySelector('.photo-preview');
-    const icon = row.querySelector('.fa-image');
-    if (input.files && input.files[0] && preview) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            if (icon) icon.style.display = 'none';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function clearPhoto(btn) {
-    const wrapper = btn.closest('div[style*="position:relative"]');
-    const hiddenInput = wrapper.closest('div[style*="display:flex"]').querySelector('input[type=hidden]');
-    if (hiddenInput) hiddenInput.value = '';
-    wrapper.innerHTML = '<div style="width:80px; height:60px; background:#f1f5f9; border:2px dashed #cbd5e1; border-radius:6px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-image" style="color:#94a3b8; font-size:20px;"></i></div>';
 }
 </script>
 @endsection

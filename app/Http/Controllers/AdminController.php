@@ -164,7 +164,7 @@ class AdminController extends Controller
         }
 
         // Handle gallery upload (foto/video)
-        $galleryUrls = $tour->gallery ?? [];
+        $galleryUrls = $request->input('gallery') ?? $tour->gallery ?? [];
         if (!is_array($galleryUrls)) {
             $galleryUrls = [];
         }
@@ -176,6 +176,11 @@ class AdminController extends Controller
             }
         }
         $validated['gallery'] = count($galleryUrls) ? $galleryUrls : null;
+
+        // Set main image from first gallery item when gallery order is submitted
+        if ($request->has('gallery') && count($galleryUrls) > 0) {
+            $validated['image'] = $galleryUrls[0];
+        }
 
 
         $validated['slug'] = $validated['slug'] ?? Str::slug($validated['title']);
@@ -253,7 +258,7 @@ class AdminController extends Controller
             'original_price'    => 'nullable|numeric|min:0',
             'max_people'        => 'required|integer|min:1',
             'description'       => 'nullable|string|max:500',
-            'sort_order'        => 'integer|min:0',
+            'sort_order'        => 'nullable|integer|min:0',
             'is_active'         => 'boolean',
             'travel_type'       => 'required|in:private,sharing,both',
             'sharing_price'     => 'nullable|numeric|min:0',
