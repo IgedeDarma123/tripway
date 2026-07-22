@@ -43,9 +43,11 @@ rsync -avz --delete \
 ssh -p "$PORT" "$SERVER" "cd $REMOTE_DIR && \
   composer install --no-dev --optimize-autoloader --no-interaction && \
   php artisan migrate --force && \
+  chmod -R 775 storage bootstrap/cache 2>/dev/null || true && \
   php artisan optimize:clear || true && \
+  php artisan package:discover --ansi || true && \
   php artisan view:cache || true && \
   php artisan config:cache || true && \
-  chmod -R 775 storage bootstrap/cache 2>/dev/null || true"
+  php artisan storage:link || true"
 
 echo "=== DEPLOY SUCCESS ==="

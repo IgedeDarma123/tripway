@@ -81,13 +81,17 @@ jobs:
             echo "=== Migrate ==="
             php artisan migrate --force
 
+            echo "=== Permissions ==="
+            chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+
             echo "=== Cache ==="
             php artisan optimize:clear || true
+            php artisan package:discover --ansi || true
             php artisan view:cache || true
             php artisan config:cache || true
 
-            echo "=== Permissions ==="
-            chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+            echo "=== Storage Link ==="
+            php artisan storage:link || true
 
             echo "=== DEPLOY SUCCESS ==="
 

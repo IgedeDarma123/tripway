@@ -245,7 +245,8 @@ class AdminController extends Controller
         }
 
         $tours = $query->get();
-        $toursByDestination = $tours->groupBy(fn($t) => $t->destination->name);
+        $toursByDestination = $tours->filter(fn($t) => $t->destination)
+            ->groupBy(fn($t) => $t->destination->name);
 
         return view('admin.packages.index', compact('toursByDestination', 'destinations'));
     }
