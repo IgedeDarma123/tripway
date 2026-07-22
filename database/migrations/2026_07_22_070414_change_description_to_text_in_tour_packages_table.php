@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,9 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tour_packages', function (Blueprint $table) {
-            $table->text('description')->nullable()->change();
-        });
+        DB::statement('ALTER TABLE tour_packages MODIFY COLUMN description TEXT NULL');
     }
 
     /**
@@ -21,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tour_packages', function (Blueprint $table) {
-            $table->string('description')->nullable()->change();
-        });
+        DB::statement('ALTER TABLE tour_packages MODIFY COLUMN description VARCHAR(255) NULL');
     }
 };
