@@ -82,7 +82,8 @@ jobs:
             php artisan migrate --force
 
             echo "=== Permissions ==="
-            chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+            mkdir -p storage bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
 
             echo "=== Cache ==="
             php artisan optimize:clear || true

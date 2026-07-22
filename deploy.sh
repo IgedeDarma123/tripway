@@ -43,7 +43,8 @@ rsync -avz --delete \
 ssh -p "$PORT" "$SERVER" "cd $REMOTE_DIR && \
   composer install --no-dev --optimize-autoloader --no-interaction && \
   php artisan migrate --force && \
-  chmod -R 775 storage bootstrap/cache 2>/dev/null || true && \
+  mkdir -p storage bootstrap/cache && \
+  chmod -R 775 storage bootstrap/cache && \
   php artisan optimize:clear || true && \
   php artisan package:discover --ansi || true && \
   php artisan view:cache || true && \
