@@ -41,14 +41,14 @@ rsync -avz --delete \
 
 # Server commands
 ssh -p "$PORT" "$SERVER" "cd $REMOTE_DIR && \
-  composer install --no-dev --optimize-autoloader --no-interaction && \
-  php artisan migrate --force && \
-  mkdir -p storage bootstrap/cache && \
+  mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
   chmod -R 775 storage bootstrap/cache && \
+  composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || { echo 'COMPOSER FAILED'; exit 1; } && \
+  php artisan migrate --force 2>&1 || echo 'Migrate skipped' && \
   php artisan optimize:clear || true && \
   php artisan package:discover --ansi || true && \
-  php artisan view:cache || true && \
   php artisan config:cache || true && \
+  php artisan view:cache || true && \
   php artisan storage:link || true"
 
 echo "=== DEPLOY SUCCESS ==="

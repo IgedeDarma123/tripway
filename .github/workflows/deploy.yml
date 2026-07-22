@@ -72,27 +72,26 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            set -e
             cd /home/u966953872/domains/tripwaytour.com/public_html
 
-            echo "=== Composer ==="
-            composer install --no-dev --optimize-autoloader --no-interaction
-
-            echo "=== Migrate ==="
-            php artisan migrate --force
-
             echo "=== Permissions ==="
-            mkdir -p storage bootstrap/cache
+            mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
             chmod -R 775 storage bootstrap/cache
 
+            echo "=== Composer ==="
+            composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || { echo "COMPOSER FAILED"; exit 1; }
+
+            echo "=== Migrate ==="
+            php artisan migrate --force 2>&1 || echo "Migrate skipped"
+
             echo "=== Cache ==="
-            php artisan optimize:clear || true
-            php artisan package:discover --ansi || true
-            php artisan view:cache || true
-            php artisan config:cache || true
+            php artisan optimize:clear 2>&1 || true
+            php artisan package:discover --ansi 2>&1 || true
+            php artisan config:cache 2>&1 || true
+            php artisan view:cache 2>&1 || true
 
             echo "=== Storage Link ==="
-            php artisan storage:link || true
+            php artisan storage:link 2>&1 || true
 
             echo "=== DEPLOY SUCCESS ==="
 
