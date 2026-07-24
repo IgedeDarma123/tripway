@@ -74,9 +74,9 @@
 
     #detail-itinerary-items .it-item { 
         display: flex; 
-        gap: 16px; 
-        margin-bottom: 12px;
-        padding-bottom: 12px;
+        gap: 10px; 
+        margin-bottom: 8px;
+        padding-bottom: 8px;
         border-bottom: 1px solid var(--border);
         align-items: flex-start;
     }
@@ -155,7 +155,7 @@
 @endsection
 
 @section('content')
-<div class="tour-page" style="max-width:1400px; margin:0 auto; padding:32px 48px; box-sizing:border-box; width:100%;">
+<div id="tour-top" class="tour-page" style="max-width:1400px; margin:0 auto; padding:32px 48px; box-sizing:border-box; width:100%;">
 
     {{-- Gallery: 5-panel layout (1 big left + 2x2 grid right) --}}
     @php
@@ -391,61 +391,61 @@
 
             <!-- Panel Detail Paket -->
             <div id="panel-detail-paket" style="flex:1; min-width:0; overflow:hidden; display:none;">
-                <div class="rounded-2xl shadow-xl border border-slate-200 overflow-hidden" style="background:#f1f5f9;">
-                    <div class="p-5 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-slate-100">
+                <div class="rounded-xl shadow-lg border border-slate-200 overflow-hidden" style="background:#f1f5f9;">
+                    <div class="px-4 py-3 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-slate-100">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Rincian Paket</p>
-                                <h3 id="detail-nama" class="text-lg font-black text-[#1B3A4B]"></h3>
+                                <p class="text-[10px] text-gray-500 uppercase tracking-wide font-semibold mb-0.5">Rincian Paket</p>
+                                <h3 id="detail-nama" class="text-sm font-black text-[#1B3A4B]"></h3>
                             </div>
-                            <button onclick="document.getElementById('panel-detail-paket').style.display='none'" class="text-gray-400 hover:text-gray-600 text-lg">
+                            <button onclick="closeDetailPaket()" class="text-gray-400 hover:text-gray-600 text-sm">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
-                        <div class="mt-3 flex items-end gap-2">
-                            <span id="detail-harga" class="text-sm font-bold text-[#1B3A4B]"></span>
-                            <span id="detail-harga-asli" class="text-sm text-gray-400 line-through"></span>
-                            <span id="detail-diskon" class="text-xs font-bold bg-[#1B3A4B] text-white px-2 py-0.5 rounded-full"></span>
+                        <div class="mt-2 flex items-end gap-2">
+                            <span id="detail-harga" class="text-xs font-bold text-[#1B3A4B]"></span>
+                            <span id="detail-harga-asli" class="text-xs text-gray-400 line-through"></span>
+                            <span id="detail-diskon" class="text-[10px] font-bold bg-[#1B3A4B] text-white px-1.5 py-0.5 rounded-full"></span>
                         </div>
                     </div>
 
-                    <div class="p-5 space-y-5 overflow-y-auto">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-slate-50 rounded-xl p-3 text-center">
-                                <i class="fas fa-users text-[#1B3A4B] mb-1"></i>
-                                <p class="text-xs text-gray-500">Maks Peserta</p>
-                                <p id="detail-max" class="font-bold text-sm text-gray-800"></p>
+                    <div class="px-4 py-3 space-y-3 overflow-y-auto">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-slate-50 rounded-lg p-2 text-center">
+                                <i class="fas fa-users text-[#1B3A4B] mb-0.5 text-xs"></i>
+                                <p class="text-[10px] text-gray-500">Maks Peserta</p>
+                                <p id="detail-max" class="font-bold text-xs text-gray-800"></p>
                             </div>
-                            <div class="bg-slate-50 rounded-xl p-3 text-center">
-                                <i class="fas fa-clock text-[#1B3A4B] mb-1"></i>
-                                <p class="text-xs text-gray-500">Durasi</p>
-                                <p class="font-bold text-sm text-gray-800">{{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
+                            <div class="bg-slate-50 rounded-lg p-2 text-center">
+                                <i class="fas fa-clock text-[#1B3A4B] mb-0.5 text-xs"></i>
+                                <p class="text-[10px] text-gray-500">Durasi</p>
+                                <p class="font-bold text-xs text-gray-800">{{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
                             </div>
                         </div>
 
                         <div id="detail-desc-wrap">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Deskripsi</p>
-                            <p id="detail-desc" class="text-sm text-gray-600 leading-relaxed"></p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Deskripsi</p>
+                            <p id="detail-desc" class="text-xs text-gray-600 leading-relaxed"></p>
                         </div>
 
                         <div id="detail-itinerary-container">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Jadwal Perjalanan</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Jadwal Perjalanan</p>
                             <div class="relative">
                                 <div class="absolute left-[14px] top-0 bottom-0 w-0.5 bg-slate-200"></div>
-                                <div class="space-y-3">
-                                    <div class="space-y-3" id="detail-itinerary-items"></div>
+                                <div class="space-y-2">
+                                    <div class="space-y-2" id="detail-itinerary-items"></div>
                                 </div>
                             </div>
                         </div>
 
                         @if($tour->inclusions)
                         <div id="tour-inclusions">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sudah Termasuk</p>
-                            <ul class="space-y-1.5">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Sudah Termasuk</p>
+                            <ul class="space-y-1">
                                 @foreach(explode("\n", $tour->inclusions) as $item)
                                     @if(trim($item))
-                                    <li class="flex items-start gap-2 text-sm text-gray-600">
-                                        <i class="fas fa-check-circle text-[#1B3A4B] mt-0.5 shrink-0"></i>
+                                    <li class="flex items-start gap-1.5 text-xs text-gray-600">
+                                        <i class="fas fa-check-circle text-[#1B3A4B] mt-0.5 shrink-0 text-[10px]"></i>
                                         {{ trim($item) }}
                                     </li>
                                     @endif
@@ -455,18 +455,18 @@
                         @endif
 
                         <div id="package-included" style="display:none;">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sudah Termasuk (Paket)</p>
-                            <ul class="space-y-1.5" id="package-included-list"></ul>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Sudah Termasuk (Paket)</p>
+                            <ul class="space-y-1" id="package-included-list"></ul>
                         </div>
 
                         @if($tour->exclusions)
                         <div id="tour-exclusions">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tidak Termasuk</p>
-                            <ul class="space-y-1.5">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Tidak Termasuk</p>
+                            <ul class="space-y-1">
                                 @foreach(explode("\n", $tour->exclusions) as $item)
                                     @if(trim($item))
-                                    <li class="flex items-start gap-2 text-sm text-gray-600">
-                                        <i class="fas fa-times-circle text-red-400 mt-0.5 shrink-0"></i>
+                                    <li class="flex items-start gap-1.5 text-xs text-gray-600">
+                                        <i class="fas fa-times-circle text-red-400 mt-0.5 shrink-0 text-[10px]"></i>
                                         {{ trim($item) }}
                                     </li>
                                     @endif
@@ -476,8 +476,8 @@
                         @endif
 
                         <div id="package-excluded" style="display:none;">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tidak Termasuk (Paket)</p>
-                            <ul class="space-y-1.5" id="package-excluded-list"></ul>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Tidak Termasuk (Paket)</p>
+                            <ul class="space-y-1" id="package-excluded-list"></ul>
                         </div>
                     </div>
                 </div>
@@ -635,6 +635,21 @@
 </div>
 
 <script>
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
+    function closeDetailPaket() {
+        var panel = document.getElementById('panel-detail-paket');
+        panel.style.display = 'none';
+        var top = document.getElementById('tour-top');
+        if (top) {
+            top.scrollIntoView();
+            window.scrollBy(0, -80);
+        }
+    }
+
     const tourPackages = @json($tour->activePackages);
 
     // Hapus hanya untuk preview UI di halaman ini (tidak menyimpan ke DB)
@@ -689,12 +704,7 @@ function renderItinerary(items) {
         }
         items = uniq.size ? Array.from(uniq.values()) : items;
 
-        // Hilangkan item “yang terlalu banyak” dengan cara batasi render.
-        // Ini khusus untuk itinerary paket supaya tampilan tidak membengkak jika data tersimpan dobel.
-        const MAX_ITINERARY_ITEMS = 6;
-        if (items.length > MAX_ITINERARY_ITEMS) {
-            items = items.slice(0, MAX_ITINERARY_ITEMS);
-        }
+
 
 
 
@@ -702,16 +712,19 @@ function renderItinerary(items) {
 
             container.innerHTML = `
                 <div class="it-item">
-                    <div class="w-9 h-9 rounded-full bg-[#1B3A4B] text-white flex items-center justify-center text-xs font-bold shrink-0 z-10">-</div>
-                    <div class="flex-1 pb-1">
-                        <p class="text-xs font-bold text-[#1B3A4B] mb-0.5">Belum ada itinerary</p>
-                        <p class="text-sm text-gray-600">Pilih paket yang memiliki itinerary.</p>
+                    <div class="w-7 h-7 rounded-full bg-[#1B3A4B] text-white flex items-center justify-center text-[10px] font-bold shrink-0 z-10">-</div>
+                    <div class="flex-1 pb-0.5">
+                        <p class="text-[10px] font-bold text-[#1B3A4B] mb-0.5">Belum ada itinerary</p>
+                        <p class="text-xs text-gray-600">Pilih paket yang memiliki itinerary.</p>
                     </div>
                 </div>
             `;
             return;
 
         }
+
+        const INITIAL_SHOW = 3;
+        const hasMore = items.length > INITIAL_SHOW;
 
         items.forEach((it, idx) => {
             const time = it?.time ?? '';
@@ -722,14 +735,16 @@ function renderItinerary(items) {
                 <img src="${photo}" alt="${time}" style="width:100%; max-height:140px; object-fit:cover; border-radius:10px; border:1px solid #e2e8f0;">
             ` : '';
 
+            const hidden = (hasMore && idx >= INITIAL_SHOW) ? ' style="display:none;"' : '';
+
             container.insertAdjacentHTML('beforeend', `
-<div class="it-item">
-                    <div class="w-9 h-9 rounded-full bg-[#1B3A4B] text-white flex items-center justify-center text-xs font-bold shrink-0 z-10">${idx + 1}</div>
-                    <div class="flex-1 pb-1">
-                        <div class="flex items-start justify-between gap-3">
+<div class="it-item" data-itin-idx="${idx}"${hidden}>
+                    <div class="w-7 h-7 rounded-full bg-[#1B3A4B] text-white flex items-center justify-center text-[10px] font-bold shrink-0 z-10">${idx + 1}</div>
+                    <div class="flex-1 pb-0.5">
+                        <div class="flex items-start justify-between gap-2">
                             <div>
-                                <p class="text-xs font-bold text-[#1B3A4B] mb-0.5">${time}</p>
-                                <p class="text-sm text-gray-600 mb-2">${desc}</p>
+                                <p class="text-[10px] font-bold text-[#1B3A4B] mb-0.5">${time}</p>
+                                <p class="text-xs text-gray-600 mb-1">${desc}</p>
                             </div>
                         </div>
                         ${photoHtml}
@@ -737,6 +752,36 @@ function renderItinerary(items) {
                 </div>
             `);
         });
+
+        if (hasMore) {
+            const remaining = items.length - INITIAL_SHOW;
+            container.insertAdjacentHTML('beforeend', `
+                <div style="text-align:center; padding:8px 0 0;">
+                    <button type="button" onclick="toggleItinerarySeeMore(this)" style="background:none; border:1px solid #1B3A4B; color:#1B3A4B; padding:6px 18px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">
+                        Lihat Semua (${items.length} jadwal) <i class="fas fa-chevron-down" style="margin-left:4px; font-size:10px;"></i>
+                    </button>
+                </div>
+            `);
+        }
+    }
+
+    function toggleItinerarySeeMore(btn) {
+        const container = document.getElementById('detail-itinerary-items');
+        const items = container.querySelectorAll('.it-item[data-itin-idx]');
+        const icon = btn.querySelector('i');
+        const isExpanded = items[3] && items[3].style.display !== 'none';
+
+        items.forEach((item, idx) => {
+            if (idx >= 3) {
+                item.style.display = isExpanded ? 'none' : '';
+            }
+        });
+
+        if (isExpanded) {
+            btn.innerHTML = `Lihat Semua (${items.length} jadwal) <i class="fas fa-chevron-down" style="margin-left:4px; font-size:10px;"></i>`;
+        } else {
+            btn.innerHTML = `Tutup <i class="fas fa-chevron-up" style="margin-left:4px; font-size:10px;"></i>`;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {

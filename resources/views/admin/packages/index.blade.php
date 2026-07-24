@@ -192,24 +192,18 @@
                                     @php $pkgItems = $pkg->itinerary_items['items'] ?? []; @endphp
                                     @if(count($pkgItems) > 0)
                                         @foreach($pkgItems as $item)
-                                        <div class="itin-row" style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px;">
+                                        <div class="itin-row" style="background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; position:relative;">
+                                            <div class="itin-number" style="position:absolute; top:-8px; left:-8px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; box-shadow:0 2px 4px rgba(59,130,246,0.3);">{{ $loop->iteration }}</div>
                                             <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-                                                <select name="itinerary_time[]" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
-                                                    @for($h=6;$h<=20;$h++)
-                                                        @foreach(['00','30'] as $m)
-                                                            @php $t = sprintf('%02d:%s',$h,$m); @endphp
-                                                            <option value="{{ $t }}" {{ ($item['time']??'') === $t ? 'selected':'' }}>{{ $t }}</option>
-                                                        @endforeach
-                                                    @endfor
-                                                </select>
-                                                <button type="button" onclick="this.closest('.itin-row').remove()" style="background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer;">×</button>
+                                                <input type="time" name="itinerary_time[{{ $loop->index }}]" value="{{ $item['time'] ?? '' }}" min="00:00" max="23:59" step="60" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
+                                                <button type="button" onclick="removeItineraryRow(this)" style="background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer;">×</button>
                                             </div>
-                                            <textarea name="itinerary_desc[]" placeholder="Deskripsi kegiatan..." style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:60px; margin-bottom:8px;">{{ $item['desc'] ?? '' }}</textarea>
+                                            <textarea name="itinerary_desc[{{ $loop->index }}]" placeholder="Deskripsi kegiatan..." style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:60px; margin-bottom:8px;">{{ $item['desc'] ?? '' }}</textarea>
                                             <div style="display:flex; gap:12px; align-items:start;">
                                                 <div style="flex:1;">
                                                     <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:4px;"><i class="fas fa-camera"></i> Foto Lokasi</label>
-                                                    <input type="file" name="itinerary_photo[]" accept="image/*" style="font-size:12px; width:100%;">
-                                                    <input type="hidden" name="itinerary_photo_existing[]" value="{{ $item['photo'] ?? '' }}">
+                                                    <input type="file" name="itinerary_photo[{{ $loop->index }}]" accept="image/*" style="font-size:12px; width:100%;">
+                                                    <input type="hidden" name="itinerary_photo_existing[{{ $loop->index }}]" value="{{ $item['photo'] ?? '' }}">
                                                 </div>
                                                 @if(!empty($item['photo']))
                                                 <img src="{{ $item['photo'] }}" style="width:80px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #e2e8f0; flex-shrink:0;">
@@ -573,33 +567,65 @@ function toggleForm(id) {
 function addItineraryRow(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    // hapus placeholder jika ada
     const placeholder = container.querySelector('p');
     if (placeholder) placeholder.remove();
 
-    const times = [];
-    for (let h = 6; h <= 20; h++) {
-        for (const m of ['00','30']) {
-            times.push(`${String(h).padStart(2,'0')}:${m}`);
+    const rows = container.querySelectorAll('.itin-row');
+    let maxIdx = -1;
+    rows.forEach(row => {
+        const timeInput = row.querySelector('input[name^="itinerary_time["]');
+        if (timeInput) {
+            const match = timeInput.name.match(/\[(\d+)\]/);
+            if (match) maxIdx = Math.max(maxIdx, parseInt(match[1]));
         }
-    }
-    const options = times.map(t => `<option value="${t}">${t}</option>`).join('');
+    });
+    const idx = maxIdx + 1;
+
+    const num = rows.length + 1;
 
     const div = document.createElement('div');
     div.className = 'itin-row';
-    div.style.cssText = 'background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px;';
+    div.style.cssText = 'background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px; position:relative;';
     div.innerHTML = `
+        <div class="itin-number" style="position:absolute; top:-8px; left:-8px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; box-shadow:0 2px 4px rgba(59,130,246,0.3);">${num}</div>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-            <select name="itinerary_time[]" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;">${options}</select>
-            <button type="button" onclick="this.closest('.itin-row').remove()" style="background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:14px;">×</button>
+            <input type="time" name="itinerary_time[${idx}]" min="00:00" max="23:59" step="60" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
+            <button type="button" onclick="removeItineraryRow(this)" style="background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:14px;">×</button>
         </div>
-        <textarea name="itinerary_desc[]" placeholder="Deskripsi kegiatan..." style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:60px; margin-bottom:8px;"></textarea>
+        <textarea name="itinerary_desc[${idx}]" placeholder="Deskripsi kegiatan..." style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:60px; margin-bottom:8px;"></textarea>
         <div style="flex:1;">
             <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:4px;"><i class="fas fa-camera"></i> Foto Lokasi</label>
-            <input type="file" name="itinerary_photo[]" accept="image/*" style="font-size:12px; width:100%;">
-            <input type="hidden" name="itinerary_photo_existing[]" value="">
+            <input type="file" name="itinerary_photo[${idx}]" accept="image/*" style="font-size:12px; width:100%;">
+            <input type="hidden" name="itinerary_photo_existing[${idx}]" value="">
         </div>`;
     container.appendChild(div);
+}
+
+function removeItineraryRow(btn) {
+    const row = btn.closest('.itin-row');
+    const container = row.parentElement;
+    row.remove();
+    renumberItinerary(container);
+}
+
+function renumberItinerary(container) {
+    const rows = container.querySelectorAll('.itin-row');
+    rows.forEach((row, i) => {
+        const badge = row.querySelector('.itin-number');
+        if (badge) badge.textContent = i + 1;
+
+        const timeInput = row.querySelector('input[name^="itinerary_time"]');
+        if (timeInput) timeInput.name = 'itinerary_time[' + i + ']';
+
+        const descInput = row.querySelector('textarea[name^="itinerary_desc"]');
+        if (descInput) descInput.name = 'itinerary_desc[' + i + ']';
+
+        const photoInput = row.querySelector('input[name^="itinerary_photo["]');
+        if (photoInput) photoInput.name = 'itinerary_photo[' + i + ']';
+
+        const existingInput = row.querySelector('input[name^="itinerary_photo_existing"]');
+        if (existingInput) existingInput.name = 'itinerary_photo_existing[' + i + ']';
+    });
 }
 </script>
 @endsection
