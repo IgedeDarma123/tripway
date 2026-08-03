@@ -102,7 +102,7 @@
                     @endif
 
                 <!-- Toggle Private / Sharing -->
-                    <div>
+                    <div id="section-type-toggle">
                         <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Pilihan</label>
                         <div class="flex gap-2">
                             <button type="button" id="btn-private"
@@ -195,6 +195,21 @@
     const btnPesan         = document.getElementById('btn-pesan');
 
     function fmt(n) { return 'Rp' + parseInt(n).toLocaleString('id-ID'); }
+
+    const supportedTypes = new Set();
+    document.querySelectorAll('.pilihan-paket-btn').forEach(b => {
+        const tt = b.dataset.travelType;
+        if (tt === 'private' || tt === 'both') supportedTypes.add('private');
+        if (tt === 'sharing' || tt === 'both') supportedTypes.add('sharing');
+    });
+    (function applyTypeVisibility() {
+        const btnPrivate = document.getElementById('btn-private');
+        const btnSharing = document.getElementById('btn-sharing');
+        const section = document.getElementById('section-type-toggle');
+        if (btnPrivate) btnPrivate.style.display = supportedTypes.has('private') ? '' : 'none';
+        if (btnSharing) btnSharing.style.display = supportedTypes.has('sharing') ? '' : 'none';
+        if (section) section.style.display = (supportedTypes.size > 0) ? '' : 'none';
+    })();
 
     window.toggleMorePaket = function() {
         paketExpanded = !paketExpanded;
@@ -303,8 +318,8 @@
             const btnPrivate = document.getElementById('btn-private');
             const btnSharing = document.getElementById('btn-sharing');
             const tt = selectedPackage.travelType;
-            btnPrivate.style.display = (tt === 'sharing') ? 'none' : '';
-            btnSharing.style.display = (tt === 'private') ? 'none' : '';
+            btnPrivate.style.display = (tt === 'sharing' || !supportedTypes.has('private')) ? 'none' : '';
+            btnSharing.style.display = (tt === 'private' || !supportedTypes.has('sharing')) ? 'none' : '';
 
             if (tt === 'private') selectTravelType('private');
             else if (tt === 'sharing') selectTravelType('sharing');
