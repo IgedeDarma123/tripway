@@ -255,7 +255,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name'              => 'required|string|max:255',
-            'price'             => 'required|numeric|min:0',
+            'price'             => 'nullable|numeric|min:0',
             'original_price'    => 'nullable|numeric|min:0',
             'max_people'        => 'required|integer|min:1',
             'description'       => 'nullable|string|max:500',
@@ -276,6 +276,7 @@ class AdminController extends Controller
 
         $validated['tour_id'] = $tour->id;
         $validated['is_active'] = $request->boolean('is_active');
+        $validated['price'] = $validated['price'] ?? 0;
 
         // Build itinerary_items JSON for this package
         $times = $request->input('itinerary_time', []);
@@ -313,7 +314,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name'           => 'required|string|max:255',
-            'price'          => 'required|numeric|min:0',
+            'price'          => 'nullable|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0',
             'max_people'     => 'required|integer|min:1',
             'description'    => 'nullable|string|max:500',
@@ -373,6 +374,20 @@ class AdminController extends Controller
         return redirect()->route('admin.packages.index')->with('success', 'Paket berhasil dihapus!');
     }
 
+    // Package Sharing Price
+    public function sharingUpdate(Request $request, TourPackage $package)
+    {
+        $request->validate([
+            'sharing_price' => 'nullable|numeric|min:0',
+        ]);
+
+        $package->update([
+            'sharing_price' => $request->filled('sharing_price') ? $request->sharing_price : null,
+        ]);
+
+        return back()->with('success', 'Harga sharing berhasil diperbarui!');
+    }
+
     // Package Groups (Private)
     public function groupsStore(Request $request, TourPackage $package)
     {
@@ -427,14 +442,13 @@ class AdminController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
-            'price'       => 'required|numeric|min:0',
             'sort_order'  => 'nullable|integer|min:0',
         ]);
 
         $package->addons()->create([
             'name'        => $request->name,
             'description' => $request->description,
-            'price'       => $request->price,
+            'price'       => 0,
             'sort_order'  => $request->sort_order ?? 0,
             'is_active'   => true,
         ]);
@@ -453,13 +467,12 @@ class AdminController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
-            'price'       => 'required|numeric|min:0',
         ]);
 
         $addon->update([
             'name'        => $request->name,
             'description' => $request->description,
-            'price'       => $request->price,
+            'price'       => 0,
         ]);
 
         return back()->with('success', 'Add-on berhasil diperbarui!');

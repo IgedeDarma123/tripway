@@ -339,7 +339,7 @@
                     
                     <div>
                         <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Location</p>
-                        <p style="font-size: 14px; line-height: 1.6; color: #ccc;">Jalan Tukad Banyuning II Number 5, Panjer, South Denpasar, Denpasar, Bali</p>
+                        <p style="font-size: 14px; line-height: 1.6; color: #ccc;">Jl. Sunset Road No. 10, Kuta, Badung, Bali</p>
                     </div>
                 </div>
                 <div class="footer-col">

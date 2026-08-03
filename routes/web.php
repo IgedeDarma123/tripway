@@ -57,6 +57,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::put('/tours/{tour}/packages/{package}', [\App\Http\Controllers\AdminController::class, 'packagesUpdate'])->name('tours.packages.update');
     Route::delete('/tours/{tour}/packages/{package}', [\App\Http\Controllers\AdminController::class, 'packagesDestroy'])->name('tours.packages.destroy');
 
+    // Package Sharing Price
+    Route::put('/packages/{package}/sharing', [\App\Http\Controllers\AdminController::class, 'sharingUpdate'])->name('packages.sharing.update');
+
     // Package Groups (untuk mode Private)
     Route::post('/packages/{package}/groups', [\App\Http\Controllers\AdminController::class, 'groupsStore'])->name('packages.groups.store');
     Route::put('/packages/{package}/groups/{group}', [\App\Http\Controllers\AdminController::class, 'groupsUpdate'])->name('packages.groups.update');

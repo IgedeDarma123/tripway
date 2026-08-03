@@ -82,28 +82,8 @@
                                 data-name="{{ $package->name }}"
                                 data-travel-type="{{ $package->travel_type }}"
                                 data-groups="{{ json_encode($package->activeGroups->map(fn($g) => ['id'=>$g->id,'label'=>$g->label,'group_size'=>$g->group_size,'price'=>$g->price])) }}"
-                                data-addons="{{ json_encode($package->activeAddons->map(fn($a) => ['id'=>$a->id,'name'=>$a->name,'price'=>$a->price,'description'=>$a->description])) }}">
-                                <div class="flex justify-between items-start gap-2">
-                                    <div class="min-w-0">
-                                        <div class="font-bold text-xs mb-0.5">{{ $package->name }}</div>
-                                        <div class="text-xs font-bold text-[#1B3A4B]">Rp{{ number_format($package->price, 0, ',', '.') }}</div>
-                                        <div class="text-xs text-gray-500 mt-0.5">Maks {{ $package->max_people }} orang</div>
-                                        @if($package->description)
-                                        <div class="text-xs text-gray-400 mt-0.5">{{ $package->description }}</div>
-                                        @endif
-                                        <div class="flex gap-1 mt-1 flex-wrap">
-                                            @if(in_array($package->travel_type, ['private','both']))
-                                            <span class="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold">Private</span>
-                                            @endif
-                                            @if(in_array($package->travel_type, ['sharing','both']))
-                                            <span class="text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-semibold">Sharing</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @if($package->discountPercentage() > 0)
-                                    <div class="bg-[#1B3A4B] text-white text-xs font-bold px-1.5 py-0.5 rounded-full shrink-0">-{{ $package->discountPercentage() }}%</div>
-                                    @endif
-                                </div>
+                                data-addons="{{ json_encode($package->activeAddons->map(fn($a) => ['id'=>$a->id,'name'=>$a->name,'description'=>$a->description])) }}">
+                                <div class="font-bold text-sm">{{ $package->name }}</div>
                             </button>
                             @endforeach
                             @if($tour->activePackages->count() > 1)
@@ -254,13 +234,14 @@
                 updateBtn();
                 return;
             }
-            activeGroups.forEach(([gid, qty]) => {
+            activeGroups.forEach(([gid]) => {
                 const group = selectedPackage.groups.find(g => g.id == gid);
                 if (group) {
-                    const lineTotal = group.price * qty;
-                    total += lineTotal;
-                    const suffix = qty > 1 ? ` &times; ${qty}` : '';
-                    breakdown.push(`<div class="flex justify-between"><span>${group.label} (${fmt(Math.round(group.price / group.group_size))}/org)${suffix}</span><span class="font-semibold">${fmt(lineTotal)}</span></div>`);
+                    const price = parseFloat(group.price) || 0;
+                    const qty = groupQuantities[gid] || 0;
+                    const subtotal = price * qty;
+                    total += subtotal;
+                    breakdown.push(`<div class="flex justify-between"><span>${group.label} &middot; ${fmt(price)}/orang</span><span class="font-semibold">${fmt(subtotal)}</span></div>`);
                 }
             });
         } else {
@@ -270,9 +251,7 @@
             selectedAddonIds.forEach(id => {
                 const addon = selectedPackage.addons.find(a => a.id == id);
                 if (addon) {
-                    const addonTotal = addon.price * sharingCount;
-                    total += addonTotal;
-                    breakdown.push(`<div class="flex justify-between"><span>${addon.name} &times; ${sharingCount}</span><span class="font-semibold">+${fmt(addonTotal)}</span></div>`);
+                    breakdown.push(`<div class="flex justify-between"><span>${addon.name}</span><span class="font-semibold"></span></div>`);
                 }
             });
         }
@@ -374,10 +353,11 @@
             row.dataset.groupId = g.id;
             row.innerHTML = `
                 <div class="min-w-0">
-                    <div class="font-bold text-xs">${g.label}</div>
-                    <div class="text-xs text-gray-400">${g.group_size} orang &middot; ${fmt(g.price)}</div>
+                    <div class="font-bold text-xs">Grup ${g.group_size} orang (Harga per orang)</div>
+                    <div class="text-xs text-gray-400">Kamu wajib memesan minimum ${g.group_size} unit</div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
+                    <span class="group-price font-bold text-xs text-[#1B3A4B]" data-group-id="${g.id}"></span>
                     <button type="button" class="group-minus w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded-lg flex items-center justify-center font-bold transition-all text-gray-600 text-sm" data-group-id="${g.id}">-</button>
                     <span class="group-qty text-sm font-bold w-6 text-center text-gray-900" data-group-id="${g.id}">${groupQuantities[g.id]}</span>
                     <button type="button" class="group-plus w-7 h-7 bg-[#1B3A4B] hover:bg-[#14505F] text-white rounded-lg flex items-center justify-center font-bold shadow-sm transition-all text-sm" data-group-id="${g.id}">+</button>
@@ -407,6 +387,18 @@
             const gid = row.dataset.groupId;
             const qty = groupQuantities[gid] || 0;
             row.querySelector('.group-qty').textContent = qty;
+            const priceEl = row.querySelector('.group-price');
+            const grp = selectedPackage ? selectedPackage.groups.find(x => x.id == gid) : null;
+            const unit = grp ? (parseFloat(grp.price) || 0) : 0;
+            if (priceEl) {
+                if (qty > 0) {
+                    priceEl.textContent = fmt(unit);
+                    priceEl.style.display = '';
+                } else {
+                    priceEl.textContent = '';
+                    priceEl.style.display = 'none';
+                }
+            }
             const minusBtn = row.querySelector('.group-minus');
             minusBtn.disabled = qty <= 0;
             minusBtn.classList.toggle('opacity-40', qty <= 0);
@@ -420,9 +412,9 @@
         if (activeGroups.length > 0) {
             selectedGroupId = activeGroups[0][0];
             hiddenGroupId.value = selectedGroupId;
-            const totalQty = activeGroups.reduce((sum, [gid, q]) => {
+            const totalQty = activeGroups.reduce((sum, [gid]) => {
                 const grp = selectedPackage.groups.find(x => x.id == gid);
-                return sum + (grp ? grp.group_size * q : 0);
+                return sum + (grp ? grp.group_size : 0);
             }, 0);
             hiddenNumPersons.value = totalQty;
         } else {
@@ -453,8 +445,7 @@
                         <div class="font-semibold text-xs">${a.name}</div>
                         ${a.description ? `<div class="text-xs text-gray-400">${a.description}</div>` : ''}
                     </div>
-                </div>
-                <div class="text-xs font-bold text-[#1B3A4B] shrink-0">+${fmt(a.price)}/org</div>`;
+                </div>`;
             label.querySelector('.addon-check').addEventListener('change', function () {
                 selectedAddonIds = this.checked
                     ? [...selectedAddonIds, a.id]
@@ -520,14 +511,14 @@
     display: none !important;
 }
 .pilihan-paket-btn.selected {
-    border-color: #1B3A4B !important;
-    background: linear-gradient(135deg, #1B3A4B 0%, #14505F 100%) !important;
-    color: white !important;
+    border-color: #30525c !important;
+    background: rgba(48, 82, 92, 0.12) !important;
+    color: #30525c !important;
 }
 .pilihan-paket-btn.selected .text-\[\#1B3A4B\],
-.pilihan-paket-btn.selected .text-green-600 { color: #a7f3d0 !important; }
+.pilihan-paket-btn.selected .text-green-600 { color: #30525c !important; }
 .pilihan-paket-btn.selected .text-gray-500,
-.pilihan-paket-btn.selected .text-gray-400 { color: rgba(255,255,255,0.7) !important; }
+.pilihan-paket-btn.selected .text-gray-400 { color: #4b5563 !important; }
 .pilihan-toggle.selected {
     border-color: #1B3A4B !important;
     background: linear-gradient(135deg, #1B3A4B 0%, #14505F 100%) !important;

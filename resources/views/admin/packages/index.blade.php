@@ -135,22 +135,6 @@
                                     <input type="text" name="description" value="{{ $pkg->description }}">
                                 </div>
                             </div>
-                            <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">
-                                <div class="form-group">
-                                    <label>Harga Private (Rp)</label>
-                                    <input type="number" name="price" value="{{ $pkg->price }}" required>
-                                    <small style="color:#6b7280; font-size:11px;">Harga dasar / referensi</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Harga Sharing/Orang (Rp)</label>
-                                    <input type="number" name="sharing_price" value="{{ $pkg->sharing_price }}" placeholder="Kosong = ikuti harga paket">
-                                    <small style="color:#6b7280; font-size:11px;">Harga per orang untuk sharing</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Harga Asli / Coret (Rp)</label>
-                                    <input type="number" name="original_price" value="{{ $pkg->original_price }}">
-                                </div>
-                            </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Maks Orang</label>
@@ -166,10 +150,6 @@
                                 </div>
                             </div>
                             <div class="form-row">
-                                <div class="form-group">
-                                    <label>Urutan Tampil</label>
-                                    <input type="number" name="sort_order" value="{{ $pkg->sort_order }}">
-                                </div>
                                 <div class="form-group" style="display:flex; align-items:center; padding-top:24px;">
                                     <label class="form-check">
                                         <input type="checkbox" name="is_active" value="1" {{ $pkg->is_active ? 'checked' : '' }}> Aktif
@@ -178,11 +158,19 @@
                             </div>
                             <div class="form-group">
                                 <label>What's Included</label>
-                                <textarea name="included" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:70px;">{{ $pkg->included }}</textarea>
+                                <textarea name="included" class="list-editor-source" style="display:none;">{{ $pkg->included }}</textarea>
+                                <div class="list-editor">
+                                    <div class="list-editor-rows"></div>
+                                    <button type="button" class="list-editor-add" style="margin-top:2px; background:#e2e8f0; border:none; border-radius:6px; padding:6px 12px; color:#475569; font-size:12px; font-weight:600; cursor:pointer;"><i class="fas fa-plus" style="margin-right:4px;"></i>Tambah Item</button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>What's Excluded</label>
-                                <textarea name="excluded" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:70px;">{{ $pkg->excluded }}</textarea>
+                                <textarea name="excluded" class="list-editor-source" style="display:none;">{{ $pkg->excluded }}</textarea>
+                                <div class="list-editor">
+                                    <div class="list-editor-rows"></div>
+                                    <button type="button" class="list-editor-add" style="margin-top:2px; background:#e2e8f0; border:none; border-radius:6px; padding:6px 12px; color:#475569; font-size:12px; font-weight:600; cursor:pointer;"><i class="fas fa-plus" style="margin-right:4px;"></i>Tambah Item</button>
+                                </div>
                             </div>
 
                             {{-- Itinerary --}}
@@ -254,7 +242,7 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label style="font-size:12px;">Harga Total Grup (Rp) *</label>
+                                        <label style="font-size:12px;">Harga/Orang (Rp) *</label>
                                         <input type="number" name="price" min="0" required>
                                     </div>
                                     <div class="form-group">
@@ -279,8 +267,7 @@
                                     <div style="flex:1; min-width:0;">
                                         <span style="font-weight:600; font-size:13px;">{{ $group->label }}</span>
                                         <span style="margin-left:10px; font-size:12px; color:#6b7280;">{{ $group->group_size }} orang</span>
-                                        <span style="margin-left:10px; font-weight:700; font-size:13px; color:#1B3A4B;">Rp{{ number_format($group->price, 0, ',', '.') }}</span>
-                                        <span style="margin-left:6px; font-size:11px; color:#9ca3af;">(Rp{{ number_format($group->price / $group->group_size, 0, ',', '.') }}/org)</span>
+                                        <span style="margin-left:10px; font-weight:700; font-size:13px; color:#1B3A4B;">Rp{{ number_format($group->price, 0, ',', '.') }}/orang</span>
                                     </div>
                                     <div style="display:flex; gap:6px; flex-shrink:0;">
                                         <button onclick="toggleForm('edit-group-{{ $group->id }}')" class="btn btn-sm btn-secondary" style="font-size:12px;">
@@ -315,7 +302,7 @@
                                                     <input type="number" name="group_size" value="{{ $group->group_size }}" min="1" required>
                                                 </div>
                                                 <div class="form-group" style="margin-bottom:0;">
-                                                    <label>Harga Grup (Rp) *</label>
+                                                    <label>Harga/Orang (Rp) *</label>
                                                     <input type="number" name="price" value="{{ $group->price }}" min="0" required>
                                                 </div>
                                                 <div class="form-group" style="margin-bottom:0;">
@@ -339,6 +326,21 @@
                     </div>
                     @endif
 
+                    {{-- Section Sharing --}}
+                    @if(in_array($pkg->travel_type ?? 'both', ['sharing','both']))
+                    <div style="padding:16px; border-top:1px solid #e2e8f0;">
+                        <strong style="font-size:13px; color:#30525c;"><i class="fas fa-users"></i> Sharing</strong>
+                        <form action="{{ route('admin.packages.sharing.update', $pkg) }}" method="POST" style="display:flex; gap:10px; align-items:flex-end; margin-top:10px;">
+                            @csrf @method('PUT')
+                            <div class="form-group" style="flex:1; margin-bottom:0;">
+                                <label style="font-size:12px;">Harga Sharing/Orang (Rp)</label>
+                                <input type="number" name="sharing_price" value="{{ $pkg->sharing_price }}" min="0" placeholder="Kosong = ikuti harga paket">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="font-size:12px; white-space:nowrap;"><i class="fas fa-save"></i> Simpan</button>
+                        </form>
+                    </div>
+                    @endif
+
                     {{-- Section Add-on (Sharing) --}}
                     @if(in_array($pkg->travel_type ?? 'both', ['sharing','both']))
                     <div style="padding:16px; border-top:1px solid #e2e8f0;">
@@ -353,15 +355,9 @@
                         <div id="form-addon-{{ $pkg->id }}" style="display:none; background:#f0fdf4; border-radius:8px; padding:12px; margin-bottom:10px;">
                             <form action="{{ route('admin.packages.addons.store', $pkg) }}" method="POST">
                                 @csrf
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label style="font-size:12px;">Nama Add-on *</label>
-                                        <input type="text" name="name" required placeholder="cth: Sewa Snorkel">
-                                    </div>
-                                    <div class="form-group">
-                                        <label style="font-size:12px;">Harga per Orang (Rp) *</label>
-                                        <input type="number" name="price" min="0" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label style="font-size:12px;">Nama Add-on *</label>
+                                    <input type="text" name="name" required placeholder="cth: Sewa Snorkel">
                                 </div>
                                 <div class="form-group">
                                     <label style="font-size:12px;">Deskripsi</label>
@@ -385,7 +381,6 @@
                                         @if($addon->description)
                                         <span style="margin-left:8px; font-size:12px; color:#9ca3af;">{{ $addon->description }}</span>
                                         @endif
-                                        <span style="margin-left:10px; font-weight:700; font-size:13px; color:#15803d;">+Rp{{ number_format($addon->price, 0, ',', '.') }}/org</span>
                                     </div>
                                     <div style="display:flex; gap:6px; flex-shrink:0;">
                                         <button onclick="toggleForm('edit-addon-{{ $addon->id }}')" class="btn btn-sm btn-secondary" style="font-size:12px;">
@@ -409,7 +404,7 @@
                                         </div>
                                         <form action="{{ route('admin.packages.addons.update', [$pkg, $addon]) }}" method="POST">
                                             @csrf @method('PUT')
-                                            <div class="form-row" style="grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
+                                            <div class="form-row" style="grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
                                                 <div class="form-group" style="margin-bottom:0;">
                                                     <label>Nama Add-on *</label>
                                                     <input type="text" name="name" value="{{ $addon->name }}" required>
@@ -417,10 +412,6 @@
                                                 <div class="form-group" style="margin-bottom:0;">
                                                     <label>Deskripsi</label>
                                                     <input type="text" name="description" value="{{ $addon->description }}">
-                                                </div>
-                                                <div class="form-group" style="margin-bottom:0;">
-                                                    <label>Harga per Orang (Rp) *</label>
-                                                    <input type="number" name="price" value="{{ $addon->price }}" min="0" required>
                                                 </div>
                                             </div>
                                             <div style="display:flex; gap:8px;">
@@ -465,22 +456,6 @@
                                 <input type="text" name="description" placeholder="Keterangan singkat">
                             </div>
                         </div>
-                        <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;">
-                            <div class="form-group">
-                                <label>Harga Private (Rp) *</label>
-                                <input type="number" name="price" required min="0">
-                                <small style="color:#6b7280; font-size:11px;">Harga dasar / referensi</small>
-                            </div>
-                            <div class="form-group">
-                                <label>Harga Sharing/Orang (Rp)</label>
-                                <input type="number" name="sharing_price" min="0" placeholder="Kosong = ikuti harga paket">
-                                <small style="color:#6b7280; font-size:11px;">Harga per orang untuk sharing</small>
-                            </div>
-                            <div class="form-group">
-                                <label>Harga Asli / Coret (Rp)</label>
-                                <input type="number" name="original_price" min="0">
-                            </div>
-                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Maks Orang *</label>
@@ -496,10 +471,6 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Urutan Tampil</label>
-                                <input type="number" name="sort_order" value="0" min="0">
-                            </div>
                             <div class="form-group" style="display:flex; align-items:center; padding-top:24px;">
                                 <label class="form-check">
                                     <input type="checkbox" name="is_active" value="1" checked> Aktif
@@ -508,11 +479,19 @@
                         </div>
                         <div class="form-group">
                             <label>What's Included</label>
-                            <textarea name="included" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:70px;"></textarea>
+                            <textarea name="included" class="list-editor-source" style="display:none;"></textarea>
+                            <div class="list-editor">
+                                <div class="list-editor-rows"></div>
+                                <button type="button" class="list-editor-add" style="margin-top:2px; background:#e2e8f0; border:none; border-radius:6px; padding:6px 12px; color:#475569; font-size:12px; font-weight:600; cursor:pointer;"><i class="fas fa-plus" style="margin-right:4px;"></i>Tambah Item</button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>What's Excluded</label>
-                            <textarea name="excluded" style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; resize:vertical; min-height:70px;"></textarea>
+                            <textarea name="excluded" class="list-editor-source" style="display:none;"></textarea>
+                            <div class="list-editor">
+                                <div class="list-editor-rows"></div>
+                                <button type="button" class="list-editor-add" style="margin-top:2px; background:#e2e8f0; border:none; border-radius:6px; padding:6px 12px; color:#475569; font-size:12px; font-weight:600; cursor:pointer;"><i class="fas fa-plus" style="margin-right:4px;"></i>Tambah Item</button>
+                            </div>
                         </div>
 
                         {{-- Itinerary --}}
@@ -627,5 +606,70 @@ function renumberItinerary(container) {
         if (existingInput) existingInput.name = 'itinerary_photo_existing[' + i + ']';
     });
 }
+
+// Editor daftar bernomor untuk "What's Included" / "What's Excluded"
+function escapeListHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function syncListSource(editor) {
+    const source = editor.closest('.form-group').querySelector('textarea.list-editor-source');
+    if (!source) return;
+    const values = Array.from(editor.querySelectorAll('.list-editor-input')).map(inp => inp.value.trim()).filter(Boolean);
+    source.value = values.join('\n');
+}
+
+function renumberList(editor) {
+    const rows = editor.querySelectorAll('.list-editor-row');
+    rows.forEach((row, i) => {
+        const num = row.querySelector('.list-editor-num');
+        if (num) num.textContent = i + 1;
+    });
+}
+
+function addListRow(editor, value) {
+    const rowsEl = editor.querySelector('.list-editor-rows');
+    if (!rowsEl) return;
+    const row = document.createElement('div');
+    row.className = 'list-editor-row';
+    row.style.cssText = 'display:flex; gap:6px; align-items:center; margin-bottom:6px;';
+    row.innerHTML = `
+        <span class="list-editor-num" style="width:22px; height:22px; background:#30525c; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0;"></span>
+        <input type="text" class="list-editor-input" value="${escapeListHtml(value)}" placeholder="Tulis item..." style="flex:1; padding:7px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
+        <button type="button" class="list-editor-remove" style="background:#fee2e2; border:none; color:#dc2626; width:26px; height:26px; border-radius:6px; cursor:pointer; font-size:13px;">×</button>`;
+    row.querySelector('.list-editor-input').addEventListener('input', () => syncListSource(editor));
+    row.querySelector('.list-editor-input').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addListRow(editor, '');
+            rowsEl.lastElementChild.querySelector('.list-editor-input').focus();
+        }
+    });
+    row.querySelector('.list-editor-remove').addEventListener('click', () => {
+        row.remove();
+        renumberList(editor);
+        syncListSource(editor);
+    });
+    rowsEl.appendChild(row);
+    renumberList(editor);
+    syncListSource(editor);
+}
+
+function initListEditor(editor) {
+    const rowsEl = editor.querySelector('.list-editor-rows');
+    const source = editor.closest('.form-group').querySelector('textarea.list-editor-source');
+    if (!rowsEl || !source) return;
+    rowsEl.innerHTML = '';
+    (source.value || '').split('\n').map(s => s.trim()).filter(Boolean).forEach(text => addListRow(editor, text));
+    if (rowsEl.children.length === 0) addListRow(editor, '');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.list-editor').forEach(editor => {
+        const addBtn = editor.querySelector('.list-editor-add');
+        if (addBtn) addBtn.addEventListener('click', () => addListRow(editor, ''));
+        initListEditor(editor);
+    });
+});
 </script>
 @endsection

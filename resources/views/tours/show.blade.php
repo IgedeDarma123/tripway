@@ -82,6 +82,16 @@
     }
     #detail-itinerary-items .it-item:last-child { border-bottom: none; margin-bottom: 0; }
 
+    #itinerary-modal-body .it-item {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        align-items: flex-start;
+    }
+    #itinerary-modal-body .it-item:last-child { border-bottom: none; margin-bottom: 0; }
+
     .related-tours {
         margin-top: 48px;
         padding-top: 48px;
@@ -385,7 +395,7 @@
     <div class="tour-booking-anchor" style="max-width:1024px; margin:0 auto 48px;">
         <div style="display:flex; gap:20px; align-items:start;">
             <!-- Panel Booking -->
-            <div style="flex:1; min-width:0; overflow:hidden;">
+            <div style="flex:2.4; min-width:0; overflow:hidden;">
                 @include('tours.booking-pilihan-paket-green')
             </div>
 
@@ -402,11 +412,6 @@
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
-                        <div class="mt-2 flex items-end gap-2">
-                            <span id="detail-harga" class="text-xs font-bold text-[#1B3A4B]"></span>
-                            <span id="detail-harga-asli" class="text-xs text-gray-400 line-through"></span>
-                            <span id="detail-diskon" class="text-[10px] font-bold bg-[#1B3A4B] text-white px-1.5 py-0.5 rounded-full"></span>
-                        </div>
                     </div>
 
                     <div class="px-4 py-3 space-y-3 overflow-y-auto">
@@ -419,7 +424,7 @@
                             <div class="bg-slate-50 rounded-lg p-2 text-center">
                                 <i class="fas fa-clock text-[#1B3A4B] mb-0.5 text-xs"></i>
                                 <p class="text-[10px] text-gray-500">Durasi</p>
-                                <p class="font-bold text-xs text-gray-800">{{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
+                                <p id="detail-durasi" class="font-bold text-xs text-gray-800">{{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
                             </div>
                         </div>
 
@@ -634,6 +639,17 @@
 
 </div>
 
+<!-- Modal Lihat Semua Jadwal -->
+<div id="itinerary-modal" onclick="if(event.target===this)closeItineraryModal()" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.55); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#fff; width:100%; max-width:700px; max-height:85vh; border-radius:16px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #e2e8f0; background:#f8fafc;">
+            <strong id="itinerary-modal-title" style="font-size:13px; color:#1B3A4B;">Jadwal Perjalanan</strong>
+            <button type="button" onclick="closeItineraryModal()" style="background:none; border:none; color:#64748b; font-size:16px; cursor:pointer;" aria-label="Tutup"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="itinerary-modal-body" style="padding:16px; overflow-y:auto;"></div>
+    </div>
+</div>
+
 <script>
     if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';
@@ -757,32 +773,113 @@ function renderItinerary(items) {
             const remaining = items.length - INITIAL_SHOW;
             container.insertAdjacentHTML('beforeend', `
                 <div style="text-align:center; padding:8px 0 0;">
-                    <button type="button" onclick="toggleItinerarySeeMore(this)" style="background:none; border:1px solid #1B3A4B; color:#1B3A4B; padding:6px 18px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">
-                        Lihat Semua (${items.length} jadwal) <i class="fas fa-chevron-down" style="margin-left:4px; font-size:10px;"></i>
+                    <button type="button" onclick="openItineraryModal()" style="background:none; border:1px solid #1B3A4B; color:#1B3A4B; padding:6px 18px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">
+                        Lihat Semua (${items.length} jadwal) <i class="fas fa-expand" style="margin-left:4px; font-size:10px;"></i>
                     </button>
                 </div>
             `);
         }
     }
 
-    function toggleItinerarySeeMore(btn) {
-        const container = document.getElementById('detail-itinerary-items');
-        const items = container.querySelectorAll('.it-item[data-itin-idx]');
-        const icon = btn.querySelector('i');
-        const isExpanded = items[3] && items[3].style.display !== 'none';
+    function openItineraryModal() {
+        const source = document.getElementById('detail-itinerary-items');
+        const body = document.getElementById('itinerary-modal-body');
+        const title = document.getElementById('itinerary-modal-title');
+        const modal = document.getElementById('itinerary-modal');
+        if (!source || !body || !modal) return;
 
-        items.forEach((item, idx) => {
-            if (idx >= 3) {
-                item.style.display = isExpanded ? 'none' : '';
+        const nodes = source.querySelectorAll('.it-item[data-itin-idx]');
+        const count = nodes.length;
+        if (count === 0) return;
+
+        const nama = (document.getElementById('detail-nama')?.textContent || '').trim();
+        const peserta = (document.getElementById('detail-max')?.textContent || '').trim();
+        const durasi = (document.getElementById('detail-durasi')?.textContent || '').trim();
+
+        let summary = '';
+        if (nama) summary += '<div class="text-sm font-black" style="color:#1B3A4B;">' + nama + '</div>';
+        if (peserta || durasi) {
+            summary += '<div class="grid grid-cols-2 gap-2" style="margin-top:10px;">';
+            if (peserta) {
+                summary += '<div class="bg-slate-50 rounded-lg p-2 text-center"><i class="fas fa-users" style="color:#1B3A4B; margin-bottom:2px; font-size:12px;"></i><p class="text-[10px] text-gray-500">Maks Peserta</p><p class="font-bold text-xs text-gray-800">' + peserta + '</p></div>';
+            } else {
+                summary += '<div></div>';
             }
+            summary += '<div class="bg-slate-50 rounded-lg p-2 text-center"><i class="fas fa-clock" style="color:#1B3A4B; margin-bottom:2px; font-size:12px;"></i><p class="text-[10px] text-gray-500">Durasi</p><p class="font-bold text-xs text-gray-800">' + (durasi || '-') + '</p></div>';
+            summary += '</div>';
+        }
+
+        body.innerHTML = '';
+        const summaryWrap = document.createElement('div');
+        summaryWrap.style.marginBottom = '16px';
+        summaryWrap.style.paddingBottom = '12px';
+        summaryWrap.style.borderBottom = '1px solid #e2e8f0';
+        summaryWrap.innerHTML = summary;
+        if (summary) body.appendChild(summaryWrap);
+
+        const listWrap = document.createElement('div');
+        listWrap.style.position = 'relative';
+
+        const routeLine = document.createElement('div');
+        routeLine.style.position = 'absolute';
+        routeLine.style.left = '14px';
+        routeLine.style.top = '0';
+        routeLine.style.bottom = '0';
+        routeLine.style.borderLeft = '2px dashed #94a3b8';
+        listWrap.appendChild(routeLine);
+
+        nodes.forEach((node) => {
+            const clone = node.cloneNode(true);
+            clone.style.display = '';
+            clone.style.position = 'relative';
+            listWrap.appendChild(clone);
+        });
+        body.appendChild(listWrap);
+
+        body.querySelectorAll('.it-item img').forEach((img) => {
+            img.style.aspectRatio = '1 / 1';
+            img.style.maxWidth = '320px';
+            img.style.maxHeight = 'none';
+            img.style.margin = '0 auto';
+            img.style.display = 'block';
+            img.style.objectFit = 'cover';
         });
 
-        if (isExpanded) {
-            btn.innerHTML = `Lihat Semua (${items.length} jadwal) <i class="fas fa-chevron-down" style="margin-left:4px; font-size:10px;"></i>`;
-        } else {
-            btn.innerHTML = `Tutup <i class="fas fa-chevron-up" style="margin-left:4px; font-size:10px;"></i>`;
+        function listSectionHtml(label, sourceEl) {
+            if (!sourceEl || sourceEl.style.display === 'none') return '';
+            const list = sourceEl.querySelector('ul');
+            if (!list || list.children.length === 0) return '';
+            const items = Array.from(list.children).map(li => li.outerHTML).join('');
+            return '<div style="margin-top:16px;"><p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">' + label + '</p><ul class="space-y-1">' + items + '</ul></div>';
         }
+
+        const pkgIncluded = document.getElementById('package-included');
+        const tourInclusions = document.getElementById('tour-inclusions');
+        const pkgExcluded = document.getElementById('package-excluded');
+        const tourExclusions = document.getElementById('tour-exclusions');
+
+        const incSource = (pkgIncluded && pkgIncluded.style.display !== 'none') ? pkgIncluded : tourInclusions;
+        const excSource = (pkgExcluded && pkgExcluded.style.display !== 'none') ? pkgExcluded : tourExclusions;
+
+        const listsWrap = document.createElement('div');
+        listsWrap.innerHTML = listSectionHtml('Sudah Termasuk', incSource) + listSectionHtml('Tidak Termasuk', excSource);
+        if (listsWrap.children.length) body.appendChild(listsWrap);
+
+        if (title) title.textContent = 'Jadwal Perjalanan (' + count + ')';
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
+
+    function closeItineraryModal() {
+        const modal = document.getElementById('itinerary-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeItineraryModal();
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
         const hasPackageItinerary = Array.isArray(tourPackages) && tourPackages.some(p => {
@@ -804,21 +901,7 @@ function renderItinerary(items) {
                 renderItinerary([]);
 
                 document.getElementById('detail-nama').textContent = pkg.name;
-                document.getElementById('detail-harga').textContent = 'Rp ' + parseInt(pkg.price).toLocaleString('id-ID');
                 document.getElementById('detail-max').textContent = pkg.max_people + ' orang';
-
-                const hargaAsliEl = document.getElementById('detail-harga-asli');
-                const diskonEl = document.getElementById('detail-diskon');
-                if (pkg.original_price && pkg.original_price > pkg.price) {
-                    const pct = Math.round((pkg.original_price - pkg.price) / pkg.original_price * 100);
-                    hargaAsliEl.textContent = 'Rp ' + parseInt(pkg.original_price).toLocaleString('id-ID');
-                    diskonEl.textContent = '-' + pct + '%';
-                    hargaAsliEl.classList.remove('hidden');
-                    diskonEl.classList.remove('hidden');
-                } else {
-                    hargaAsliEl.textContent = '';
-                    diskonEl.textContent = '';
-                }
 
                 const descWrap = document.getElementById('detail-desc-wrap');
                 const descEl = document.getElementById('detail-desc');

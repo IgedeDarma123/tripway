@@ -69,17 +69,14 @@ class BookingController extends Controller
             $group = $package->groups()->findOrFail($validated['group_option_id']);
             $groupOptionId = $group->id;
             $numPersons = $group->group_size;
-            $totalPrice = $group->price;
+            $totalPrice = $group->price * $group->group_size;
         } else {
             $numPersons = max(1, (int) ($validated['num_persons'] ?? 1));
             $sharingPrice = $package->sharing_price > 0 ? $package->sharing_price : $package->price;
             $totalPrice = $sharingPrice * $numPersons;
 
             if (!empty($validated['addon_ids'])) {
-                $addons = $package->addons()->whereIn('id', $validated['addon_ids'])->get();
-                $addonIds = $addons->pluck('id')->toArray();
-                $addonPrice = $addons->sum('price') * $numPersons;
-                $totalPrice += $addonPrice;
+                $addonIds = $package->addons()->whereIn('id', $validated['addon_ids'])->pluck('id')->toArray();
             }
         }
 
