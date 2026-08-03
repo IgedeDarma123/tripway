@@ -468,7 +468,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:0;">
                             <!-- Kolom Destinasi -->
                             <div style="padding:16px; border-right:1px solid #f3f4f6;">
-                                <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;"><i class="fas fa-map-marker-alt" style="margin-right:5px;"></i>Destinasi</div>
+                                <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;"><i class="fas fa-map-marker-alt" style="margin-right:5px;"></i><span>Destinasi</span></div>
                                 @foreach($destinations as $dest)
                                 <a href="{{ route('tours.index', ['destination' => $dest->slug]) }}"
                                     style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:8px; font-size:13px; color:#374151; transition:all 0.15s; text-decoration:none;"
@@ -480,7 +480,7 @@ window.addEventListener('DOMContentLoaded', function() {
                             </div>
                             <!-- Kolom Kategori -->
                             <div style="padding:16px;">
-                                <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;"><i class="fas fa-compass" style="margin-right:5px;"></i>Kategori</div>
+                                <div style="font-size:11px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;"><i class="fas fa-compass" style="margin-right:5px;"></i><span>Kategori</span></div>
                                 @foreach($categories as $cat)
                                 <a href="{{ route('tours.index', ['category' => $cat->slug]) }}"
                                     style="display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; font-size:13px; color:#374151; transition:all 0.15s; text-decoration:none;"
@@ -494,13 +494,13 @@ window.addEventListener('DOMContentLoaded', function() {
                         <!-- Footer cari keyword -->
                         <div id="search-footer" style="display:none; padding:12px 16px; border-top:1px solid #f3f4f6; background:#f8fafc;">
                             <button type="submit" style="width:100%; padding:10px; background:#1B3A4B; color:white; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">
-                                <i class="fas fa-search"></i> Cari "<span id="search-keyword"></span>"
+                                <i class="fas fa-search"></i> <span>Cari</span> "<span id="search-keyword"></span>"
                             </button>
                         </div>
                     </div>
                 </div>
                 <button type="submit" style="background:#1B3A4B; color:white; border:none; padding:12px 28px; border-radius:var(--radius-sm); font-weight:600; font-size:15px; cursor:pointer; transition:background 0.2s;">
-                    <i class="fas fa-search"></i> Cari
+                    <i class="fas fa-search"></i> <span>Cari</span>
                 </button>
             </form>
         </div>
@@ -530,7 +530,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     <h2 class="section-title">Destinasi Populer</h2>
                     <p class="section-subtitle" style="margin-bottom:0;">Jelajahi keindahan Bali dari berbagai sudut</p>
                 </div>
-                <a href="{{ route('tours.index') }}" class="see-all">Lihat Semua <i class="fas fa-chevron-right" style="font-size:10px;"></i></a>
+                <a href="{{ route('tours.index') }}" class="see-all"><span>Lihat Semua</span> <i class="fas fa-chevron-right" style="font-size:10px;"></i></a>
             </div>
             <div class="destinations-grid">
                 @foreach($destinations as $destination)
@@ -538,7 +538,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     <img src="{{ $destination->image ?? 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600' }}" alt="{{ $destination->name }}">
                     <div class="destination-overlay">
                         <h3>{{ $destination->name }}</h3>
-                        <span>{{ $destination->tours_count }} aktivitas</span>
+                        <span>{{ $destination->tours_count }} <span>aktivitas</span></span>
                     </div>
                 </a>
                 @endforeach
@@ -554,7 +554,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     <h2 class="section-title">Tour Paling Populer</h2>
                     <p class="section-subtitle" style="margin-bottom:0;">Pilihan wisatawan terbaik minggu ini</p>
                 </div>
-                <a href="{{ route('tours.index') }}" class="see-all">Lihat Semua <i class="fas fa-chevron-right" style="font-size:10px;"></i></a>
+                <a href="{{ route('tours.index') }}" class="see-all"><span>Lihat Semua</span> <i class="fas fa-chevron-right" style="font-size:10px;"></i></a>
             </div>
             <div class="tours-grid">
                 @foreach($popularTours as $tour)
@@ -562,7 +562,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     <div class="tour-image">
                         <img src="{{ $tour->image ?? 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400' }}" alt="{{ $tour->title }}">
                         @if($tour->discountPercentage() > 0)
-                            <span class="tour-badge">Hemat {{ $tour->discountPercentage() }}%</span>
+                            <span class="tour-badge"><span>Hemat</span> {{ $tour->discountPercentage() }}%</span>
                         @endif
                         <button class="tour-wishlist"><i class="far fa-heart"></i></button>
                     </div>
@@ -570,7 +570,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         <div class="tour-category">{{ $tour->category->name }}</div>
                         <h3 class="tour-title">{{ $tour->title }}</h3>
                         <div class="tour-meta">
-                            <span><i class="far fa-clock"></i> {{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</span>
+                            <span><i class="far fa-clock"></i> {{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</span>
                             @if($tour->rating > 0)
                             <div class="tour-rating">
                                 <i class="fas fa-star"></i>
@@ -629,7 +629,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     <h2 class="section-title">Rekomendasi Spesial</h2>
                     <p class="section-subtitle" style="margin-bottom:0;">Pengalaman premium pilihan kami</p>
                 </div>
-                <a href="{{ route('tours.index') }}" class="see-all">Lihat Semua <i class="fas fa-chevron-right" style="font-size:10px;"></i></a>
+                <a href="{{ route('tours.index') }}" class="see-all"><span>Lihat Semua</span> <i class="fas fa-chevron-right" style="font-size:10px;"></i></a>
             </div>
             <div class="tours-grid">
                 @foreach($featuredTours as $tour)
@@ -643,7 +643,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         <div class="tour-category">{{ $tour->category->name }}</div>
                         <h3 class="tour-title">{{ $tour->title }}</h3>
                         <div class="tour-meta">
-                            <span><i class="far fa-clock"></i> {{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</span>
+                            <span><i class="far fa-clock"></i> {{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</span>
                             @if($tour->rating > 0)
                             <div class="tour-rating">
                                 <i class="fas fa-star"></i>

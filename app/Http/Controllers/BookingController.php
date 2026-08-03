@@ -76,7 +76,10 @@ class BookingController extends Controller
             $totalPrice = $sharingPrice * $numPersons;
 
             if (!empty($validated['addon_ids'])) {
-                $addonIds = $package->addons()->whereIn('id', $validated['addon_ids'])->pluck('id')->toArray();
+                $addons = $package->addons()->whereIn('id', $validated['addon_ids'])->get();
+                $addonIds = $addons->pluck('id')->toArray();
+                $addonPrice = (float) $addons->sum('price');
+                $totalPrice += $addonPrice;
             }
         }
 

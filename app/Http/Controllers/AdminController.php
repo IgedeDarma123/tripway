@@ -442,13 +442,14 @@ class AdminController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
+            'price'       => 'nullable|numeric|min:0',
             'sort_order'  => 'nullable|integer|min:0',
         ]);
 
         $package->addons()->create([
             'name'        => $request->name,
             'description' => $request->description,
-            'price'       => 0,
+            'price'       => $request->price ?? 0,
             'sort_order'  => $request->sort_order ?? 0,
             'is_active'   => true,
         ]);
@@ -467,12 +468,13 @@ class AdminController extends Controller
         $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
+            'price'       => 'nullable|numeric|min:0',
         ]);
 
         $addon->update([
             'name'        => $request->name,
             'description' => $request->description,
-            'price'       => 0,
+            'price'       => $request->price ?? 0,
         ]);
 
         return back()->with('success', 'Add-on berhasil diperbarui!');

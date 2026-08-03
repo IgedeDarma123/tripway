@@ -226,7 +226,7 @@
 @section('content')
     <div class="login-page">
         <a href="{{ url('/') }}" class="back-home">
-            <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+            <i class="fas fa-arrow-left"></i> <span>Kembali ke Beranda</span>
         </a>
 
         <div class="login-card">
@@ -274,13 +274,13 @@
                     </label>
                     @if (Route::has('password.request'))
                         <a class="forgot-link" href="{{ route('password.request') }}">
-                            Lupa password?
+                            <span>Lupa password?</span>
                         </a>
                     @endif
                 </div>
 
                 <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i> Masuk
+                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i> <span>Masuk</span>
                 </button>
             </form>
 
@@ -290,13 +290,13 @@
 
             <a href="{{ route('auth.google') }}" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px; border:2px solid #e8e8e8; border-radius:12px; font-size:14px; font-weight:600; color:#444; text-decoration:none; transition:all 0.2s; background:white;" onmouseover="this.style.borderColor='#4285f4'; this.style.background='#f8f9ff'" onmouseout="this.style.borderColor='#e8e8e8'; this.style.background='white'">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px; height:20px;">
-                Masuk dengan Google
+                <span>Masuk dengan Google</span>
             </a>
 
             <div class="login-divider" style="margin-top:28px;"></div>
 
             <div class="login-footer">
-                Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a>
+                <span>Belum punya akun?</span> <a href="{{ route('register') }}"><span>Daftar sekarang</span></a>
             </div>
         </div>
     </div>

@@ -8,7 +8,7 @@
                     <h2 class="text-xl md:text-2xl font-black bg-gradient-to-r from-[#1B3A4B] to-[#14505F] bg-clip-text text-transparent">
                         Pilihan paket
                     </h2>
-                    <p class="text-xs md:text-sm text-gray-500 mt-0.5">{{ $tour->destination->name }} &middot; {{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
+                    <p class="text-xs md:text-sm text-gray-500 mt-0.5">{{ $tour->destination->name }} &middot; {{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</p>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <button id="btn-cek-ketersediaan" class="bg-[#1B3A4B] hover:bg-[#14505F] text-white px-3 md:px-4 py-1.5 md:py-2 rounded-xl font-semibold shadow-lg transition-all flex items-center gap-1 md:gap-2 text-xs whitespace-nowrap">
@@ -30,7 +30,7 @@
             {{-- Pesan error validasi --}}
             @if($errors->any())
             <div style="margin:12px 16px 0; padding:12px 16px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px;">
-                <p style="font-size:12px; font-weight:700; color:#dc2626; margin-bottom:6px;"><i class="fas fa-exclamation-circle"></i> Periksa data berikut:</p>
+                <p style="font-size:12px; font-weight:700; color:#dc2626; margin-bottom:6px;"><i class="fas fa-exclamation-circle"></i> <span>Periksa data berikut:</span></p>
                 <ul style="margin:0; padding-left:16px;">
                     @foreach($errors->all() as $error)
                     <li style="font-size:12px; color:#dc2626;">{{ $error }}</li>
@@ -44,12 +44,12 @@
 
                 <!-- Tanggal -->
                 <div class="space-y-2">
-                    <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide">Tanggal partisipasi <span class="text-[#1B3A4B]">*</span></label>
+                    <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide"><span>Tanggal partisipasi</span> <span class="text-[#1B3A4B]">*</span></label>
                     <input type="date" name="travel_date" id="travel_date"
                         class="w-full p-2.5 border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-slate-200 focus:border-[#1B3A4B] transition-all shadow-sm"
                         min="{{ date('Y-m-d') }}" required>
                     <button type="button" id="btn-cek" class="w-full bg-[#1B3A4B] hover:bg-[#14505F] text-white px-4 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 text-sm mt-1">
-                        <i class="fas fa-search text-xs"></i> Cek ketersediaan
+                        <i class="fas fa-search text-xs"></i> <span>Cek ketersediaan</span>
                     </button>
                 </div>
 
@@ -62,7 +62,7 @@
                         <div class="flex items-center gap-2">
                             <div class="bg-[#1B3A4B] text-white text-xs font-bold px-2 py-0.5 rounded-full">Diskon</div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-bold text-xs text-gray-900">Hemat hingga {{ $tour->activePackages->max(fn($p) => $p->discountPercentage()) }}%</p>
+                                <p class="font-bold text-xs text-gray-900"><span>Hemat hingga</span> {{ $tour->activePackages->max(fn($p) => $p->discountPercentage()) }}%</p>
                                 <p class="text-xs text-gray-500">booking sekarang</p>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
 
                     <!-- Jenis Paket -->
                     <div>
-                        <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Jenis paket <span class="text-[#1B3A4B]">*</span></label>
+                        <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-2"><span>Jenis paket</span> <span class="text-[#1B3A4B]">*</span></label>
                         <div class="space-y-1.5" id="paket-list">
                             @foreach($tour->activePackages as $index => $package)
                             <button type="button"
@@ -82,13 +82,13 @@
                                 data-name="{{ $package->name }}"
                                 data-travel-type="{{ $package->travel_type }}"
                                 data-groups="{{ json_encode($package->activeGroups->map(fn($g) => ['id'=>$g->id,'label'=>$g->label,'group_size'=>$g->group_size,'price'=>$g->price])) }}"
-                                data-addons="{{ json_encode($package->activeAddons->map(fn($a) => ['id'=>$a->id,'name'=>$a->name,'description'=>$a->description])) }}">
+                                data-addons="{{ json_encode($package->activeAddons->map(fn($a) => ['id'=>$a->id,'name'=>$a->name,'description'=>$a->description,'price'=>$a->price])) }}">
                                 <div class="font-bold text-sm">{{ $package->name }}</div>
                             </button>
                             @endforeach
                             @if($tour->activePackages->count() > 1)
                             <button type="button" id="btn-toggle-paket" onclick="toggleMorePaket()" style="width:100%; padding:6px; background:#e2e8f0; border:none; border-radius:8px; color:#475569; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">
-                                <span id="toggle-paket-text">Lihat semua ({{ $tour->activePackages->count() }})</span> <i class="fas fa-chevron-down" id="toggle-paket-icon" style="font-size:10px;"></i>
+                                <span id="toggle-paket-text"></span> <i class="fas fa-chevron-down" id="toggle-paket-icon" style="font-size:10px;"></i>
                             </button>
                             @endif
                         </div>
@@ -97,7 +97,7 @@
                     @else
                     <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700 text-center">
                         <i class="fas fa-info-circle mb-1"></i><br>
-                        Belum ada paket tersedia.<br>Hubungi admin untuk info lebih lanjut.
+                        <span>Belum ada paket tersedia.</span><br><span>Hubungi admin untuk info lebih lanjut.</span>
                     </div>
                     @endif
 
@@ -194,6 +194,12 @@
     const paketName        = document.getElementById('paket-selected-name');
     const btnPesan         = document.getElementById('btn-pesan');
 
+    const toggleText = document.getElementById('toggle-paket-text');
+    if (toggleText) {
+        const totalPkg = document.querySelectorAll('.paket-item').length;
+        toggleText.textContent = 'Lihat semua (' + totalPkg + ')';
+    }
+
     function fmt(n) { return 'Rp' + parseInt(n).toLocaleString('id-ID'); }
 
     const supportedTypes = new Set();
@@ -256,17 +262,19 @@
                     const qty = groupQuantities[gid] || 0;
                     const subtotal = price * qty;
                     total += subtotal;
-                    breakdown.push(`<div class="flex justify-between"><span>${group.label} &middot; ${fmt(price)}/orang</span><span class="font-semibold">${fmt(subtotal)}</span></div>`);
+                    breakdown.push(`<div class="flex justify-between"><span>${group.label} &middot; ${fmt(price)}/ orang</span><span class="font-semibold">${fmt(subtotal)}</span></div>`);
                 }
             });
         } else {
             const pricePerPerson = selectedPackage.sharingPrice;
             total = pricePerPerson * sharingCount;
-            breakdown.push(`<div class="flex justify-between"><span>${fmt(pricePerPerson)}/orang &times; ${sharingCount}</span><span class="font-semibold">${fmt(total)}</span></div>`);
+            breakdown.push(`<div class="flex justify-between"><span>${fmt(pricePerPerson)}/ orang &times; ${sharingCount}</span><span class="font-semibold">${fmt(total)}</span></div>`);
             selectedAddonIds.forEach(id => {
                 const addon = selectedPackage.addons.find(a => a.id == id);
                 if (addon) {
-                    breakdown.push(`<div class="flex justify-between"><span>${addon.name}</span><span class="font-semibold"></span></div>`);
+                    const addonPrice = parseFloat(addon.price) || 0;
+                    total += addonPrice;
+                    breakdown.push(`<div class="flex justify-between"><span>${addon.name}</span><span class="font-semibold">${fmt(addonPrice)}</span></div>`);
                 }
             });
         }
@@ -300,7 +308,7 @@
             paketName.textContent = selectedPackage.name;
 
             const sharingLabel = document.getElementById('sharing-price-label');
-            if (sharingLabel) sharingLabel.textContent = fmt(selectedPackage.sharingPrice) + '/orang';
+            if (sharingLabel) sharingLabel.textContent = fmt(selectedPackage.sharingPrice) + '/ orang';
 
             selectedTravelType = null;
             selectedGroupId = null;
@@ -321,7 +329,7 @@
             btnPrivate.style.display = (tt === 'sharing' || !supportedTypes.has('private')) ? 'none' : '';
             btnSharing.style.display = (tt === 'private' || !supportedTypes.has('sharing')) ? 'none' : '';
 
-            if (tt === 'private') selectTravelType('private');
+            if (tt === 'private' || tt === 'both') selectTravelType('private');
             else if (tt === 'sharing') selectTravelType('sharing');
 
             recalc();
@@ -406,13 +414,8 @@
             const grp = selectedPackage ? selectedPackage.groups.find(x => x.id == gid) : null;
             const unit = grp ? (parseFloat(grp.price) || 0) : 0;
             if (priceEl) {
-                if (qty > 0) {
-                    priceEl.textContent = fmt(unit);
-                    priceEl.style.display = '';
-                } else {
-                    priceEl.textContent = '';
-                    priceEl.style.display = 'none';
-                }
+                priceEl.textContent = fmt(unit);
+                priceEl.style.display = '';
             }
             const minusBtn = row.querySelector('.group-minus');
             minusBtn.disabled = qty <= 0;
@@ -454,12 +457,15 @@
             const label = document.createElement('label');
             label.className = 'flex items-center justify-between p-2.5 bg-white rounded-xl border shadow-sm cursor-pointer hover:border-[#1B3A4B] transition-all';
             label.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" name="addon_ids[]" value="${a.id}" class="addon-check w-4 h-4 accent-[#1B3A4B]">
-                    <div>
-                        <div class="font-semibold text-xs">${a.name}</div>
-                        ${a.description ? `<div class="text-xs text-gray-400">${a.description}</div>` : ''}
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" name="addon_ids[]" value="${a.id}" class="addon-check w-4 h-4 accent-[#1B3A4B]">
+                        <div>
+                            <div class="font-semibold text-xs">${a.name}</div>
+                            ${a.description ? `<div class="text-xs text-gray-400">${a.description}</div>` : ''}
+                        </div>
                     </div>
+                    <span class="font-bold text-xs text-[#1B3A4B] shrink-0">${fmt(a.price || 0)}</span>
                 </div>`;
             label.querySelector('.addon-check').addEventListener('change', function () {
                 selectedAddonIds = this.checked

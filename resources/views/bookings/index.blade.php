@@ -125,47 +125,47 @@
                 @foreach($bookings as $booking)
                 <div class="booking-card">
                     <img src="{{ $booking->tour->image ?? 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=300' }}" alt="{{ $booking->tour->title }}">
-                    <div class="booking-info">
-                        <h3>{{ $booking->tour->title }}</h3>
-                        <div class="meta">
-                            <span><i class="far fa-calendar"></i> {{ $booking->travel_date->format('d M Y') }}</span>
-                            <span><i class="fas fa-users"></i> {{ $booking->adults + $booking->children }} orang</span>
-                            <span><i class="fas fa-map-marker-alt"></i> {{ $booking->tour->destination->name }}</span>
+                        <div class="booking-info">
+                            <h3>{{ $booking->tour->title }}</h3>
+                            <div class="meta">
+                                <span><i class="far fa-calendar"></i> {{ $booking->travel_date->format('d M Y') }}</span>
+                                <span><i class="fas fa-users"></i> {{ $booking->adults + $booking->children }} <span>orang</span></span>
+                                <span><i class="fas fa-map-marker-alt"></i> {{ $booking->tour->destination->name }}</span>
+                            </div>
+                            <div class="booking-actions">
+                                @if($booking->status != 'completed' && $booking->status != 'cancelled')
+                                <form action="{{ route('bookings.destroy', $booking) }}" method="POST" id="delete-form-{{ $booking->id }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" onclick="confirmDelete({{ $booking->id }}, '{{ addslashes($booking->tour->title) }}')">
+                                        <i class="fas fa-times"></i> <span>Batalkan Pesanan</span>
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
                         </div>
-                        <div class="booking-actions">
-                            @if($booking->status != 'completed' && $booking->status != 'cancelled')
-                            <form action="{{ route('bookings.destroy', $booking) }}" method="POST" id="delete-form-{{ $booking->id }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" onclick="confirmDelete({{ $booking->id }}, '{{ addslashes($booking->tour->title) }}')">
-                                    <i class="fas fa-times"></i> Batalkan Pesanan
-                                </button>
-                            </form>
+                        <div class="booking-status">
+                            <span class="status-badge status-{{ $booking->status }}">{{ $booking->status }}</span>
+                            @if($booking->payment_proof)
+                                <div style="margin-top: 8px; font-size: 11px; color: #155724;">
+                                    <i class="fas fa-check"></i> <span>Bukti uploaded</span>
+                                </div>
+                            @endif
+                            <div class="price">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div>
+                            @if($booking->status === 'confirmed')
+                                <a href="{{ route('bookings.ticket', $booking) }}" style="display:block; margin-top:8px; background:#1B3A4B; color:white; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none; text-align:center;">
+                                    <i class="fas fa-file-pdf"></i> <span>Download Tiket</span>
+                                </a>
+                            @elseif(in_array($booking->status, ['pending']) && !$booking->payment_proof)
+                                <a href="{{ route('payment.upload.show', $booking) }}" class="btn btn-sm" style="margin-top: 8px; background: var(--primary); color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px;">
+                                    <i class="fas fa-upload"></i> <span>Upload Bukti</span>
+                                </a>
+                            @elseif($booking->payment_status === 'pending_verification')
+                                <div style="margin-top:8px; font-size:11px; color:#92400e; background:#fffbeb; padding:5px 10px; border-radius:6px;">
+                                    <i class="fas fa-clock"></i> <span>Menunggu verifikasi</span>
+                                </div>
                             @endif
                         </div>
-                    </div>
-                        <div class="booking-status">
-                        <span class="status-badge status-{{ $booking->status }}">{{ $booking->status }}</span>
-                        @if($booking->payment_proof)
-                            <div style="margin-top: 8px; font-size: 11px; color: #155724;">
-                                <i class="fas fa-check"></i> Bukti uploaded
-                            </div>
-                        @endif
-                        <div class="price">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div>
-                        @if($booking->status === 'confirmed')
-                            <a href="{{ route('bookings.ticket', $booking) }}" style="display:block; margin-top:8px; background:#1B3A4B; color:white; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none; text-align:center;">
-                                <i class="fas fa-file-pdf"></i> Download Tiket
-                            </a>
-                        @elseif(in_array($booking->status, ['pending']) && !$booking->payment_proof)
-                            <a href="{{ route('payment.upload.show', $booking) }}" class="btn btn-sm" style="margin-top: 8px; background: var(--primary); color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px;">
-                                <i class="fas fa-upload"></i> Upload Bukti
-                            </a>
-                        @elseif($booking->payment_status === 'pending_verification')
-                            <div style="margin-top:8px; font-size:11px; color:#92400e; background:#fffbeb; padding:5px 10px; border-radius:6px;">
-                                <i class="fas fa-clock"></i> Menunggu verifikasi
-                            </div>
-                        @endif
-                    </div>
                 </div>
                 @endforeach
             @else
@@ -173,7 +173,7 @@
                     <i class="fas fa-calendar-times"></i>
                     <h3>Belum Ada Pesanan</h3>
                     <p>Anda belum membuat booking apapun. Jelajahi aktivitas seru di Bali dan pesan sekarang!</p>
-                    <a href="{{ route('tours.index') }}" class="btn btn-primary">Jelajahi Tour</a>
+                    <a href="{{ route('tours.index') }}" class="btn btn-primary"><span>Jelajahi Tour</span></a>
                 </div>
             @endif
         </div>

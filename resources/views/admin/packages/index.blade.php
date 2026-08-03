@@ -359,9 +359,15 @@
                                     <label style="font-size:12px;">Nama Add-on *</label>
                                     <input type="text" name="name" required placeholder="cth: Sewa Snorkel">
                                 </div>
-                                <div class="form-group">
-                                    <label style="font-size:12px;">Deskripsi</label>
-                                    <input type="text" name="description" placeholder="Keterangan singkat">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label style="font-size:12px;">Harga (Rp) *</label>
+                                        <input type="number" name="price" min="0" required placeholder="cth: 50000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-size:12px;">Deskripsi</label>
+                                        <input type="text" name="description" placeholder="Keterangan singkat">
+                                    </div>
                                 </div>
                                 <div style="display:flex; gap:8px;">
                                     <button type="submit" class="btn btn-primary" style="font-size:12px;"><i class="fas fa-save"></i> Simpan</button>
@@ -381,6 +387,7 @@
                                         @if($addon->description)
                                         <span style="margin-left:8px; font-size:12px; color:#9ca3af;">{{ $addon->description }}</span>
                                         @endif
+                                        <span style="margin-left:10px; font-weight:700; font-size:13px; color:#15803d;">Rp{{ number_format($addon->price, 0, ',', '.') }}</span>
                                     </div>
                                     <div style="display:flex; gap:6px; flex-shrink:0;">
                                         <button onclick="toggleForm('edit-addon-{{ $addon->id }}')" class="btn btn-sm btn-secondary" style="font-size:12px;">
@@ -413,6 +420,10 @@
                                                     <label>Deskripsi</label>
                                                     <input type="text" name="description" value="{{ $addon->description }}">
                                                 </div>
+                                            </div>
+                                            <div class="form-group" style="margin-bottom:16px;">
+                                                <label>Harga (Rp)</label>
+                                                <input type="number" name="price" min="0" value="{{ $addon->price }}" required>
                                             </div>
                                             <div style="display:flex; gap:8px;">
                                                 <button type="submit" class="btn btn-primary" style="font-size:13px;"><i class="fas fa-save"></i> Simpan</button>

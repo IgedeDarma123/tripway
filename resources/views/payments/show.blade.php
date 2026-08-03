@@ -225,10 +225,10 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                             </div>
                             <div class="steps">
                                 <div class="step-item"><div class="step-num">1</div><span>Buka aplikasi bank atau e-wallet (GoPay, OVO, Dana, BCA, dll)</span></div>
-                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu <strong>Scan QR / QRIS</strong></span></div>
-                                <div class="step-item"><div class="step-num">3</div><span>Scan QR code di atas dan masukkan nominal <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong></span></div>
+                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu Scan QR / QRIS</span></div>
+                                <div class="step-item"><div class="step-num">3</div><span><span>Scan QR code di atas dan masukkan nominal</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong></span></div>
                                 <div class="step-item"><div class="step-num">4</div><span>Konfirmasi pembayaran di aplikasi Anda</span></div>
-                                <div class="step-item"><div class="step-num">5</div><span>Klik <strong>Konfirmasi Bayar</strong> setelah selesai</span></div>
+                                <div class="step-item"><div class="step-num">5</div><span>Klik Konfirmasi Bayar setelah selesai</span></div>
                             </div>
                         </div>
                     </div>
@@ -245,25 +245,25 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                             </div>
                             <div class="method-item-info">
                                 <div class="method-item-name">{{ $pm->name }}</div>
-                                <div class="method-item-sub">Transfer ke nomor {{ $pm->name }} tujuan</div>
+                                <div class="method-item-sub"><span>Transfer ke nomor</span> {{ $pm->name }} <span>tujuan</span></div>
                             </div>
                             <div class="method-radio"></div>
                         </div>
                         <div class="method-item-body">
                             <div class="number-box">
-                                <div class="number-label">Nomor {{ $pm->name }} Tujuan</div>
+                                <div class="number-label"><span>Nomor</span> {{ $pm->name }} <span>Tujuan</span></div>
                                 <div class="number-value">{{ $pm->account_number }}</div>
-                                <div class="number-name">a.n. {{ $pm->account_name }}</div>
+                                <div class="number-name"><span>a.n.</span> {{ $pm->account_name }}</div>
                                 <button class="copy-btn" onclick="copyText('{{ $pm->account_number }}', this)">
-                                    <i class="fas fa-copy"></i> Salin Nomor
+                                    <i class="fas fa-copy"></i> <span>Salin Nomor</span>
                                 </button>
                             </div>
                             <div class="steps" style="margin-top:12px;">
-                                <div class="step-item"><div class="step-num">1</div><span>Buka aplikasi <strong>{{ $pm->name }}</strong> di HP Anda</span></div>
-                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu <strong>Transfer / Kirim Uang</strong></span></div>
-                                <div class="step-item"><div class="step-num">3</div><span>Masukkan nomor <strong>{{ $pm->account_number }}</strong></span></div>
-                                <div class="step-item"><div class="step-num">4</div><span>Masukkan nominal <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> dan konfirmasi</span></div>
-                                <div class="step-item"><div class="step-num">5</div><span>Klik <strong>Konfirmasi Bayar</strong> di bawah setelah transfer selesai</span></div>
+                                <div class="step-item"><div class="step-num">1</div><span><span>Buka aplikasi</span> <strong>{{ $pm->name }}</strong> <span>di HP Anda</span></span></div>
+                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu Transfer / Kirim Uang</span></div>
+                                <div class="step-item"><div class="step-num">3</div><span><span>Masukkan nomor</span> <strong>{{ $pm->account_number }}</strong></span></div>
+                                <div class="step-item"><div class="step-num">4</div><span><span>Masukkan nominal</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> <span>dan konfirmasi</span></span></div>
+                                <div class="step-item"><div class="step-num">5</div><span>Klik Konfirmasi Bayar di bawah setelah transfer selesai</span></div>
                             </div>
                         </div>
                     </div>
@@ -281,7 +281,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                             </div>
                             <div class="method-item-info">
                                 <div class="method-item-name">{{ $pm->name }}</div>
-                                <div class="method-item-sub">No. Rekening: {{ $pm->account_number }}</div>
+                                <div class="method-item-sub"><span>No. Rekening:</span> {{ $pm->account_number }}</div>
                             </div>
                             <div class="method-radio"></div>
                         </div>
@@ -289,17 +289,17 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                             <div class="number-box">
                                 <div class="number-label">Nomor Rekening / Virtual Account</div>
                                 <div class="number-value">{{ $pm->account_number }}</div>
-                                <div class="number-name">a.n. {{ $pm->account_name }}</div>
+                                <div class="number-name"><span>a.n.</span> {{ $pm->account_name }}</div>
                                 <button class="copy-btn" onclick="copyText('{{ $pm->account_number }}', this)">
-                                    <i class="fas fa-copy"></i> Salin Nomor
+                                    <i class="fas fa-copy"></i> <span>Salin Nomor</span>
                                 </button>
                             </div>
                             <div class="steps" style="margin-top:12px;">
-                                <div class="step-item"><div class="step-num">1</div><span>Buka aplikasi mobile banking atau ATM <strong>{{ $pm->name }}</strong></span></div>
-                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu <strong>Transfer</strong></span></div>
-                                <div class="step-item"><div class="step-num">3</div><span>Masukkan nomor rekening <strong>{{ $pm->account_number }}</strong></span></div>
-                                <div class="step-item"><div class="step-num">4</div><span>Masukkan nominal <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> dan konfirmasi</span></div>
-                                <div class="step-item"><div class="step-num">5</div><span>Klik <strong>Konfirmasi Bayar</strong> di bawah setelah transfer selesai</span></div>
+                                <div class="step-item"><div class="step-num">1</div><span><span>Buka aplikasi mobile banking atau ATM</span> <strong>{{ $pm->name }}</strong> <span>mobile banking app atau ATM</span></span></div>
+                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu Transfer</span></div>
+                                <div class="step-item"><div class="step-num">3</div><span><span>Masukkan nomor rekening</span> <strong>{{ $pm->account_number }}</strong></span></div>
+                                <div class="step-item"><div class="step-num">4</div><span><span>Masukkan nominal</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> <span>dan konfirmasi</span></span></div>
+                                <div class="step-item"><div class="step-num">5</div><span>Klik Konfirmasi Bayar di bawah setelah transfer selesai</span></div>
                             </div>
                         </div>
                     </div>
@@ -309,7 +309,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
 
                 <div class="notice blue">
                     <i class="fas fa-info-circle" style="flex-shrink:0; margin-top:1px;"></i>
-                    <span>Pilih metode pembayaran, lakukan transfer, lalu klik <strong>Konfirmasi Bayar</strong> di sidebar.</span>
+                    <span>Pilih metode pembayaran, lakukan transfer, lalu klik Konfirmasi Bayar di sidebar.</span>
                 </div>
             </div>
 
@@ -324,7 +324,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                         <div class="tname">{{ $booking->tour->title }}</div>
                         <div class="tmeta">
                             <i class="far fa-calendar" style="margin-right:3px;"></i>{{ $booking->travel_date->format('d M Y') }}<br>
-                            <i class="fas fa-users" style="margin-right:3px;"></i>{{ $booking->num_persons }} orang
+                            <i class="fas fa-users" style="margin-right:3px;"></i>{{ $booking->num_persons }} <span>orang</span>
                         </div>
                     </div>
                 </div>
@@ -336,7 +336,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                     </div>
                     <div class="price-row">
                         <span class="l">Peserta</span>
-                        <span class="v">{{ $booking->num_persons }} orang</span>
+                        <span class="v">{{ $booking->num_persons }} <span>orang</span></span>
                     </div>
                     @if($booking->addon_price > 0)
                     <div class="price-row">
@@ -364,12 +364,12 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                         <input type="hidden" name="payment_method" id="final-method" value="">
                         <input type="hidden" name="payment_type" id="final-type" value="">
                         <button type="submit" id="btn-konfirmasi" class="btn-primary" style="margin-top:16px;" onclick="return validateMethod()">
-                            <i class="fas fa-check-circle" style="margin-right:8px;"></i>Konfirmasi Bayar
+                            <i class="fas fa-check-circle" style="margin-right:8px;"></i><span>Konfirmasi Bayar</span>
                         </button>
                     </form>
 
                     <a href="{{ route('payment.order-detail', $booking) }}" class="btn-secondary">
-                        <i class="fas fa-arrow-left" style="margin-right:6px;"></i>Kembali
+                        <i class="fas fa-arrow-left" style="margin-right:6px;"></i><span>Kembali</span>
                     </a>
 
                     <div class="notice green" style="margin-top:12px;">

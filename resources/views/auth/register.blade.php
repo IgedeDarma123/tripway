@@ -225,7 +225,7 @@
             </div>
 
             <button type="submit" class="btn-register">
-                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> Daftar Sekarang
+                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> <span>Daftar Sekarang</span>
             </button>
         </form>
 
@@ -233,13 +233,13 @@
 
         <a href="{{ route('auth.google') }}" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px; border:2px solid #e8e8e8; border-radius:12px; font-size:14px; font-weight:600; color:#444; text-decoration:none; transition:all 0.2s; background:white;" onmouseover="this.style.borderColor='#4285f4'; this.style.background='#f8f9ff'" onmouseout="this.style.borderColor='#e8e8e8'; this.style.background='white'">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px; height:20px;">
-            Daftar dengan Google
+            <span>Daftar dengan Google</span>
         </a>
 
         <div class="login-divider" style="margin-top:28px;"></div>
 
         <div class="register-footer">
-            Sudah punya akun? <a href="{{ route('login') }}">Masuk sekarang</a>
+            <span>Sudah punya akun?</span> <a href="{{ route('login') }}"><span>Masuk sekarang</span></a>
         </div>
     </div>
 </div>

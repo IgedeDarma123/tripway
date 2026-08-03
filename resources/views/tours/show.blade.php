@@ -199,7 +199,7 @@
                 <img src="{{ $mainMedia['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="openGalleryModal(0)">
             @endif
             <div style="position:absolute; bottom:12px; left:12px; background:rgba(0,0,0,0.5); color:white; font-size:12px; font-weight:600; padding:4px 10px; border-radius:8px; backdrop-filter:blur(4px);">
-                <i class="fas fa-camera" style="margin-right:4px;"></i> {{ count($mediaList) }} foto
+                <i class="fas fa-camera" style="margin-right:4px;"></i> {{ count($mediaList) }} <span>foto</span>
             </div>
         </div>
 
@@ -348,14 +348,14 @@
                         <div style="font-size:13px; color:#9ca3af; text-decoration:line-through; font-weight:400;">Rp{{ number_format($tour->original_price, 0, ',', '.') }}</div>
                     @endif
                     <div onclick="document.querySelector('.tour-booking-anchor')?.scrollIntoView({behavior:'smooth',block:'center'})" style="display:inline-block; margin-top:6px; padding:6px 14px; background:#1B3A4B; color:white; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#14505F'" onmouseout="this.style.background='#1B3A4B'">
-                        Pilih Paket <i class="fas fa-arrow-down" style="margin-left:4px; font-size:10px;"></i>
+                        <span>Pilih Paket</span> <i class="fas fa-arrow-down" style="margin-left:4px; font-size:10px;"></i>
                     </div>
                 </div>
                 @endif
             </div>
             <div class="meta">
-                <span><i class="far fa-clock"></i> {{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</span>
-                <span><i class="fas fa-users"></i> Max {{ $tour->max_people }} orang</span>
+                <span><i class="far fa-clock"></i> {{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</span>
+                <span><i class="fas fa-users"></i> <span>Max</span> {{ $tour->max_people }} <span>orang</span></span>
                 <span><i class="fas fa-map-marker-alt"></i> {{ $tour->destination->name }}</span>
             </div>
         </div>
@@ -368,7 +368,7 @@
                 @endfor
             </span>
             <span class="score">{{ $tour->rating }}</span>
-            <span class="reviews">({{ $tour->review_count }} ulasan)</span>
+            <span class="reviews">({{ $tour->review_count }} <span>ulasan</span>)</span>
         </div>
         @endif
 
@@ -424,7 +424,7 @@
                             <div class="bg-slate-50 rounded-lg p-2 text-center">
                                 <i class="fas fa-clock text-[#1B3A4B] mb-0.5 text-xs"></i>
                                 <p class="text-[10px] text-gray-500">Durasi</p>
-                                <p id="detail-durasi" class="font-bold text-xs text-gray-800">{{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</p>
+                                <p id="detail-durasi" class="font-bold text-xs text-gray-800">{{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</p>
                             </div>
                         </div>
 
@@ -506,6 +506,12 @@
             'rating_tertinggi' => 'Rating Tertinggi',
             'rating_terendah' => 'Rating Terendah',
         ];
+        $sortI18n = [
+            'terbaru' => 'show.rating.newest',
+            'terlama' => 'show.rating.oldest',
+            'rating_tertinggi' => 'show.rating.highest',
+            'rating_terendah' => 'show.rating.lowest',
+        ];
         $ratingTabs = [
             '' => 'Semua',
             '5' => '5 ',
@@ -527,7 +533,7 @@
                                 <i class="fas fa-star" style="{{ $i > round($tour->rating) ? 'opacity:0.2' : '' }}"></i>
                             @endfor
                         </div>
-                        <div style="font-size:14px; color:#64748b;">{{ $totalReviews }} ulasan</div>
+                        <div style="font-size:14px; color:#64748b;">{{ $totalReviews }} <span>ulasan</span></div>
                     </div>
                     <div style="margin-top:20px;">
                         @foreach($ratingCounts as $r)
@@ -546,7 +552,7 @@
                 <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
                     @foreach($ratingTabs as $key => $label)
                     <a href="{{ request()->fullUrlWithQuery(['rating' => $key ?: null, 'page' => null]) }}" style="padding:6px 14px; font-size:13px; border-radius:20px; text-decoration:none; transition:all 0.2s; font-weight:{{ $ratingFilter == $key ? '600' : '400' }}; background:{{ $ratingFilter == $key ? '#1B3A4B' : '#f1f5f9' }}; color:{{ $ratingFilter == $key ? '#fff' : '#475569' }};">
-                        {{ $label }}@if($key)<i class="fas fa-star" style="font-size:10px;"></i>@endif
+                        @if($key === '')<span>Semua</span>@else{{ $label }}@endif @if($key)<i class="fas fa-star" style="font-size:10px;"></i>@endif
                     </a>
                     @endforeach
                 </div>
@@ -555,7 +561,7 @@
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
                         @foreach($sortOptions as $key => $label)
                         <a href="{{ request()->fullUrlWithQuery(['sort' => $key]) }}" style="padding:6px 14px; font-size:13px; border-radius:20px; text-decoration:none; transition:all 0.2s; font-weight:{{ $sort === $key ? '600' : '400' }}; background:{{ $sort === $key ? '#1B3A4B' : '#f1f5f9' }}; color:{{ $sort === $key ? '#fff' : '#475569' }};">
-                            {{ $label }}
+                            <span>{{ $label }}</span>
                         </a>
                         @endforeach
                     </div>
@@ -624,7 +630,7 @@
                 <div style="padding:14px 16px;">
                     <div style="font-size:14px; font-weight:700; color:#1e293b; line-height:1.4; margin-bottom:10px;">{{ $rt->title }}</div>
                     <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <div style="font-size:12px; color:#64748b;"><i class="far fa-clock" style="margin-right:4px;"></i>{{ $rt->duration }} {{ $rt->duration_type == 'hours' ? 'jam' : 'hari' }}</div>
+                        <div style="font-size:12px; color:#64748b;"><i class="far fa-clock" style="margin-right:4px;"></i>{{ $rt->duration }} @if($rt->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</div>
                         <div style="text-align:right;">
                             <div style="font-size:10px; color:#94a3b8;">Mulai dari</div>
                             <div style="font-size:15px; font-weight:800; color:#1B3A4B;">Rp {{ number_format($rt->price, 0, ',', '.') }}</div>

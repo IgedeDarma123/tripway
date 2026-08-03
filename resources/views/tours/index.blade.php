@@ -157,7 +157,8 @@
         align-items: flex-end;
         justify-content: space-between;
         border-top: 1px solid var(--border);
-        padding-top: 12px;
+        margin: 0 16px;
+        padding: 12px 0 16px;
     }
     .tour-price-label {
         font-size: 12px;
@@ -208,9 +209,9 @@
             <h1>Tour & Aktivitas di Bali</h1>
             <p>
                 @if(request('search'))
-                    Hasil pencarian "<strong>{{ request('search') }}</strong>" — {{ $tours->total() }} tour ditemukan
+                    <span>Hasil pencarian</span> "<strong>{{ request('search') }}</strong>" — {{ $tours->total() }} <span>tour ditemukan</span>
                 @else
-                    Temukan {{ $tours->total() }} pengalaman seru yang menanti Anda
+                    <span>Temukan</span> {{ $tours->total() }} <span>pengalaman seru yang menanti Anda</span>
                 @endif
             </p>
         </div>
@@ -243,11 +244,11 @@
                     <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Rating Tertinggi</option>
                 </select>
                 <button type="submit" style="padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer;">
-                    <i class="fas fa-search"></i> Cari
+                    <i class="fas fa-search"></i> <span>Cari</span>
                 </button>
                 @if(request()->hasAny(['search','destination','category','sort']))
                 <a href="{{ route('tours.index') }}" style="font-size: 13px; color: var(--text-light); display:flex; align-items:center; gap:4px;">
-                    <i class="fas fa-times"></i> Reset
+                    <i class="fas fa-times"></i> <span>Reset</span>
                 </a>
                 @endif
             </form>
@@ -292,14 +293,14 @@
                         <div class="tour-image">
                             <img src="{{ $tour->image ?? 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400' }}" alt="{{ $tour->title }}">
                             @if($tour->discountPercentage() > 0)
-                                <span class="tour-badge">Hemat {{ $tour->discountPercentage() }}%</span>
+                                <span class="tour-badge"><span>Hemat</span> {{ $tour->discountPercentage() }}%</span>
                             @endif
                         </div>
                         <div class="tour-body">
                             <div class="tour-category">{{ $tour->category->name }}</div>
                             <h3 class="tour-title">{{ $tour->title }}</h3>
                             <div class="tour-meta">
-                                <span><i class="far fa-clock"></i> {{ $tour->duration }} {{ $tour->duration_type == 'hours' ? 'jam' : 'hari' }}</span>
+                                <span><i class="far fa-clock"></i> {{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</span>
                                 @if($tour->rating > 0)
                                 <div class="tour-rating">
                                     <i class="fas fa-star"></i>

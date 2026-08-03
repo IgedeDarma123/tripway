@@ -90,7 +90,7 @@
 
     <div class="ucard">
         <div class="ucard-head">
-            <h2><i class="fas fa-cloud-upload-alt" style="margin-right:8px;"></i>Upload Bukti Pembayaran</h2>
+            <h2><i class="fas fa-cloud-upload-alt" style="margin-right:8px;"></i><span>Upload Bukti Pembayaran</span></h2>
             <p>Silakan upload screenshot/foto bukti transfer Anda</p>
         </div>
 
@@ -109,7 +109,7 @@
                 <div class="detail">
                     <i class="far fa-calendar" style="margin-right:4px;"></i>{{ $booking->travel_date->format('d M Y') }}
                     &nbsp;·&nbsp;
-                    <i class="fas fa-users" style="margin-right:4px;"></i>{{ $booking->num_persons }} orang
+                    <i class="fas fa-users" style="margin-right:4px;"></i>{{ $booking->num_persons }} <span>orang</span>
                     @if($booking->payment_type)
                     &nbsp;·&nbsp;
                     <i class="fas fa-credit-card" style="margin-right:4px;"></i>{{ strtoupper($booking->payment_type) }}
@@ -144,7 +144,7 @@
                 <div>
                     <div style="font-weight:700; font-size:14px;">Pembayaran Dikonfirmasi!</div>
                     <div style="font-size:12px; margin-top:2px;">
-                        Dikonfirmasi pada {{ $booking->payment_confirmed_at ? $booking->payment_confirmed_at->format('d M Y H:i') : '-' }}
+                        <span>Dikonfirmasi pada</span> {{ $booking->payment_confirmed_at ? $booking->payment_confirmed_at->format('d M Y H:i') : '-' }}
                     </div>
                 </div>
             </div>
@@ -153,7 +153,7 @@
             {{-- Form Upload (sembunyikan jika sudah confirmed atau sedang pending_verification) --}}
             @if($booking->payment_status !== 'settlement' && $booking->payment_status !== 'pending_verification')
             <div class="instructions">
-                <h4><i class="fas fa-info-circle"></i> Cara Upload:</h4>
+                <h4><i class="fas fa-info-circle"></i> <span>Cara Upload:</span></h4>
                 <ul>
                     <li>Lakukan transfer ke rekening yang tertera di halaman pembayaran</li>
                     <li>Screenshot atau foto bukti transfer yang jelas</li>
@@ -168,7 +168,7 @@
                     <img src="" alt="Preview" class="preview-image" id="preview-image">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <p id="upload-text">
-                        Klik untuk upload bukti pembayaran<br>
+                        <span>Klik untuk upload bukti pembayaran</span><br>
                         <small style="color:#94a3b8;">(JPG, PNG, maks 2MB)</small>
                     </p>
                     <input type="file" name="payment_proof" id="payment_proof" accept="image/*" required>
@@ -179,13 +179,13 @@
                 @enderror
 
                 <button type="submit" class="submit-btn" id="submit-btn" disabled>
-                    <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Kirim Bukti Pembayaran
+                    <i class="fas fa-paper-plane" style="margin-right:8px;"></i><span>Kirim Bukti Pembayaran</span>
                 </button>
             </form>
             @endif
 
             <a href="{{ route('bookings.index') }}" class="back-link">
-                <i class="fas fa-arrow-left" style="margin-right:4px;"></i>Kembali ke Pesanan Saya
+                <i class="fas fa-arrow-left" style="margin-right:4px;"></i><span>Kembali ke Pesanan Saya</span>
             </a>
         </div>
     </div>

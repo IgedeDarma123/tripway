@@ -258,12 +258,12 @@
                 @else
                     @if(Auth::user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-primary btn-sm nav-auth">
-                            <i class="fas fa-cog"></i> Admin
+                            <i class="fas fa-cog"></i> <span>Admin</span>
                         </a>
                     @endif
                     <a href="{{ route('home') }}" class="btn btn-outline btn-sm nav-auth">
                         <i class="fas fa-user"></i>
-                        {{ Auth::user()->name }}
+                        <span>{{ Auth::user()->name }}</span>
                     </a>
                     <a href="{{ route('logout') }}" class="btn btn-outline btn-sm nav-auth"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -289,12 +289,12 @@
                     <a href="{{ route('register') }}" @click="mobileOpen = false" style="color: var(--primary); font-weight: 600;">Daftar</a>
                 @else
                     @if(Auth::user()->is_admin)
-                        <a href="{{ route('admin.dashboard') }}" @click="mobileOpen = false" style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px;"><i class="fas fa-cog"></i> Admin Panel</a>
+                        <a href="{{ route('admin.dashboard') }}" @click="mobileOpen = false" style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px;"><i class="fas fa-cog"></i> <span>Admin Panel</span></a>
                     @endif
                     <a href="{{ route('home') }}" @click="mobileOpen = false"><i class="fas fa-user"></i> {{ Auth::user()->name }}</a>
                     <form action="{{ route('logout') }}" method="POST" style="display:block; border-top:1px solid #f1f5f9;">
                         @csrf
-                        <button type="submit" class="mobile-menu-btn" style="color:#ef4444;"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+                        <button type="submit" class="mobile-menu-btn" style="color:#ef4444;"><i class="fas fa-sign-out-alt"></i> <span>Keluar</span></button>
                     </form>
                 @endguest
             </div>
