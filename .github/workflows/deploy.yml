@@ -88,6 +88,13 @@ jobs:
             php artisan db:seed --class=PaymentSettingsSeeder --force 2>&1 || echo "Seed skipped"
             php artisan db:seed --class=SettingsSeeder --force 2>&1 || echo "Seed settings skipped"
 
+            echo "=== Update MAIL_PASSWORD in .env ==="
+            if grep -q '^MAIL_PASSWORD=' .env; then
+              sed -i "s|^MAIL_PASSWORD=.*|MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}|" .env
+            else
+              echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+            fi
+
             echo "=== Cache ==="
             php artisan optimize:clear 2>&1 || true
             php artisan package:discover --ansi 2>&1 || true
