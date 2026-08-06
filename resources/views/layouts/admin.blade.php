@@ -425,6 +425,9 @@
                 <a href="{{ route('admin.payments.index') }}" class="{{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
                     <i class="fas fa-credit-card"></i> Pembayaran
                 </a>
+                <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                    <i class="fas fa-cog"></i> Pengaturan
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <a href="{{ route('landing') }}">

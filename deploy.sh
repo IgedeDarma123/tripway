@@ -45,6 +45,8 @@ ssh -p "$PORT" "$SERVER" "cd $REMOTE_DIR && \
   chmod -R 775 storage bootstrap/cache && \
   composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || { echo 'COMPOSER FAILED'; exit 1; } && \
   php artisan migrate --force 2>&1 || echo 'Migrate skipped' && \
+  php artisan db:seed --class=PaymentSettingsSeeder --force 2>&1 || echo 'Seed skipped' && \
+  php artisan db:seed --class=SettingsSeeder --force 2>&1 || echo 'Seed settings skipped' && \
   php artisan optimize:clear || true && \
   php artisan package:discover --ansi || true && \
   php artisan config:cache || true && \

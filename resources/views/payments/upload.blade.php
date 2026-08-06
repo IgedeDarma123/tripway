@@ -150,6 +150,32 @@
             </div>
             @endif
 
+            {{-- Hubungi Admin via WhatsApp --}}
+            @php
+                $waNumber = \App\Models\SiteSetting::get('whatsapp_number', '628983317309');
+                $waMessage = 'Halo TripWay, saya ' . $booking->contact_name
+                    . '. Saya sudah melakukan pembayaran untuk booking #' . $booking->id
+                    . ' (' . $booking->tour->title . ') sebesar Rp ' . number_format($booking->total_price, 0, ',', '.')
+                    . '. Mohon konfirmasinya, terima kasih.';
+            @endphp
+            <div style="background:white; border-radius:14px; border:1px solid #e2e8f0; box-shadow:0 1px 6px rgba(0,0,0,0.05); padding:20px; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;"><i class="fab fa-whatsapp"></i></div>
+                    <div>
+                        <div style="font-weight:700; font-size:14px; color:#1e293b;"><span>Butuh Bantuan?</span></div>
+                        <div style="font-size:12px; color:#64748b;"><span>Konfirmasi pembayaran atau pertanyaan lainnya</span></div>
+                    </div>
+                </div>
+                <a href="https://wa.me/{{ $waNumber }}?text={{ urlencode($waMessage) }}" target="_blank" rel="noopener"
+                    style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#25D366; color:white; border-radius:12px; padding:13px; font-size:14px; font-weight:800; text-decoration:none; transition:opacity 0.2s;"
+                    onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    <i class="fab fa-whatsapp" style="font-size:18px;"></i><span>Chat Admin via WhatsApp</span>
+                </a>
+                <p style="font-size:11px; color:#94a3b8; text-align:center; margin:10px 0 0; line-height:1.6;">
+                    <span>Pesan konfirmasi pembayaran Anda akan terisi otomatis saat membuka WhatsApp.</span>
+                </p>
+            </div>
+
             {{-- Form Upload (sembunyikan jika sudah confirmed atau sedang pending_verification) --}}
             @if($booking->payment_status !== 'settlement' && $booking->payment_status !== 'pending_verification')
             <div class="instructions">

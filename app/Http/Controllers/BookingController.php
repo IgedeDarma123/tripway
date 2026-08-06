@@ -7,6 +7,7 @@ use App\Models\Tour;
 use App\Models\TourPackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Mail\BookingConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -116,7 +117,7 @@ class BookingController extends Controller
         try {
             Mail::to($booking->contact_email)->send(new BookingConfirmation($booking));
         } catch (\Exception $e) {
-            // Email gagal tidak menghentikan proses booking
+            Log::error('BookingConfirmation gagal dikirim ke ' . $booking->contact_email . ' (booking #' . $booking->id . '): ' . $e->getMessage());
         }
 
         return redirect()->route('payment.order-detail', $booking)->with('success', 'Booking dibuat! Cek email Anda untuk detail pesanan.');
@@ -255,14 +256,23 @@ public function destroy(Booking $booking)
             'status'         => 'pending',
         ]);
 
+        // Kirim email konfirmasi ke visitor bahwa bukti sudah diterima
+        try {
+            Mail::to($booking->contact_email)->send(new \App\Mail\PaymentProofReceived($booking));
+        } catch (\Exception $e) {
+            Log::error('PaymentProofReceived gagal dikirim ke ' . $booking->contact_email . ' (booking #' . $booking->id . '): ' . $e->getMessage());
+        }
+
         // Kirim notifikasi ke admin
         try {
-            $adminEmail = config('mail.from.address', env('MAIL_FROM_ADDRESS'));
+            $adminEmail = config('mail.admin.address', config('mail.from.address'));
             Mail::to($adminEmail)->send(new \App\Mail\PaymentProofUploaded($booking));
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            Log::error('PaymentProofUploaded gagal dikirim ke ' . $adminEmail . ' (booking #' . $booking->id . '): ' . $e->getMessage());
+        }
 
         return redirect()->route('payment.upload.show', $booking)
-            ->with('success', 'Bukti pembayaran berhasil diupload! Admin akan memverifikasi dalam 1x24 jam.');
+            ->with('success', 'Bukti pembayaran berhasil diupload! Admin akan memverifikasi dalam 1x24 jam. Cek email Anda untuk konfirmasi.');
     }
 
     public function bookingsConfirmPayment(Booking $booking)
@@ -279,7 +289,9 @@ public function destroy(Booking $booking)
 
         try {
             Mail::to($booking->contact_email)->send(new \App\Mail\BookingConfirmed($booking));
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            Log::error('BookingConfirmed gagal dikirim ke ' . $booking->contact_email . ' (booking #' . $booking->id . '): ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.bookings.index')
             ->with('success', 'Pembayaran dikonfirmasi & email terkirim ke ' . $booking->contact_email);
@@ -295,7 +307,9 @@ public function destroy(Booking $booking)
 
         try {
             Mail::to($booking->contact_email)->send(new \App\Mail\BookingRejected($booking));
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            Log::error('BookingRejected gagal dikirim ke ' . $booking->contact_email . ' (booking #' . $booking->id . '): ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.bookings.index')
             ->with('success', 'Bukti ditolak & email terkirim ke ' . $booking->contact_email . '. User dapat re-upload.');

@@ -7,6 +7,7 @@ use App\Models\Destination;
 use App\Models\Tour;
 use App\Models\User;
 use Database\Seeders\PaymentSettingsSeeder;
+use Database\Seeders\SettingsSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PaymentSettingsSeeder::class,
+            SettingsSeeder::class,
         ]);
         // Categories
         $categories = [

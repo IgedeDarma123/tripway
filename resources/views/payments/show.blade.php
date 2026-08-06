@@ -305,6 +305,16 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                     </div>
                     @endforeach
                     @endif
+
+                    {{-- Fallback jika belum ada metode aktif --}}
+                    @if(!$qrisData && !$wallets->count() && !$banks->count())
+                    <div class="method-item-body" style="display:block; background:#fffbeb; border-bottom:1px solid #fde68a;">
+                        <div style="padding:14px 20px; font-size:12px; color:#92400e;">
+                            <i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>
+                            <span>Metode pembayaran belum tersedia. Silakan hubungi admin.</span>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <div class="notice blue">
@@ -359,6 +369,14 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                         </div>
                     </div>
 
+                    {{-- Error: belum pilih metode --}}
+                    <div id="method-error" style="display:none; margin-top:14px; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px;">
+                        <div style="display:flex; align-items:flex-start; gap:8px; color:#b91c1c; font-size:12px; line-height:1.5;">
+                            <i class="fas fa-exclamation-circle" style="flex-shrink:0; margin-top:1px;"></i>
+                            <span>Silakan pilih metode pembayaran terlebih dahulu.</span>
+                        </div>
+                    </div>
+
                     <form action="{{ route('payment.process-mock', $booking) }}" method="POST">
                         @csrf
                         <input type="hidden" name="payment_method" id="final-method" value="">
@@ -410,6 +428,9 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
             iconEl.style.background = brandColors[method] || '#64748b';
             iconEl.innerHTML = `<span style="font-size:8px; font-weight:900; color:white;">${bankInitials[method] || method.toUpperCase()}</span>`;
             document.getElementById('selected-name').textContent = name;
+
+            const err = document.getElementById('method-error');
+            if (err) err.style.display = 'none';
         } else {
             currentMethod = '';
             document.getElementById('selected-box').style.display = 'none';
@@ -419,7 +440,11 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
 
     function validateMethod() {
         if (!currentMethod) {
-            alert('Pilih metode pembayaran terlebih dahulu!');
+            const err = document.getElementById('method-error');
+            if (err) {
+                err.style.display = 'block';
+                err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             return false;
         }
         return true;

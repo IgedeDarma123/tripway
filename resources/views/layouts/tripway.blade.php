@@ -328,8 +328,9 @@
                     <h4>Need Help?</h4>
                     <div style="margin-bottom: 20px;">
                         <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Call us</p>
-                        <a href="tel:+628983317309" style="display: block; font-weight: 500; font-size: 15px; color: #ccc; margin-bottom: 4px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ccc'">+62 898-3317-309</a>
-                        <a href="tel:+628983317309" style="display: block; font-weight: 500; font-size: 15px; color: #ccc; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ccc'">+62 898-3317-309</a>
+                        @php $waFooter = \App\Models\SiteSetting::get('whatsapp_number', '628983317309'); @endphp
+                        <a href="tel:+{{ $waFooter }}" style="display: block; font-weight: 500; font-size: 15px; color: #ccc; margin-bottom: 4px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ccc'">+{{ $waFooter }}</a>
+                        <a href="tel:+{{ $waFooter }}" style="display: block; font-weight: 500; font-size: 15px; color: #ccc; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ccc'">+{{ $waFooter }}</a>
                     </div>
                     
                     <div style="margin-bottom: 20px;">

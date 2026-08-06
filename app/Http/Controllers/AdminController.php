@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Destination;
 use App\Models\PaymentSetting;
 use App\Models\Review;
+use App\Models\SiteSetting;
 use App\Models\Tour;
 use App\Models\TourPackage;
 use App\Models\TourPackageGroup;
@@ -832,6 +833,27 @@ return redirect()->route('admin.reviews.index')
     {
         $payment->update(['is_active' => !$payment->is_active]);
         return redirect()->route('admin.payments.index')->with('success', 'Status metode pembayaran diperbarui!');
+    }
+
+    // Site Settings
+    public function settingsIndex()
+    {
+        $whatsappNumber = SiteSetting::get('whatsapp_number', '628983317309');
+        return view('admin.settings', compact('whatsappNumber'));
+    }
+
+    public function settingsUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'whatsapp_number' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/'],
+        ], [
+            'whatsapp_number.required' => 'Nomor WhatsApp wajib diisi.',
+            'whatsapp_number.regex'    => 'Nomor WhatsApp hanya boleh berisi angka (format internasional, contoh: 628983317309).',
+        ]);
+
+        SiteSetting::set('whatsapp_number', $validated['whatsapp_number']);
+
+        return redirect()->route('admin.settings.index')->with('success', 'Pengaturan berhasil disimpan!');
     }
 
     public function testEmail(Request $request)

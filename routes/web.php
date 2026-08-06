@@ -106,6 +106,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::delete('/payments/{payment}', [\App\Http\Controllers\AdminController::class, 'paymentsDestroy'])->name('payments.destroy');
     Route::patch('/payments/{payment}/toggle', [\App\Http\Controllers\AdminController::class, 'paymentsToggle'])->name('payments.toggle');
 
+    // Site Settings
+    Route::get('/settings', [\App\Http\Controllers\AdminController::class, 'settingsIndex'])->name('settings.index');
+    Route::post('/settings', [\App\Http\Controllers\AdminController::class, 'settingsUpdate'])->name('settings.update');
+
     // Clear view cache
     Route::get('/clear-cache', function () {
         $exitCode = \Illuminate\Support\Facades\Artisan::call('view:clear');
