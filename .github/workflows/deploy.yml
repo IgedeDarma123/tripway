@@ -84,6 +84,10 @@ jobs:
             echo "=== Migrate ==="
             php artisan migrate --force 2>&1 || echo "Migrate skipped"
 
+            echo "=== Seed ==="
+            php artisan db:seed --class=PaymentSettingsSeeder --force 2>&1 || echo "Seed skipped"
+            php artisan db:seed --class=SettingsSeeder --force 2>&1 || echo "Seed settings skipped"
+
             echo "=== Cache ==="
             php artisan optimize:clear 2>&1 || true
             php artisan package:discover --ansi 2>&1 || true
