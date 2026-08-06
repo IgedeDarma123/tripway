@@ -110,6 +110,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/settings', [\App\Http\Controllers\AdminController::class, 'settingsIndex'])->name('settings.index');
     Route::post('/settings', [\App\Http\Controllers\AdminController::class, 'settingsUpdate'])->name('settings.update');
     Route::post('/settings/test-email', [\App\Http\Controllers\AdminController::class, 'testEmail'])->name('settings.test-email');
+    Route::get('/settings/mail-debug', [\App\Http\Controllers\AdminController::class, 'mailDebug'])->name('settings.mail-debug');
 
     // Clear view cache
     Route::get('/clear-cache', function () {

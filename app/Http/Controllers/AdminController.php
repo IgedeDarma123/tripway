@@ -874,4 +874,22 @@ return redirect()->route('admin.reviews.index')
             return redirect()->route('admin.settings.index')->with('error', '❌ Email gagal: ' . $e->getMessage());
         }
     }
+
+    public function mailDebug()
+    {
+        $logFile = storage_path('logs/laravel.log');
+        $lines = [];
+
+        if (file_exists($logFile)) {
+            $content = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+            foreach ($content as $line) {
+                if (preg_match('/mail|Mail|SMTP|smtp|gagal|Gagal|Error|Exception/i', $line)) {
+                    $lines[] = $line;
+                }
+            }
+        }
+
+        $lines = array_slice(array_reverse($lines), 0, 60);
+        return view('admin.mail-debug', compact('lines'));
+    }
 }
