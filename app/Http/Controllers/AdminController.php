@@ -868,9 +868,10 @@ return redirect()->route('admin.reviews.index')
                       ->subject('✅ Test Email TripWay - Berhasil!');
                 }
             );
-            return redirect()->route('admin.dashboard')->with('success', '✅ Email test berhasil dikirim ke ' . $request->test_email . '! Cek inbox kamu.');
+            return redirect()->route('admin.settings.index')->with('success', '✅ Email test berhasil dikirim ke ' . $request->test_email . '! Cek inbox kamu.');
         } catch (\Exception $e) {
-            return redirect()->route('admin.dashboard')->with('error', '❌ Email gagal: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('TestEmail gagal: ' . $e->getMessage());
+            return redirect()->route('admin.settings.index')->with('error', '❌ Email gagal: ' . $e->getMessage());
         }
     }
 }

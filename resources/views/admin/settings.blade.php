@@ -37,4 +37,27 @@
             </form>
         </div>
     </div>
+
+    <div class="card" style="max-width: 640px; margin-top:20px;">
+        <div class="card-header">
+            <h2>Test Email</h2>
+        </div>
+        <div class="card-body">
+            <p style="font-size:13px; color:var(--text-medium); margin-bottom:20px;">
+                Kirim email uji coba untuk memastikan konfigurasi SMTP berfungsi. Jika gagal, pesan error akan ditampilkan di sini.
+            </p>
+            <form action="{{ route('admin.settings.test-email') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label>Alamat Email Tujuan *</label>
+                    <input type="email" name="test_email" placeholder="nama@email.com" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Kirim Email Test
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
