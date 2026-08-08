@@ -89,10 +89,12 @@ jobs:
             php artisan db:seed --class=SettingsSeeder --force 2>&1 || echo "Seed settings skipped"
 
             echo "=== Update MAIL_PASSWORD in .env ==="
+            MAIL_PASSWORD_CLEAN="${{ secrets.MAIL_PASSWORD }}"
+            MAIL_PASSWORD_CLEAN=$(printf '%s' "$MAIL_PASSWORD_CLEAN" | tr -d '[:space:]')
             if grep -q '^MAIL_PASSWORD=' .env; then
-              sed -i "s|^MAIL_PASSWORD=.*|MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}|" .env
+              sed -i "s|^MAIL_PASSWORD=.*|MAIL_PASSWORD=$MAIL_PASSWORD_CLEAN|" .env
             else
-              echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+              echo "MAIL_PASSWORD=$MAIL_PASSWORD_CLEAN" >> .env
             fi
 
             echo "=== Cache ==="
