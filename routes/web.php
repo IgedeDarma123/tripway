@@ -4,6 +4,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 
+Route::get('/language/{locale}', function (string $locale) {
+    if (!in_array($locale, ['id', 'en'], true)) {
+        abort(404);
+    }
+
+    session(['locale' => $locale]);
+    app()->setLocale($locale);
+
+    return redirect()->back();
+})->name('locale.switch');
+
 Route::get('/destinations/{destination}', [\App\Http\Controllers\DestinationController::class, 'show'])->name('destinations.show');
 
 Auth::routes();

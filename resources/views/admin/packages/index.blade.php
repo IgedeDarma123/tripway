@@ -157,6 +157,20 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label>Jam Tersedia (WITA)</label>
+                                <div id="time-slots-{{ $pkg->id }}" style="display:flex; flex-direction:column; gap:6px;">
+                                    @foreach($pkg->time_slots ?? [] as $slot)
+                                    <div class="time-slot-row" style="display:flex; gap:8px; align-items:center;">
+                                        <input type="time" name="time_slots[]" value="{{ $slot }}" step="60" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
+                                        <button type="button" onclick="this.closest('.time-slot-row').remove()" style="background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer;">&times;</button>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <button type="button" onclick="addTimeSlotRow('time-slots-{{ $pkg->id }}')" class="btn btn-sm btn-secondary" style="font-size:12px; margin-top:6px;">
+                                    <i class="fas fa-plus"></i> Tambah Jam
+                                </button>
+                            </div>
+                            <div class="form-group">
                                 <label>What's Included</label>
                                 <textarea name="included" class="list-editor-source" style="display:none;">{{ $pkg->included }}</textarea>
                                 <div class="list-editor">
@@ -489,6 +503,13 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label>Jam Tersedia (WITA)</label>
+                            <div id="time-slots-new-{{ $tour->id }}" style="display:flex; flex-direction:column; gap:6px;"></div>
+                            <button type="button" onclick="addTimeSlotRow('time-slots-new-{{ $tour->id }}')" class="btn btn-sm btn-secondary" style="font-size:12px; margin-top:6px;">
+                                <i class="fas fa-plus"></i> Tambah Jam
+                            </button>
+                        </div>
+                        <div class="form-group">
                             <label>What's Included</label>
                             <textarea name="included" class="list-editor-source" style="display:none;"></textarea>
                             <div class="list-editor">
@@ -553,6 +574,43 @@ function toggleForm(id) {
     const el = document.getElementById(id);
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+
+function addTimeSlotRow(containerId, value) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'time-slot-row';
+    row.style.cssText = 'display:flex; gap:8px; align-items:center;';
+
+    const input = document.createElement('input');
+    input.type = 'time';
+    input.name = 'time_slots[]';
+    input.step = '60';
+    input.value = value || '';
+    input.style.cssText = 'flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;';
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.innerHTML = '&times;';
+    remove.style.cssText = 'background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer;';
+    remove.addEventListener('click', function () { row.remove(); });
+
+    row.appendChild(input);
+    row.appendChild(remove);
+    container.appendChild(row);
+    if (container.offsetParent !== null) input.focus();
+}
+
+function initTimeSlotRows() {
+    document.querySelectorAll('[id^="time-slots-"]').forEach(function (container) {
+        while (container.querySelectorAll('.time-slot-row').length < 3) {
+            addTimeSlotRow(container.id);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initTimeSlotRows);
 
 function addItineraryRow(containerId) {
     const container = document.getElementById(containerId);

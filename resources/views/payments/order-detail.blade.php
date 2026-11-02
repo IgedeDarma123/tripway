@@ -1,6 +1,6 @@
 @extends('layouts.tripway')
 
-@section('title', 'Detail Pesanan - TripWay')
+@section('title', __('Detail Pesanan - TripWay'))
 
 @section('styles')
 <style>
@@ -154,17 +154,17 @@
     <div class="stepper-wrap">
         <div class="step">
             <div class="step-circle done"><i class="fas fa-check" style="font-size:11px;"></i></div>
-            <span class="step-label active">Pilih Paket</span>
+            <span class="step-label active">{{ __("Pilih Paket") }}</span>
         </div>
         <div class="step-line done"></div>
         <div class="step">
             <div class="step-circle active">2</div>
-            <span class="step-label active">Detail Pesanan</span>
+            <span class="step-label active">{{ __("Detail Pesanan") }}</span>
         </div>
         <div class="step-line inactive"></div>
         <div class="step">
             <div class="step-circle inactive">3</div>
-            <span class="step-label inactive">Pembayaran</span>
+            <span class="step-label inactive">{{ __("Pembayaran") }}</span>
         </div>
     </div>
 
@@ -177,7 +177,7 @@
             <div class="ocard">
                 <div class="ocard-head">
                     <div class="ico"><i class="fas fa-map-marked-alt"></i></div>
-                    <h3>Informasi Tour</h3>
+                    <h3>{{ __("Informasi Tour") }}</h3>
                 </div>
                 <div style="display:flex;">
                     <img src="{{ $booking->tour->image ?? 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400' }}"
@@ -190,7 +190,7 @@
                             {{ $booking->tour->title }}
                         </div>
                         <div style="display:flex; gap:12px; font-size:11px; color:#64748b; flex-wrap:wrap;">
-                            <span><i class="far fa-clock" style="margin-right:3px;"></i>{{ $booking->tour->duration }} @if($booking->tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</span>
+                            <span><i class="far fa-clock" style="margin-right:3px;"></i>{{ $booking->tour->duration }} @if($booking->tour->duration_type == 'hours')<span>{{ __("jam") }}</span>@else<span>{{ __("hari") }}</span>@endif</span>
                             <span><i class="fas fa-map-marker-alt" style="margin-right:3px;"></i>{{ $booking->tour->destination->name }}</span>
                         </div>
                     </div>
@@ -201,15 +201,15 @@
             <div class="ocard">
                 <div class="ocard-head">
                     <div class="ico"><i class="fas fa-box-open"></i></div>
-                    <h3>Detail Paket</h3>
+                    <h3>{{ __("Detail Paket") }}</h3>
                 </div>
                 <div class="ocard-body">
                     <div class="irow">
-                        <span class="lbl"><i class="fas fa-tag" style="color:#1B3A4B;"></i> <span>Nama Paket</span></span>
+                        <span class="lbl"><i class="fas fa-tag" style="color:#1B3A4B;"></i> <span>{{ __("Nama Paket") }}</span></span>
                         <span class="val">{{ $booking->package->name ?? '-' }}</span>
                     </div>
                     <div class="irow">
-                        <span class="lbl"><i class="fas fa-route" style="color:#1B3A4B;"></i> <span>Tipe Perjalanan</span></span>
+                        <span class="lbl"><i class="fas fa-route" style="color:#1B3A4B;"></i> <span>{{ __("Tipe Perjalanan") }}</span></span>
                         <span class="val">
                             @if($booking->travel_type === 'private')
                                 <span class="badge badge-private">Private</span>
@@ -220,17 +220,23 @@
                     </div>
                     @if($booking->travel_type === 'private' && $booking->groupOption)
                     <div class="irow">
-                        <span class="lbl"><i class="fas fa-users" style="color:#1B3A4B;"></i> <span>Pilihan Grup</span></span>
+                        <span class="lbl"><i class="fas fa-users" style="color:#1B3A4B;"></i> <span>{{ __("Pilihan Grup") }}</span></span>
                         <span class="val">{{ $booking->groupOption->label }}</span>
                     </div>
                     @endif
                     <div class="irow">
-                        <span class="lbl"><i class="far fa-calendar" style="color:#1B3A4B;"></i> <span>Tanggal</span></span>
+                        <span class="lbl"><i class="far fa-calendar" style="color:#1B3A4B;"></i> <span>{{ __("Tanggal") }}</span></span>
                         <span class="val">{{ $booking->travel_date->format('d M Y') }}</span>
                     </div>
+                    @if($booking->travel_time)
                     <div class="irow">
-                        <span class="lbl"><i class="fas fa-users" style="color:#1B3A4B;"></i> <span>Jumlah Peserta</span></span>
-                        <span class="val">{{ $booking->num_persons }} <span>orang</span></span>
+                        <span class="lbl"><i class="far fa-clock" style="color:#1B3A4B;"></i> <span>{{ __("Jam (WITA)") }}</span></span>
+                        <span class="val">{{ $booking->travel_time }} WITA</span>
+                    </div>
+                    @endif
+                    <div class="irow">
+                        <span class="lbl"><i class="fas fa-users" style="color:#1B3A4B;"></i> <span>{{ __("Jumlah Peserta") }}</span></span>
+                        <span class="val">{{ $booking->num_persons }} <span>{{ __("orang") }}</span></span>
                     </div>
                 </div>
             </div>
@@ -239,11 +245,11 @@
             <div class="ocard">
                 <div class="ocard-head">
                     <div class="ico"><i class="fas fa-user"></i></div>
-                    <h3>Data Pemesan</h3>
+                    <h3>{{ __("Data Pemesan") }}</h3>
                 </div>
                 <div class="ocard-body">
                     <div class="irow">
-                        <span class="lbl"><i class="fas fa-user" style="color:#1B3A4B;"></i> <span>Nama Lengkap</span></span>
+                        <span class="lbl"><i class="fas fa-user" style="color:#1B3A4B;"></i> <span>{{ __("Nama Lengkap") }}</span></span>
                         <span class="val">{{ $booking->contact_name }}</span>
                     </div>
                     <div class="irow">
@@ -251,7 +257,7 @@
                         <span class="val">{{ $booking->contact_email }}</span>
                     </div>
                     <div class="irow">
-                        <span class="lbl"><i class="fas fa-phone" style="color:#1B3A4B;"></i> No. HP / WhatsApp</span>
+                        <span class="lbl"><i class="fas fa-phone" style="color:#1B3A4B;"></i> {{ __("No. HP / WhatsApp") }}</span>
                         <span class="val">{{ $booking->contact_phone }}</span>
                     </div>
                 </div>
@@ -261,42 +267,42 @@
             <div class="ocard">
                 <div class="ocard-head">
                     <div class="ico"><i class="fas fa-percent"></i></div>
-                    <h3>Diskon & Promo</h3>
+                    <h3>{{ __("Diskon & Promo") }}</h3>
                 </div>
                 <div class="promo-item">
                     <div class="promo-left">
                         <div class="promo-icon" style="background:#fef9c3;">🎟️</div>
                         <div>
-                            <div class="promo-title">Kode Promo</div>
-                            <div class="promo-sub">Tidak tersedia untuk booking ini</div>
+                            <div class="promo-title">{{ __("Kode Promo") }}</div>
+                            <div class="promo-sub">{{ __("Tidak tersedia untuk booking ini") }}</div>
                         </div>
                     </div>
-                    <span class="promo-right">Tidak tersedia</span>
+                    <span class="promo-right">{{ __("Tidak tersedia") }}</span>
                 </div>
                 <div class="promo-item">
                     <div class="promo-left">
                         <div class="promo-icon" style="background:#f0fdf4;">💳</div>
                         <div>
-                            <div class="promo-title">Diskon Pembayaran</div>
-                            <div class="promo-sub">Tersedia saat memilih metode pembayaran</div>
+                            <div class="promo-title">{{ __("Diskon Pembayaran") }}</div>
+                            <div class="promo-sub">{{ __("Tersedia saat memilih metode pembayaran") }}</div>
                         </div>
                     </div>
-                    <span class="promo-right">Lihat di langkah berikutnya</span>
+                    <span class="promo-right">{{ __("Lihat di langkah berikutnya") }}</span>
                 </div>
             </div>
 
             {{-- Notices --}}
             <div class="notice green">
                 <i class="fas fa-check-circle" style="margin-top:1px; flex-shrink:0;"></i>
-                <span>Pembatalan gratis hingga 24 jam sebelum keberangkatan. Setelah itu, biaya pembatalan berlaku.</span>
+                <span>{{ __("Pembatalan gratis hingga 24 jam sebelum keberangkatan. Setelah itu, biaya pembatalan berlaku.") }}</span>
             </div>
             <div class="notice blue">
                 <i class="fas fa-info-circle" style="margin-top:1px; flex-shrink:0;"></i>
-                <span>Setelah data dikirim, informasi tidak dapat diubah. Periksa kembali sebelum melanjutkan.</span>
+                <span>{{ __("Setelah data dikirim, informasi tidak dapat diubah. Periksa kembali sebelum melanjutkan.") }}</span>
             </div>
             <div class="notice gray">
                 <i class="fas fa-credit-card" style="margin-top:1px; flex-shrink:0;"></i>
-                <span>Pesanan Anda akan dikonfirmasi setelah pembayaran selesai. Anda dapat memilih metode pembayaran di langkah berikutnya.</span>
+                <span>{{ __("Pesanan Anda akan dikonfirmasi setelah pembayaran selesai. Anda dapat memilih metode pembayaran di langkah berikutnya.") }}</span>
             </div>
 
         </div>
@@ -313,21 +319,21 @@
                         <div class="tour-name">{{ $booking->tour->title }}</div>
                         <div class="tour-meta">
                             <i class="far fa-calendar" style="margin-right:3px;"></i>{{ $booking->travel_date->format('d M Y') }}<br>
-                            <i class="fas fa-users" style="margin-right:3px;"></i>{{ $booking->num_persons }} <span>orang</span>
+                            <i class="fas fa-users" style="margin-right:3px;"></i>{{ $booking->num_persons }} <span>{{ __("orang") }}</span>
                         </div>
                     </div>
                 </div>
 
                 {{-- Harga --}}
                 <div class="sidebar-body">
-                    <p style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 12px;">Ringkasan Harga</p>
+                    <p style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 12px;">{{ __("Ringkasan Harga") }}</p>
 
                     <div class="price-row">
                         <span class="lbl">{{ $booking->package->name ?? 'Paket' }}</span>
                         <span class="val">Rp {{ number_format($booking->total_price - $booking->addon_price, 0, ',', '.') }}</span>
                     </div>
                     <div class="price-row">
-                        <span class="lbl">{{ $booking->num_persons }} <span>peserta</span></span>
+                        <span class="lbl">{{ $booking->num_persons }} <span>{{ __("Peserta") }}</span></span>
                         <span class="val">×{{ $booking->num_persons }}</span>
                     </div>
                     @if($booking->addon_price > 0)
@@ -337,28 +343,28 @@
                     </div>
                     @endif
                     <div class="price-row">
-                        <span class="lbl">Diskon</span>
+                        <span class="lbl">{{ __("Diskon") }}</span>
                         <span class="val" style="color:#15803d;">-</span>
                     </div>
 
                     <hr class="price-divider">
 
                     <div class="price-total">
-                        <span class="lbl">Total</span>
+                        <span class="lbl">{{ __("Total") }}</span>
                         <span class="val">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
                     </div>
 
                     <a href="{{ route('payment.show', $booking) }}" class="btn-pay">
-                        <i class="fas fa-credit-card" style="margin-right:8px;"></i><span>Lanjut ke Pembayaran</span>
+                        <i class="fas fa-credit-card" style="margin-right:8px;"></i><span>{{ __("Lanjut ke Pembayaran") }}</span>
                     </a>
                     <a href="{{ route('tours.show', $booking->tour->slug) }}" class="btn-back">
-                        <i class="fas fa-arrow-left" style="margin-right:6px;"></i><span>Kembali ke Tour</span>
+                        <i class="fas fa-arrow-left" style="margin-right:6px;"></i><span>{{ __("Kembali ke Tour") }}</span>
                     </a>
 
                     <p class="terms-text">
-                        <span>Dengan melanjutkan, Anda menyetujui</span>
-                        <a href="#"><span>Syarat & Ketentuan</span></a> <span>dan</span>
-                        <a href="#"><span>Kebijakan Privasi</span></a> TripWay.
+                        <span>{{ __("Dengan melanjutkan, Anda menyetujui") }}</span>
+                        <a href="#"><span>{{ __("Syarat & Ketentuan") }}</span></a> <span>{{ __("dan") }}</span>
+                        <a href="#"><span>{{ __("Kebijakan Privasi") }}</span></a> TripWay.
                     </p>
                 </div>
             </div>

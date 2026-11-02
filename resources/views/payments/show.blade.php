@@ -1,6 +1,6 @@
 @extends('layouts.tripway')
 
-@section('title', 'Pembayaran - TripWay')
+@section('title', __('Pembayaran - TripWay'))
 
 @section('styles')
 @php
@@ -172,17 +172,17 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
     <div class="stepper-wrap">
         <div class="step">
             <div class="step-circle done"><i class="fas fa-check" style="font-size:11px;"></i></div>
-            <span class="step-label active">Pilih Paket</span>
+            <span class="step-label active">{{ __("Pilih Paket") }}</span>
         </div>
         <div class="step-line done"></div>
         <div class="step">
             <div class="step-circle done"><i class="fas fa-check" style="font-size:11px;"></i></div>
-            <span class="step-label active">Detail Pesanan</span>
+            <span class="step-label active">{{ __("Detail Pesanan") }}</span>
         </div>
         <div class="step-line done"></div>
         <div class="step">
             <div class="step-circle active">3</div>
-            <span class="step-label active">Pembayaran</span>
+            <span class="step-label active">{{ __("Pembayaran") }}</span>
         </div>
     </div>
 
@@ -196,7 +196,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                 <div class="pcard">
                     <div class="pcard-head">
                         <div class="ico"><i class="fas fa-credit-card"></i></div>
-                        <h3>Pilih Metode Pembayaran</h3>
+                        <h3>{{ __("Pilih Metode Pembayaran") }}</h3>
                     </div>
 
                     {{-- QRIS --}}
@@ -220,15 +220,15 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TRIPWAY-BOOKING-{{ $booking->id }}-RP{{ $booking->total_price }}"
                                         width="180" height="180" alt="QR Code">
                                 </div>
-                                <p style="font-size:12px; color:#64748b; margin:10px 0 0;">Scan menggunakan aplikasi bank atau e-wallet apapun</p>
+                                <p style="font-size:12px; color:#64748b; margin:10px 0 0;">{{ __("Scan menggunakan aplikasi bank atau e-wallet apapun") }}</p>
                                 <p style="font-size:14px; font-weight:800; color:#1B3A4B; margin:4px 0 0;">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</p>
                             </div>
                             <div class="steps">
-                                <div class="step-item"><div class="step-num">1</div><span>Buka aplikasi bank atau e-wallet (GoPay, OVO, Dana, BCA, dll)</span></div>
-                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu Scan QR / QRIS</span></div>
-                                <div class="step-item"><div class="step-num">3</div><span><span>Scan QR code di atas dan masukkan nominal</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong></span></div>
-                                <div class="step-item"><div class="step-num">4</div><span>Konfirmasi pembayaran di aplikasi Anda</span></div>
-                                <div class="step-item"><div class="step-num">5</div><span>Klik Konfirmasi Bayar setelah selesai</span></div>
+                                <div class="step-item"><div class="step-num">1</div><span>{{ __("Buka aplikasi bank atau e-wallet (GoPay, OVO, Dana, BCA, dll)") }}</span></div>
+                                <div class="step-item"><div class="step-num">2</div><span>{{ __("Pilih menu Scan QR / QRIS") }}</span></div>
+                                <div class="step-item"><div class="step-num">3</div><span><span>{{ __("Scan QR code di atas dan masukkan nominal") }}</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong></span></div>
+                                <div class="step-item"><div class="step-num">4</div><span>{{ __("Konfirmasi pembayaran di aplikasi Anda") }}</span></div>
+                                <div class="step-item"><div class="step-num">5</div><span>{{ __("Klik Konfirmasi Bayar setelah selesai") }}</span></div>
                             </div>
                         </div>
                     </div>
@@ -236,7 +236,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
 
                     {{-- E-Wallet --}}
                     @if($wallets->count())
-                    <div class="method-section-label">Dompet Digital</div>
+                    <div class="method-section-label">{{ __("Dompet Digital") }}</div>
                     @foreach($wallets as $pm)
                     <div class="method-item" id="item-{{ $pm->method }}">
                         <div class="method-item-header" onclick="toggleMethod('{{ $pm->method }}','{{ $pm->name }}','{{ $pm->account_number }}','{{ $pm->account_name }}')">
@@ -245,25 +245,25 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                             </div>
                             <div class="method-item-info">
                                 <div class="method-item-name">{{ $pm->name }}</div>
-                                <div class="method-item-sub"><span>Transfer ke nomor</span> {{ $pm->name }} <span>tujuan</span></div>
+                                <div class="method-item-sub"><span>{{ __("Transfer ke nomor") }}</span> {{ $pm->name }} <span>{{ __("Tujuan") }}</span></div>
                             </div>
                             <div class="method-radio"></div>
                         </div>
                         <div class="method-item-body">
                             <div class="number-box">
-                                <div class="number-label"><span>Nomor</span> {{ $pm->name }} <span>Tujuan</span></div>
+                                <div class="number-label"><span>{{ __("Nomor") }}</span> {{ $pm->name }} <span>{{ __("Tujuan") }}</span></div>
                                 <div class="number-value">{{ $pm->account_number }}</div>
-                                <div class="number-name"><span>a.n.</span> {{ $pm->account_name }}</div>
+                                <div class="number-name"><span>{{ __("a.n.") }}</span> {{ $pm->account_name }}</div>
                                 <button class="copy-btn" onclick="copyText('{{ $pm->account_number }}', this)">
-                                    <i class="fas fa-copy"></i> <span>Salin Nomor</span>
+                                    <i class="fas fa-copy"></i> <span>{{ __("Salin Nomor") }}</span>
                                 </button>
                             </div>
                             <div class="steps" style="margin-top:12px;">
-                                <div class="step-item"><div class="step-num">1</div><span><span>Buka aplikasi</span> <strong>{{ $pm->name }}</strong> <span>di HP Anda</span></span></div>
-                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu Transfer / Kirim Uang</span></div>
-                                <div class="step-item"><div class="step-num">3</div><span><span>Masukkan nomor</span> <strong>{{ $pm->account_number }}</strong></span></div>
-                                <div class="step-item"><div class="step-num">4</div><span><span>Masukkan nominal</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> <span>dan konfirmasi</span></span></div>
-                                <div class="step-item"><div class="step-num">5</div><span>Klik Konfirmasi Bayar di bawah setelah transfer selesai</span></div>
+                                <div class="step-item"><div class="step-num">1</div><span><span>{{ __("Buka aplikasi") }}</span> <strong>{{ $pm->name }}</strong> <span>{{ __("di HP Anda") }}</span></span></div>
+                                <div class="step-item"><div class="step-num">2</div><span>{{ __("Pilih menu Transfer / Kirim Uang") }}</span></div>
+                                <div class="step-item"><div class="step-num">3</div><span><span>{{ __("Masukkan nomor") }}</span> <strong>{{ $pm->account_number }}</strong></span></div>
+                                <div class="step-item"><div class="step-num">4</div><span><span>{{ __("Masukkan nominal") }}</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> <span>{{ __("dan konfirmasi") }}</span></span></div>
+                                <div class="step-item"><div class="step-num">5</div><span>{{ __("Klik Konfirmasi Bayar di bawah setelah transfer selesai") }}</span></div>
                             </div>
                         </div>
                     </div>
@@ -272,7 +272,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
 
                     {{-- Bank Transfer --}}
                     @if($banks->count())
-                    <div class="method-section-label">Transfer Bank</div>
+                    <div class="method-section-label">{{ __("Transfer Bank") }}</div>
                     @foreach($banks as $pm)
                     <div class="method-item" id="item-{{ $pm->method }}">
                         <div class="method-item-header" onclick="toggleMethod('{{ $pm->method }}','{{ $pm->name }}','{{ $pm->account_number }}','{{ $pm->account_name }}')">
@@ -281,25 +281,25 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                             </div>
                             <div class="method-item-info">
                                 <div class="method-item-name">{{ $pm->name }}</div>
-                                <div class="method-item-sub"><span>No. Rekening:</span> {{ $pm->account_number }}</div>
+                                <div class="method-item-sub"><span>{{ __("No. Rekening:") }}</span> {{ $pm->account_number }}</div>
                             </div>
                             <div class="method-radio"></div>
                         </div>
                         <div class="method-item-body">
                             <div class="number-box">
-                                <div class="number-label">Nomor Rekening / Virtual Account</div>
+                                <div class="number-label">{{ __("Nomor Rekening / Virtual Account") }}</div>
                                 <div class="number-value">{{ $pm->account_number }}</div>
-                                <div class="number-name"><span>a.n.</span> {{ $pm->account_name }}</div>
+                                <div class="number-name"><span>{{ __("a.n.") }}</span> {{ $pm->account_name }}</div>
                                 <button class="copy-btn" onclick="copyText('{{ $pm->account_number }}', this)">
-                                    <i class="fas fa-copy"></i> <span>Salin Nomor</span>
+                                    <i class="fas fa-copy"></i> <span>{{ __("Salin Nomor") }}</span>
                                 </button>
                             </div>
                             <div class="steps" style="margin-top:12px;">
-                                <div class="step-item"><div class="step-num">1</div><span><span>Buka aplikasi mobile banking atau ATM</span> <strong>{{ $pm->name }}</strong> <span>mobile banking app atau ATM</span></span></div>
-                                <div class="step-item"><div class="step-num">2</div><span>Pilih menu Transfer</span></div>
-                                <div class="step-item"><div class="step-num">3</div><span><span>Masukkan nomor rekening</span> <strong>{{ $pm->account_number }}</strong></span></div>
-                                <div class="step-item"><div class="step-num">4</div><span><span>Masukkan nominal</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> <span>dan konfirmasi</span></span></div>
-                                <div class="step-item"><div class="step-num">5</div><span>Klik Konfirmasi Bayar di bawah setelah transfer selesai</span></div>
+                                <div class="step-item"><div class="step-num">1</div><span><span>{{ __("Buka aplikasi mobile banking atau ATM") }}</span> <strong>{{ $pm->name }}</strong> <span>{{ __("mobile banking app atau ATM") }}</span></span></div>
+                                <div class="step-item"><div class="step-num">2</div><span>{{ __("Pilih menu Transfer") }}</span></div>
+                                <div class="step-item"><div class="step-num">3</div><span><span>{{ __("Masukkan nomor rekening") }}</span> <strong>{{ $pm->account_number }}</strong></span></div>
+                                <div class="step-item"><div class="step-num">4</div><span><span>{{ __("Masukkan nominal") }}</span> <strong>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong> <span>{{ __("dan konfirmasi") }}</span></span></div>
+                                <div class="step-item"><div class="step-num">5</div><span>{{ __("Klik Konfirmasi Bayar di bawah setelah transfer selesai") }}</span></div>
                             </div>
                         </div>
                     </div>
@@ -311,7 +311,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                     <div class="method-item-body" style="display:block; background:#fffbeb; border-bottom:1px solid #fde68a;">
                         <div style="padding:14px 20px; font-size:12px; color:#92400e;">
                             <i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>
-                            <span>Metode pembayaran belum tersedia. Silakan hubungi admin.</span>
+                            <span>{{ __("Metode pembayaran belum tersedia. Silakan hubungi admin.") }}</span>
                         </div>
                     </div>
                     @endif
@@ -319,7 +319,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
 
                 <div class="notice blue">
                     <i class="fas fa-info-circle" style="flex-shrink:0; margin-top:1px;"></i>
-                    <span>Pilih metode pembayaran, lakukan transfer, lalu klik Konfirmasi Bayar di sidebar.</span>
+                    <span>{{ __("Pilih metode pembayaran, lakukan transfer, lalu klik Konfirmasi Bayar di sidebar.") }}</span>
                 </div>
             </div>
 
@@ -334,19 +334,19 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                         <div class="tname">{{ $booking->tour->title }}</div>
                         <div class="tmeta">
                             <i class="far fa-calendar" style="margin-right:3px;"></i>{{ $booking->travel_date->format('d M Y') }}<br>
-                            <i class="fas fa-users" style="margin-right:3px;"></i>{{ $booking->num_persons }} <span>orang</span>
+                            <i class="fas fa-users" style="margin-right:3px;"></i>{{ $booking->num_persons }} <span>{{ __("orang") }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="sidebar-body">
-                    <p style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 12px;">Ringkasan Harga</p>
+                    <p style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 12px;">{{ __("Ringkasan Harga") }}</p>
                     <div class="price-row">
                         <span class="l">{{ $booking->package->name ?? 'Paket' }}</span>
                         <span class="v">Rp {{ number_format($booking->total_price - $booking->addon_price, 0, ',', '.') }}</span>
                     </div>
                     <div class="price-row">
-                        <span class="l">Peserta</span>
-                        <span class="v">{{ $booking->num_persons }} <span>orang</span></span>
+                        <span class="l">{{ __("Peserta") }}</span>
+                        <span class="v">{{ $booking->num_persons }} <span>{{ __("orang") }}</span></span>
                     </div>
                     @if($booking->addon_price > 0)
                     <div class="price-row">
@@ -356,13 +356,13 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                     @endif
                     <hr class="price-divider">
                     <div class="price-total">
-                        <span class="l">Total</span>
+                        <span class="l">{{ __("Total") }}</span>
                         <span class="v">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
                     </div>
 
                     {{-- Metode terpilih --}}
                     <div id="selected-box" style="display:none; margin-top:14px; padding:12px; background:#f0f9ff; border-radius:10px; border:1px solid #bfdbfe;">
-                        <p style="font-size:11px; color:#64748b; margin:0 0 6px; font-weight:600; text-transform:uppercase;">Metode Terpilih</p>
+                        <p style="font-size:11px; color:#64748b; margin:0 0 6px; font-weight:600; text-transform:uppercase;">{{ __("Metode Terpilih") }}</p>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <div id="selected-icon" class="bank-icon-box" style="width:36px; height:24px;"></div>
                             <span id="selected-name" style="font-size:13px; font-weight:700; color:#1e293b;"></span>
@@ -373,7 +373,7 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                     <div id="method-error" style="display:none; margin-top:14px; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px;">
                         <div style="display:flex; align-items:flex-start; gap:8px; color:#b91c1c; font-size:12px; line-height:1.5;">
                             <i class="fas fa-exclamation-circle" style="flex-shrink:0; margin-top:1px;"></i>
-                            <span>Silakan pilih metode pembayaran terlebih dahulu.</span>
+                            <span>{{ __("Silakan pilih metode pembayaran terlebih dahulu.") }}</span>
                         </div>
                     </div>
 
@@ -382,17 +382,17 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
                         <input type="hidden" name="payment_method" id="final-method" value="">
                         <input type="hidden" name="payment_type" id="final-type" value="">
                         <button type="submit" id="btn-konfirmasi" class="btn-primary" style="margin-top:16px;" onclick="return validateMethod()">
-                            <i class="fas fa-check-circle" style="margin-right:8px;"></i><span>Konfirmasi Bayar</span>
+                            <i class="fas fa-check-circle" style="margin-right:8px;"></i><span>{{ __("Konfirmasi Bayar") }}</span>
                         </button>
                     </form>
 
                     <a href="{{ route('payment.order-detail', $booking) }}" class="btn-secondary">
-                        <i class="fas fa-arrow-left" style="margin-right:6px;"></i><span>Kembali</span>
+                        <i class="fas fa-arrow-left" style="margin-right:6px;"></i><span>{{ __("Kembali") }}</span>
                     </a>
 
                     <div class="notice green" style="margin-top:12px;">
                         <i class="fas fa-shield-alt" style="flex-shrink:0;"></i>
-                        <span>Pembayaran aman & terenkripsi</span>
+                        <span>{{ __("Pembayaran aman & terenkripsi") }}</span>
                     </div>
                 </div>
             </div>
@@ -452,8 +452,8 @@ $banks    = $paymentMethods->whereIn('method', ['bca','bni','bri','mandiri']);
 
     function copyText(text, btn) {
         navigator.clipboard.writeText(text).then(() => {
-            btn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
-            setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Salin Nomor'; }, 2000);
+            btn.innerHTML = '<i class="fas fa-check"></i> {{ __("Tersalin!") }}';
+            setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> {{ __("Salin Nomor") }}'; }, 2000);
         });
     }
 </script>

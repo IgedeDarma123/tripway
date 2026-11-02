@@ -133,6 +133,80 @@
                     <textarea name="highlights" rows="4" placeholder="Rafting di sungai sepanjang 12 km&#10;Pemandangan hutan tropis">{{ old('highlights') }}</textarea>
                 </div>
 
+                <script>
+                (function () {
+                    const textarea = document.querySelector('textarea[name="highlights"]');
+                    if (!textarea) return;
+
+                    const BULLET = '\u2022 ';
+
+                    function normalizeLines() {
+                        textarea.value = textarea.value.split('\n').map(function (line) {
+                            const text = line
+                                .replace(/^\s*(?:\u2022\s*)+/, '')
+                                .replace(/^\s*[-*\u2013\u2014]\s+/, '');
+                            return text.trim() === '' ? '' : BULLET + text;
+                        }).join('\n');
+                    }
+
+                    function stripBullets() {
+                        textarea.value = textarea.value.split('\n').map(function (line) {
+                            return line.replace(/^\s*(?:\u2022\s*)+/, '');
+                        }).join('\n');
+                    }
+
+                    function ensureBulletOnCurrentLine() {
+                        const pos = textarea.selectionStart;
+                        const value = textarea.value;
+                        const lineStart = value.lastIndexOf('\n', pos - 1) + 1;
+                        let lineEnd = value.indexOf('\n', pos);
+                        if (lineEnd === -1) lineEnd = value.length;
+                        const line = value.slice(lineStart, lineEnd);
+
+                        if (line.trim() !== '' && !/^\s*\u2022/.test(line)) {
+                            textarea.value = value.slice(0, lineStart) + BULLET + value.slice(lineStart);
+                            const caret = pos + BULLET.length;
+                            textarea.setSelectionRange(caret, caret);
+                        }
+                    }
+
+                    function initBullet() {
+                        if (textarea.value.trim() === '') {
+                            textarea.value = BULLET;
+                            textarea.setSelectionRange(BULLET.length, BULLET.length);
+                        }
+                    }
+
+                    normalizeLines();
+
+                    textarea.addEventListener('focus', initBullet);
+
+                    textarea.addEventListener('input', function (event) {
+                        if (event.isComposing) return;
+                        ensureBulletOnCurrentLine();
+                    });
+
+                    textarea.addEventListener('keydown', function (event) {
+                        if (event.key !== 'Enter' || event.isComposing) return;
+                        event.preventDefault();
+
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const insert = '\n' + BULLET;
+
+                        textarea.value = textarea.value.slice(0, start) + insert + textarea.value.slice(end);
+                        const caret = start + insert.length;
+                        textarea.setSelectionRange(caret, caret);
+                    });
+
+                    textarea.addEventListener('blur', normalizeLines);
+
+                    if (textarea.form) {
+                        textarea.form.addEventListener('submit', stripBullets);
+                    }
+                })();
+                </script>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-check">

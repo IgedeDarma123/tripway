@@ -290,6 +290,80 @@
                     <textarea name="highlights" rows="4">{{ old('highlights', $tour->highlights) }}</textarea>
                 </div>
 
+                <script>
+                (function () {
+                    const textarea = document.querySelector('textarea[name="highlights"]');
+                    if (!textarea) return;
+
+                    const BULLET = '\u2022 ';
+
+                    function normalizeLines() {
+                        textarea.value = textarea.value.split('\n').map(function (line) {
+                            const text = line
+                                .replace(/^\s*(?:\u2022\s*)+/, '')
+                                .replace(/^\s*[-*\u2013\u2014]\s+/, '');
+                            return text.trim() === '' ? '' : BULLET + text;
+                        }).join('\n');
+                    }
+
+                    function stripBullets() {
+                        textarea.value = textarea.value.split('\n').map(function (line) {
+                            return line.replace(/^\s*(?:\u2022\s*)+/, '');
+                        }).join('\n');
+                    }
+
+                    function ensureBulletOnCurrentLine() {
+                        const pos = textarea.selectionStart;
+                        const value = textarea.value;
+                        const lineStart = value.lastIndexOf('\n', pos - 1) + 1;
+                        let lineEnd = value.indexOf('\n', pos);
+                        if (lineEnd === -1) lineEnd = value.length;
+                        const line = value.slice(lineStart, lineEnd);
+
+                        if (line.trim() !== '' && !/^\s*\u2022/.test(line)) {
+                            textarea.value = value.slice(0, lineStart) + BULLET + value.slice(lineStart);
+                            const caret = pos + BULLET.length;
+                            textarea.setSelectionRange(caret, caret);
+                        }
+                    }
+
+                    function initBullet() {
+                        if (textarea.value.trim() === '') {
+                            textarea.value = BULLET;
+                            textarea.setSelectionRange(BULLET.length, BULLET.length);
+                        }
+                    }
+
+                    normalizeLines();
+
+                    textarea.addEventListener('focus', initBullet);
+
+                    textarea.addEventListener('input', function (event) {
+                        if (event.isComposing) return;
+                        ensureBulletOnCurrentLine();
+                    });
+
+                    textarea.addEventListener('keydown', function (event) {
+                        if (event.key !== 'Enter' || event.isComposing) return;
+                        event.preventDefault();
+
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        const insert = '\n' + BULLET;
+
+                        textarea.value = textarea.value.slice(0, start) + insert + textarea.value.slice(end);
+                        const caret = start + insert.length;
+                        textarea.setSelectionRange(caret, caret);
+                    });
+
+                    textarea.addEventListener('blur', normalizeLines);
+
+                    if (textarea.form) {
+                        textarea.form.addEventListener('submit', stripBullets);
+                    }
+                })();
+                </script>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-check">
@@ -378,6 +452,13 @@
                             <label>Harga Sharing (Rp)</label>
                             <input type="number" name="sharing_price" min="0" placeholder="Kosong = ikuti harga paket">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Jam Tersedia (WITA)</label>
+                        <div id="time-slots-tour-new" style="display:flex; flex-direction:column; gap:6px;"></div>
+                        <button type="button" onclick="addTimeSlotRow('time-slots-tour-new')" class="btn btn-sm btn-secondary" style="font-size:12px; margin-top:6px;">
+                            <i class="fas fa-plus"></i> Tambah Jam
+                        </button>
                     </div>
                     <div class="form-group">
                         <label class="form-check">
@@ -485,6 +566,20 @@
                                             <input type="number" name="sharing_price" value="{{ $pkg->sharing_price }}" placeholder="Kosong = ikuti harga paket">
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label>Jam Tersedia (WITA)</label>
+                                        <div id="time-slots-tour-{{ $pkg->id }}" style="display:flex; flex-direction:column; gap:6px;">
+                                            @foreach($pkg->time_slots ?? [] as $slot)
+                                            <div class="time-slot-row" style="display:flex; gap:8px; align-items:center;">
+                                                <input type="time" name="time_slots[]" value="{{ $slot }}" step="60" style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
+                                                <button type="button" onclick="this.closest('.time-slot-row').remove()" style="background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer;">&times;</button>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                        <button type="button" onclick="addTimeSlotRow('time-slots-tour-{{ $pkg->id }}')" class="btn btn-sm btn-secondary" style="font-size:12px; margin-top:6px;">
+                                            <i class="fas fa-plus"></i> Tambah Jam
+                                        </button>
+                                    </div>
                                     <button type="submit" class="btn btn-primary" style="font-size:13px;"><i class="fas fa-save"></i> Update</button>
                                     <button type="button" onclick="toggleEditPaket({{ $pkg->id }})" class="btn btn-secondary" style="font-size:13px;">Batal</button>
                                 </form>
@@ -505,6 +600,43 @@ function toggleEditPaket(id) {
     const el = document.getElementById('edit-paket-' + id);
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+
+function addTimeSlotRow(containerId, value) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'time-slot-row';
+    row.style.cssText = 'display:flex; gap:8px; align-items:center;';
+
+    const input = document.createElement('input');
+    input.type = 'time';
+    input.name = 'time_slots[]';
+    input.step = '60';
+    input.value = value || '';
+    input.style.cssText = 'flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px;';
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.innerHTML = '&times;';
+    remove.style.cssText = 'background:#fee2e2; border:none; color:#dc2626; width:28px; height:28px; border-radius:6px; cursor:pointer;';
+    remove.addEventListener('click', function () { row.remove(); });
+
+    row.appendChild(input);
+    row.appendChild(remove);
+    container.appendChild(row);
+    if (container.offsetParent !== null) input.focus();
+}
+
+function initTimeSlotRows() {
+    document.querySelectorAll('[id^="time-slots-"]').forEach(function (container) {
+        while (container.querySelectorAll('.time-slot-row').length < 3) {
+            addTimeSlotRow(container.id);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initTimeSlotRows);
 </script>
 @endsection
 

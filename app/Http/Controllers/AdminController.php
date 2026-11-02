@@ -91,6 +91,10 @@ class AdminController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        if (array_key_exists('highlights', $validated)) {
+            $validated['highlights'] = $this->cleanHighlights($validated['highlights']);
+        }
+
         // Handle file upload (cover)
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('tours', 'public');
@@ -158,6 +162,10 @@ class AdminController extends Controller
             'itinerary_photo.*' => 'nullable|image|max:3072',
         ]);
 
+        if (array_key_exists('highlights', $validated)) {
+            $validated['highlights'] = $this->cleanHighlights($validated['highlights']);
+        }
+
         // Handle file upload (cover)
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('tours', 'public');
@@ -216,6 +224,22 @@ class AdminController extends Controller
         return redirect()->route('admin.tours.edit', $tour)->with('success', 'Tour berhasil diperbarui!');
     }
 
+    private function cleanHighlights(?string $value): ?string
+    {
+        if ($value === null || trim($value) === '') {
+            return null;
+        }
+
+        $lines = preg_split('/\r\n|\r|\n/', $value);
+        $lines = array_map(function ($line) {
+            $line = preg_replace('/^\s*(?:\x{2022}\s*)+/u', '', $line);
+            return trim($line);
+        }, $lines);
+        $lines = array_filter($lines, fn ($line) => $line !== '');
+
+        return count($lines) ? implode("\n", $lines) : null;
+    }
+
     public function toursDestroy(Tour $tour)
     {
         $tour->delete();
@@ -252,6 +276,25 @@ class AdminController extends Controller
         return view('admin.packages.index', compact('toursByDestination', 'destinations'));
     }
 
+    private function parseTimeSlots($value): array
+    {
+        if (is_string($value)) {
+            $value = preg_split('/[,;\n]+/', $value);
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        return collect($value)
+            ->map(fn ($slot) => is_string($slot) ? trim($slot) : '')
+            ->filter(fn ($slot) => $slot !== '')
+            ->unique()
+            ->take(20)
+            ->values()
+            ->all();
+    }
+
     public function packagesStore(Request $request, Tour $tour)
     {
         $validated = $request->validate([
@@ -264,6 +307,8 @@ class AdminController extends Controller
             'is_active'         => 'boolean',
             'travel_type'       => 'required|in:private,sharing,both',
             'sharing_price'     => 'nullable|numeric|min:0',
+            'time_slots'        => 'nullable|array',
+            'time_slots.*'      => 'nullable|date_format:H:i',
             'itinerary_time'    => 'nullable|array',
             'itinerary_time.*'  => 'nullable|string|max:100',
             'itinerary_desc'    => 'nullable|array',
@@ -278,6 +323,7 @@ class AdminController extends Controller
         $validated['tour_id'] = $tour->id;
         $validated['is_active'] = $request->boolean('is_active');
         $validated['price'] = $validated['price'] ?? 0;
+        $validated['time_slots'] = $this->parseTimeSlots($request->input('time_slots', []));
 
         // Build itinerary_items JSON for this package
         $times = $request->input('itinerary_time', []);
@@ -323,6 +369,8 @@ class AdminController extends Controller
             'is_active'      => 'nullable|boolean',
             'travel_type'    => 'required|in:private,sharing,both',
             'sharing_price'  => 'nullable|numeric|min:0',
+            'time_slots'     => 'nullable|array',
+            'time_slots.*'   => 'nullable|date_format:H:i',
             'itinerary_time' => 'nullable|array',
             'itinerary_time.*' => 'nullable|string|max:100',
             'itinerary_desc' => 'nullable|array',
@@ -335,6 +383,7 @@ class AdminController extends Controller
         ]);
 
         $validated['is_active'] = $request->boolean('is_active', false);
+        $validated['time_slots'] = $this->parseTimeSlots($request->input('time_slots', []));
 
         // Build itinerary_items JSON for this package
         $times = $request->input('itinerary_time', []);

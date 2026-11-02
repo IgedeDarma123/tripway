@@ -1,6 +1,6 @@
 @extends('layouts.tripway')
 
-@section('title', 'Upload Bukti Pembayaran - TripWay')
+@section('title', __('Upload Bukti Pembayaran - TripWay'))
 
 @section('styles')
 <style>
@@ -69,29 +69,29 @@
     <div class="stepper-wrap">
         <div class="step">
             <div class="step-circle done"><i class="fas fa-check" style="font-size:11px;"></i></div>
-            <span class="step-label active">Pilih Paket</span>
+            <span class="step-label active">{{ __("Pilih Paket") }}</span>
         </div>
         <div class="step-line done"></div>
         <div class="step">
             <div class="step-circle done"><i class="fas fa-check" style="font-size:11px;"></i></div>
-            <span class="step-label active">Detail Pesanan</span>
+            <span class="step-label active">{{ __("Detail Pesanan") }}</span>
         </div>
         <div class="step-line done"></div>
         <div class="step">
             <div class="step-circle done"><i class="fas fa-check" style="font-size:11px;"></i></div>
-            <span class="step-label active">Pilih Bayar</span>
+            <span class="step-label active">{{ __("Pilih Bayar") }}</span>
         </div>
         <div class="step-line done"></div>
         <div class="step">
             <div class="step-circle active">4</div>
-            <span class="step-label active">Upload Bukti</span>
+            <span class="step-label active">{{ __("Upload Bukti") }}</span>
         </div>
     </div>
 
     <div class="ucard">
         <div class="ucard-head">
-            <h2><i class="fas fa-cloud-upload-alt" style="margin-right:8px;"></i><span>Upload Bukti Pembayaran</span></h2>
-            <p>Silakan upload screenshot/foto bukti transfer Anda</p>
+            <h2><i class="fas fa-cloud-upload-alt" style="margin-right:8px;"></i><span>{{ __("Upload Bukti Pembayaran") }}</span></h2>
+            <p>{{ __("Silakan upload screenshot/foto bukti transfer Anda") }}</p>
         </div>
 
         <div class="ucard-body">
@@ -109,14 +109,14 @@
                 <div class="detail">
                     <i class="far fa-calendar" style="margin-right:4px;"></i>{{ $booking->travel_date->format('d M Y') }}
                     &nbsp;·&nbsp;
-                    <i class="fas fa-users" style="margin-right:4px;"></i>{{ $booking->num_persons }} <span>orang</span>
+                    <i class="fas fa-users" style="margin-right:4px;"></i>{{ $booking->num_persons }} <span>{{ __("orang") }}</span>
                     @if($booking->payment_type)
                     &nbsp;·&nbsp;
                     <i class="fas fa-credit-card" style="margin-right:4px;"></i>{{ strtoupper($booking->payment_type) }}
                     @endif
                 </div>
                 <div class="total">
-                    <span>Total Pembayaran</span>
+                    <span>{{ __("Total Pembayaran") }}</span>
                     <span>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
                 </div>
             </div>
@@ -126,7 +126,7 @@
             <div class="status-box waiting">
                 <i class="fas fa-clock" style="font-size:22px; flex-shrink:0;"></i>
                 <div>
-                    <div style="font-weight:700; font-size:14px;">Menunggu Verifikasi Admin</div>
+                    <div style="font-weight:700; font-size:14px;">{{ __("Menunggu Verifikasi Admin") }}</div>
                     <div style="font-size:12px; margin-top:2px;">Bukti pembayaran sudah diterima. Admin akan memverifikasi dalam 1×24 jam.</div>
                 </div>
             </div>
@@ -134,17 +134,17 @@
             <div class="status-box rejected">
                 <i class="fas fa-times-circle" style="font-size:22px; flex-shrink:0;"></i>
                 <div>
-                    <div style="font-weight:700; font-size:14px;">Bukti Pembayaran Ditolak</div>
-                    <div style="font-size:12px; margin-top:2px;">Bukti transfer Anda ditolak oleh admin. Silakan upload ulang bukti yang valid.</div>
+                    <div style="font-weight:700; font-size:14px;">{{ __("Bukti Pembayaran Ditolak") }}</div>
+                    <div style="font-size:12px; margin-top:2px;">{{ __("Bukti transfer Anda ditolak oleh admin. Silakan upload ulang bukti yang valid.") }}</div>
                 </div>
             </div>
             @elseif($booking->payment_status === 'settlement')
             <div class="status-box confirmed">
                 <i class="fas fa-check-circle" style="font-size:22px; flex-shrink:0;"></i>
                 <div>
-                    <div style="font-weight:700; font-size:14px;">Pembayaran Dikonfirmasi!</div>
+                    <div style="font-weight:700; font-size:14px;">{{ __("Pembayaran Dikonfirmasi!") }}</div>
                     <div style="font-size:12px; margin-top:2px;">
-                        <span>Dikonfirmasi pada</span> {{ $booking->payment_confirmed_at ? $booking->payment_confirmed_at->format('d M Y H:i') : '-' }}
+                        <span>{{ __("Dikonfirmasi pada") }}</span> {{ $booking->payment_confirmed_at ? $booking->payment_confirmed_at->format('d M Y H:i') : '-' }}
                     </div>
                 </div>
             </div>
@@ -162,29 +162,29 @@
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
                     <div style="width:36px; height:36px; border-radius:10px; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;"><i class="fab fa-whatsapp"></i></div>
                     <div>
-                        <div style="font-weight:700; font-size:14px; color:#1e293b;"><span>Butuh Bantuan?</span></div>
-                        <div style="font-size:12px; color:#64748b;"><span>Konfirmasi pembayaran atau pertanyaan lainnya</span></div>
+                        <div style="font-weight:700; font-size:14px; color:#1e293b;"><span>{{ __("Butuh Bantuan?") }}</span></div>
+                        <div style="font-size:12px; color:#64748b;"><span>{{ __("Konfirmasi pembayaran atau pertanyaan lainnya") }}</span></div>
                     </div>
                 </div>
                 <a href="https://wa.me/{{ $waNumber }}?text={{ urlencode($waMessage) }}" target="_blank" rel="noopener"
                     style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#25D366; color:white; border-radius:12px; padding:13px; font-size:14px; font-weight:800; text-decoration:none; transition:opacity 0.2s;"
                     onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-                    <i class="fab fa-whatsapp" style="font-size:18px;"></i><span>Chat Admin via WhatsApp</span>
+                    <i class="fab fa-whatsapp" style="font-size:18px;"></i><span>{{ __("Chat Admin via WhatsApp") }}</span>
                 </a>
                 <p style="font-size:11px; color:#94a3b8; text-align:center; margin:10px 0 0; line-height:1.6;">
-                    <span>Pesan konfirmasi pembayaran Anda akan terisi otomatis saat membuka WhatsApp.</span>
+                    <span>{{ __("Pesan konfirmasi pembayaran Anda akan terisi otomatis saat membuka WhatsApp.") }}</span>
                 </p>
             </div>
 
             {{-- Form Upload (sembunyikan jika sudah confirmed atau sedang pending_verification) --}}
             @if($booking->payment_status !== 'settlement' && $booking->payment_status !== 'pending_verification')
             <div class="instructions">
-                <h4><i class="fas fa-info-circle"></i> <span>Cara Upload:</span></h4>
+                <h4><i class="fas fa-info-circle"></i> <span>{{ __("Cara Upload:") }}</span></h4>
                 <ul>
-                    <li>Lakukan transfer ke rekening yang tertera di halaman pembayaran</li>
-                    <li>Screenshot atau foto bukti transfer yang jelas</li>
-                    <li>Klik area upload di bawah dan pilih gambar</li>
-                    <li>Pastikan nominal, tanggal, dan nama tujuan terlihat jelas</li>
+                    <li>{{ __("Lakukan transfer ke rekening yang tertera di halaman pembayaran") }}</li>
+                    <li>{{ __("Screenshot atau foto bukti transfer yang jelas") }}</li>
+                    <li>{{ __("Klik area upload di bawah dan pilih gambar") }}</li>
+                    <li>{{ __("Pastikan nominal, tanggal, dan nama tujuan terlihat jelas") }}</li>
                 </ul>
             </div>
 
@@ -194,8 +194,8 @@
                     <img src="" alt="Preview" class="preview-image" id="preview-image">
                     <i class="fas fa-cloud-upload-alt"></i>
                     <p id="upload-text">
-                        <span>Klik untuk upload bukti pembayaran</span><br>
-                        <small style="color:#94a3b8;">(JPG, PNG, maks 2MB)</small>
+                        <span>{{ __("Klik untuk upload bukti pembayaran") }}</span><br>
+                        <small style="color:#94a3b8;">({{ __("JPG, PNG, maks 2MB") }})</small>
                     </p>
                     <input type="file" name="payment_proof" id="payment_proof" accept="image/*" required>
                 </label>
@@ -205,13 +205,13 @@
                 @enderror
 
                 <button type="submit" class="submit-btn" id="submit-btn" disabled>
-                    <i class="fas fa-paper-plane" style="margin-right:8px;"></i><span>Kirim Bukti Pembayaran</span>
+                    <i class="fas fa-paper-plane" style="margin-right:8px;"></i><span>{{ __("Kirim Bukti Pembayaran") }}</span>
                 </button>
             </form>
             @endif
 
             <a href="{{ route('bookings.index') }}" class="back-link">
-                <i class="fas fa-arrow-left" style="margin-right:4px;"></i><span>Kembali ke Pesanan Saya</span>
+                <i class="fas fa-arrow-left" style="margin-right:4px;"></i><span>{{ __("Kembali ke Pesanan Saya") }}</span>
             </a>
         </div>
     </div>
@@ -227,12 +227,12 @@
     function handleFile(file) {
         if (!file) return;
         if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-            alert('Hanya file JPG dan PNG yang diizinkan!');
+            alert('{{ __("Hanya file JPG dan PNG yang diizinkan!") }}');
             fileInput.value = '';
             return;
         }
         if (file.size > 2 * 1024 * 1024) {
-            alert('Ukuran file maksimal 2MB!');
+            alert('{{ __("Ukuran file maksimal 2MB!") }}');
             fileInput.value = '';
             return;
         }
@@ -240,7 +240,7 @@
         reader.onload = function(e) {
             preview.src = e.target.result;
             uploadArea.classList.add('has-file');
-            uploadText.innerHTML = '<span class="file-name">' + file.name + '</span><br><small style="color:#64748b;">Klik untuk ganti gambar</small>';
+            uploadText.innerHTML = '<span class="file-name">' + file.name + '</span><br><small style="color:#64748b;">{{ __("Klik untuk ganti gambar") }}</small>';
             if (submitBtn) { submitBtn.disabled = false; }
         };
         reader.readAsDataURL(file);

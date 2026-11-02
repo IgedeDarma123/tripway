@@ -1,6 +1,6 @@
 @extends('layouts.tripway')
 
-@section('title', 'Dashboard - TripWay')
+@section('title', __('Dashboard - TripWay'))
 
 @section('styles')
 <style>
@@ -173,32 +173,32 @@
     <div class="container">
         <div class="dashboard">
             <div class="dashboard-header">
-                <h1>Selamat Datang, {{ Auth::user()->name }}!</h1>
-                <p>Kelola aktivitas dan booking perjalanan Anda</p>
+                <h1>{{ __("Selamat Datang, :name!", ["name" => Auth::user()->name]) }}</h1>
+                <p>{{ __("Kelola aktivitas dan booking perjalanan Anda") }}</p>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fas fa-calendar-check"></i>
                     <div class="number">{{ $bookings->count() }}</div>
-                    <div class="label">Total Booking</div>
+                    <div class="label">{{ __("Total Booking") }}</div>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-hourglass-half"></i>
                     <div class="number">{{ $bookings->where('status', 'pending')->count() }}</div>
-                    <div class="label">Menunggu Konfirmasi</div>
+                    <div class="label">{{ __("Menunggu Konfirmasi") }}</div>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-check-circle"></i>
                     <div class="number">{{ $bookings->where('status', 'confirmed')->count() + $bookings->where('status', 'completed')->count() }}</div>
-                    <div class="label">Selesai</div>
+                    <div class="label">{{ __("Selesai") }}</div>
                 </div>
             </div>
 
             <div class="recent-bookings">
                 <h2>
-                    Booking Terbaru
-                    <a href="{{ route('bookings.index') }}">Lihat Semua <i class="fas fa-arrow-right"></i></a>
+                    {{ __("Booking Terbaru") }}
+                    <a href="{{ route('bookings.index') }}">{{ __("Lihat Semua") }} <i class="fas fa-arrow-right"></i></a>
                 </h2>
                 @if($bookings->count() > 0)
                     @foreach($bookings as $booking)
@@ -208,10 +208,10 @@
                             <h3>{{ $booking->tour->title }}</h3>
                             <div class="booking-meta">
                                 <span><i class="fas fa-calendar"></i> {{ $booking->travel_date->format('d M Y') }}</span>
-                                <span><i class="fas fa-users"></i> {{ $booking->adults + $booking->children }} orang</span>
+                                <span><i class="fas fa-users"></i> {{ $booking->adults + $booking->children }} {{ __("orang") }}</span>
                                 <span><i class="fas fa-map-marker-alt"></i> {{ $booking->tour->destination->name ?? 'Bali' }}</span>
                             </div>
-                            <p class="booking-description">{{ $booking->tour->description ?? 'Nikmati pengalaman tak terlupakan bersama kami.' }}</p>
+                            <p class="booking-description">{{ $booking->tour->description ?? __('Nikmati pengalaman tak terlupakan bersama kami.') }}</p>
                         </div>
                         <div class="booking-info-right">
                             <div class="booking-price">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div>
@@ -222,8 +222,8 @@
                 @else
                     <div class="empty-dashboard">
                         <i class="fas fa-suitcase-rolling"></i>
-                        <p>Anda belum memiliki booking apapun.</p>
-                        <a href="{{ route('tours.index') }}" class="btn btn-primary">Jelajahi Tour</a>
+                        <p>{{ __("Anda belum memiliki booking apapun.") }}</p>
+                        <a href="{{ route('tours.index') }}" class="btn btn-primary">{{ __("Jelajahi Tour") }}</a>
                     </div>
                 @endif
             </div>

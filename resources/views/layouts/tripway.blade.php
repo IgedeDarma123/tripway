@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'TripWay - Temukan Petualangan Terbaik di Bali')</title>
+    <title>@yield('title', __('TripWay - Temukan Petualangan Terbaik di Bali'))</title>
 
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
@@ -211,6 +211,45 @@
         .mobile-menu-btn:hover { color: var(--primary); }
         .mobile-menu-btn:last-of-type { border-bottom: none; }
 
+        .lang-switch {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            gap: 2px;
+        }
+        .lang-switch a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+        .lang-switch a.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .mobile-lang-switch {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 8px;
+        }
+        .mobile-lang-switch span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-medium);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .footer-grid { grid-template-columns: repeat(2, 1fr); }
@@ -246,15 +285,15 @@
             </a>
 
             <div class="nav-links">
-                <a href="{{ route('tours.index') }}">Tour & Aktivitas</a>
-                <a href="{{ route('tours.index', ['destination' => 'ubud']) }}">Destinasi</a>
-                <a href="#">Tentang Kami</a>
+                <a href="{{ route('tours.index') }}">{{ __('Tour & Aktivitas') }}</a>
+                <a href="{{ route('tours.index', ['destination' => 'ubud']) }}">{{ __('Destinasi') }}</a>
+                <a href="#">{{ __('Tentang Kami') }}</a>
             </div>
 
             <div class="nav-actions">
                 @guest
-                    <a href="{{ route('login') }}" class="btn btn-outline btn-sm nav-auth">Masuk</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm nav-auth">Daftar</a>
+                    <a href="{{ route('login') }}" class="btn btn-outline btn-sm nav-auth">{{ __('Masuk') }}</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm nav-auth">{{ __('Daftar') }}</a>
                 @else
                     @if(Auth::user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-primary btn-sm nav-auth">
@@ -267,12 +306,16 @@
                     </a>
                     <a href="{{ route('logout') }}" class="btn btn-outline btn-sm nav-auth"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        Keluar
+                        {{ __('Keluar') }}
                     </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
                 @endguest
+                <div class="lang-switch" aria-label="{{ __('Bahasa') }}">
+                    <a href="{{ route('locale.switch', 'id') }}" class="{{ app()->getLocale() === 'id' ? 'active' : '' }}">ID</a>
+                    <a href="{{ route('locale.switch', 'en') }}" class="{{ app()->getLocale() === 'en' ? 'active' : '' }}">EN</a>
+                </div>
                 <button class="hamburger" @click="mobileOpen = !mobileOpen" :aria-expanded="mobileOpen">
                     <i :class="mobileOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
                 </button>
@@ -281,12 +324,12 @@
 
         <div class="mobile-menu" :class="{ open: mobileOpen }" @click.self="mobileOpen = false">
             <div class="mobile-menu-inner">
-                <a href="{{ route('tours.index') }}" @click="mobileOpen = false">Tour & Aktivitas</a>
-                <a href="{{ route('tours.index', ['destination' => 'ubud']) }}" @click="mobileOpen = false">Destinasi</a>
-                <a href="#" @click="mobileOpen = false">Tentang Kami</a>
+                <a href="{{ route('tours.index') }}" @click="mobileOpen = false">{{ __('Tour & Aktivitas') }}</a>
+                <a href="{{ route('tours.index', ['destination' => 'ubud']) }}" @click="mobileOpen = false">{{ __('Destinasi') }}</a>
+                <a href="#" @click="mobileOpen = false">{{ __('Tentang Kami') }}</a>
                 @guest
-                    <a href="{{ route('login') }}" @click="mobileOpen = false" style="color: var(--primary); font-weight: 600; border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px;">Masuk</a>
-                    <a href="{{ route('register') }}" @click="mobileOpen = false" style="color: var(--primary); font-weight: 600;">Daftar</a>
+                    <a href="{{ route('login') }}" @click="mobileOpen = false" style="color: var(--primary); font-weight: 600; border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px;">{{ __('Masuk') }}</a>
+                    <a href="{{ route('register') }}" @click="mobileOpen = false" style="color: var(--primary); font-weight: 600;">{{ __('Daftar') }}</a>
                 @else
                     @if(Auth::user()->is_admin)
                         <a href="{{ route('admin.dashboard') }}" @click="mobileOpen = false" style="border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 16px;"><i class="fas fa-cog"></i> <span>Admin Panel</span></a>
@@ -294,9 +337,16 @@
                     <a href="{{ route('home') }}" @click="mobileOpen = false"><i class="fas fa-user"></i> {{ Auth::user()->name }}</a>
                     <form action="{{ route('logout') }}" method="POST" style="display:block; border-top:1px solid #f1f5f9;">
                         @csrf
-                        <button type="submit" class="mobile-menu-btn" style="color:#ef4444;"><i class="fas fa-sign-out-alt"></i> <span>Keluar</span></button>
+                        <button type="submit" class="mobile-menu-btn" style="color:#ef4444;"><i class="fas fa-sign-out-alt"></i> <span>{{ __('Keluar') }}</span></button>
                     </form>
                 @endguest
+                <div class="mobile-lang-switch">
+                    <span>{{ __('Bahasa') }}</span>
+                    <div class="lang-switch">
+                        <a href="{{ route('locale.switch', 'id') }}" class="{{ app()->getLocale() === 'id' ? 'active' : '' }}">ID</a>
+                        <a href="{{ route('locale.switch', 'en') }}" class="{{ app()->getLocale() === 'en' ? 'active' : '' }}">EN</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -313,38 +363,38 @@
                         <i class="fas fa-paper-plane"></i>
                         TripWay
                     </div>
-                    <p>Platform pemesanan aktivitas dan tur terbaik di Bali. Temukan pengalaman tak terlupakan bersama kami.</p>
+                    <p>{{ __('Platform pemesanan aktivitas dan tur terbaik di Bali. Temukan pengalaman tak terlupakan bersama kami.') }}</p>
                 </div>
                 <div class="footer-col">
-                    <h4>Perusahaan</h4>
+                    <h4>{{ __('Perusahaan') }}</h4>
                     <ul>
-                        <li><a href="#">Tentang Kami</a></li>
-                        <li><a href="#">Karir</a></li>
+                        <li><a href="#">{{ __('Tentang Kami') }}</a></li>
+                        <li><a href="#">{{ __('Karir') }}</a></li>
                         <li><a href="#">Blog</a></li>
-                        <li><a href="#">Pers</a></li>
+                        <li><a href="#">{{ __('Pers') }}</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Need Help?</h4>
                     <div style="margin-bottom: 20px;">
-                        <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Call us</p>
+                        <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">{{ __('Call us') }}</p>
                         @php $waFooter = \App\Models\SiteSetting::get('whatsapp_number', '628983317309'); @endphp
                         <a href="tel:+{{ $waFooter }}" style="display: block; font-weight: 500; font-size: 15px; color: #ccc; margin-bottom: 4px; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ccc'">+{{ $waFooter }}</a>
                         <a href="tel:+{{ $waFooter }}" style="display: block; font-weight: 500; font-size: 15px; color: #ccc; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ccc'">+{{ $waFooter }}</a>
                     </div>
                     
                     <div style="margin-bottom: 20px;">
-                        <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Email us</p>
+                        <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">{{ __('Email us') }}</p>
                         <a href="mailto:tripway@gmail.com" style="display: block; font-weight: 500; font-size: 15px; color: #ccc; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ccc'">tripway@gmail.com</a>
                     </div>
                     
                     <div>
-                        <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Location</p>
+                        <p style="margin-bottom: 4px; font-size: 13px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">{{ __('Location') }}</p>
                         <p style="font-size: 14px; line-height: 1.6; color: #ccc;">Jl. Sunset Road No. 10, Kuta, Badung, Bali</p>
                     </div>
                 </div>
                 <div class="footer-col">
-                    <h4>Destinasi Populer</h4>
+                    <h4>{{ __('Destinasi Populer') }}</h4>
                     <ul>
                         <li><a href="{{ route('tours.index', ['destination' => 'ubud']) }}">Ubud</a></li>
                         <li><a href="{{ route('tours.index', ['destination' => 'seminyak']) }}">Seminyak</a></li>
@@ -354,7 +404,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>&copy; {{ date('Y') }} TripWay. All rights reserved.</span>
+                <span>&copy; {{ date('Y') }} TripWay. {{ __('All rights reserved.') }}</span>
                 <div class="footer-social">
                     <a href="#"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-facebook"></i></a>

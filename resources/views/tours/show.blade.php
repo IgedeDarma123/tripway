@@ -157,7 +157,52 @@
         .gallery-main { grid-row: auto !important; }
         .gallery-side { display: none; }
         .tour-page { padding-left: 16px !important; padding-right: 16px !important; }
-        .tour-header h1 { font-size: 22px !important; }
+        .tour-header h1 { font-size: 22px !important; line-height: 1.35 !important; overflow-wrap: anywhere; }
+        .tour-title-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+        }
+        .tour-price-block {
+            width: 100% !important;
+            text-align: left !important;
+            flex-shrink: 1 !important;
+        }
+        .tour-price-block > div:first-child {
+            justify-content: flex-start !important;
+            flex-wrap: wrap;
+        }
+        .tour-header .meta {
+            flex-wrap: wrap;
+            gap: 8px 16px;
+        }
+        .tour-booking-anchor > div:first-child {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        #panel-detail-paket {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 9998;
+            display: none !important;
+            flex: none !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 16px !important;
+            background: rgba(15, 23, 42, 0.55);
+            overflow-y: auto !important;
+        }
+        #panel-detail-paket.mobile-open {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+        #panel-detail-paket > div {
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto !important;
+            border-radius: 16px !important;
+        }
         .review-layout { flex-direction: column !important; gap: 24px !important; }
         .review-summary { width: 100% !important; }
     }
@@ -199,7 +244,7 @@
                 <img src="{{ $mainMedia['url'] }}" alt="{{ $tour->title }}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="openGalleryModal(0)">
             @endif
             <div style="position:absolute; bottom:12px; left:12px; background:rgba(0,0,0,0.5); color:white; font-size:12px; font-weight:600; padding:4px 10px; border-radius:8px; backdrop-filter:blur(4px);">
-                <i class="fas fa-camera" style="margin-right:4px;"></i> {{ count($mediaList) }} <span>foto</span>
+                <i class="fas fa-camera" style="margin-right:4px;"></i> {{ count($mediaList) }} <span>{{ __("foto") }}</span>
             </div>
         </div>
 
@@ -335,27 +380,27 @@
     <div style="max-width:1024px; margin:0 auto 48px;">
         <div class="tour-header">
             <div class="category">{{ $tour->category->name }} &middot; {{ $tour->destination->name }}</div>
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:12px;">
+            <div class="tour-title-row" style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:12px;">
                 <h1 style="font-size:28px; font-weight:700; line-height:1.3; margin:0; flex:1; min-width:0;">{{ $tour->title }}</h1>
                 @if($tour->price)
-                <div style="text-align:right; flex-shrink:0;">
+                <div class="tour-price-block" style="text-align:right; flex-shrink:0;">
                     <div style="display:flex; align-items:baseline; gap:6px; justify-content:flex-end;">
-                        <span style="font-size:11px; color:#94a3b8; font-weight:400;">Mulai dari</span>
+                        <span style="font-size:11px; color:#94a3b8; font-weight:400;">{{ __("Mulai dari") }}</span>
                         <span style="font-size:20px; font-weight:900; color:#1B3A4B; line-height:1.2;">Rp{{ number_format($tour->price, 0, ',', '.') }}</span>
                     </div>
-                    <div style="font-size:11px; color:#64748b; margin-bottom:6px;">per orang</div>
+                    <div style="font-size:11px; color:#64748b; margin-bottom:6px;">{{ __("per orang") }}</div>
                     @if($tour->original_price && $tour->original_price > $tour->price)
                         <div style="font-size:13px; color:#9ca3af; text-decoration:line-through; font-weight:400;">Rp{{ number_format($tour->original_price, 0, ',', '.') }}</div>
                     @endif
                     <div onclick="document.querySelector('.tour-booking-anchor')?.scrollIntoView({behavior:'smooth',block:'center'})" style="display:inline-block; margin-top:6px; padding:6px 14px; background:#1B3A4B; color:white; font-size:12px; font-weight:700; border-radius:8px; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#14505F'" onmouseout="this.style.background='#1B3A4B'">
-                        <span>Pilih Paket</span> <i class="fas fa-arrow-down" style="margin-left:4px; font-size:10px;"></i>
+                        <span>{{ __("Pilih Paket") }}</span> <i class="fas fa-arrow-down" style="margin-left:4px; font-size:10px;"></i>
                     </div>
                 </div>
                 @endif
             </div>
             <div class="meta">
-                <span><i class="far fa-clock"></i> {{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</span>
-                <span><i class="fas fa-users"></i> <span>Max</span> {{ $tour->max_people }} <span>orang</span></span>
+                <span><i class="far fa-clock"></i> {{ $tour->duration }} @if($tour->duration_type == 'hours')<span>{{ __("jam") }}</span>@else<span>{{ __("hari") }}</span>@endif</span>
+                <span><i class="fas fa-users"></i> <span>{{ __("Max") }}</span> {{ $tour->max_people }} <span>{{ __("orang") }}</span></span>
                 <span><i class="fas fa-map-marker-alt"></i> {{ $tour->destination->name }}</span>
             </div>
         </div>
@@ -368,18 +413,18 @@
                 @endfor
             </span>
             <span class="score">{{ $tour->rating }}</span>
-            <span class="reviews">({{ $tour->review_count }} <span>ulasan</span>)</span>
+            <span class="reviews">({{ $tour->review_count }} <span>{{ __("ulasan") }}</span>)</span>
         </div>
         @endif
 
         <div class="info-section">
-            <h2>Tentang Aktivitas Ini</h2>
+            <h2>{{ __("Tentang Aktivitas Ini") }}</h2>
             <p>{{ $tour->description }}</p>
         </div>
 
         @if($tour->highlights)
         <div class="info-section">
-            <h2>Highlight</h2>
+            <h2>{{ __("Highlight") }}</h2>
             <ul class="highlights-list">
                 @foreach(explode("\n", $tour->highlights) as $highlight)
                     @if(trim($highlight))
@@ -400,12 +445,12 @@
             </div>
 
             <!-- Panel Detail Paket -->
-            <div id="panel-detail-paket" style="flex:1; min-width:0; overflow:hidden; display:none;">
+            <div id="panel-detail-paket" onclick="if(event.target===this)closeDetailPaket()" style="flex:1; min-width:0; overflow:hidden; display:none;">
                 <div class="rounded-xl shadow-lg border border-slate-200 overflow-hidden" style="background:#f1f5f9;">
                     <div class="px-4 py-3 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-slate-100">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-[10px] text-gray-500 uppercase tracking-wide font-semibold mb-0.5">Rincian Paket</p>
+                                <p class="text-[10px] text-gray-500 uppercase tracking-wide font-semibold mb-0.5">{{ __("Rincian Paket") }}</p>
                                 <h3 id="detail-nama" class="text-sm font-black text-[#1B3A4B]"></h3>
                             </div>
                             <button onclick="closeDetailPaket()" class="text-gray-400 hover:text-gray-600 text-sm">
@@ -418,23 +463,23 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div class="bg-slate-50 rounded-lg p-2 text-center">
                                 <i class="fas fa-users text-[#1B3A4B] mb-0.5 text-xs"></i>
-                                <p class="text-[10px] text-gray-500">Maks Peserta</p>
+                                <p class="text-[10px] text-gray-500">{{ __("Maks Peserta") }}</p>
                                 <p id="detail-max" class="font-bold text-xs text-gray-800"></p>
                             </div>
                             <div class="bg-slate-50 rounded-lg p-2 text-center">
                                 <i class="fas fa-clock text-[#1B3A4B] mb-0.5 text-xs"></i>
-                                <p class="text-[10px] text-gray-500">Durasi</p>
-                                <p id="detail-durasi" class="font-bold text-xs text-gray-800">{{ $tour->duration }} @if($tour->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</p>
+                                <p class="text-[10px] text-gray-500">{{ __("Durasi") }}</p>
+                                <p id="detail-durasi" class="font-bold text-xs text-gray-800">{{ $tour->duration }} @if($tour->duration_type == 'hours')<span>{{ __("jam") }}</span>@else<span>{{ __("hari") }}</span>@endif</p>
                             </div>
                         </div>
 
                         <div id="detail-desc-wrap">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Deskripsi</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">{{ __("Deskripsi") }}</p>
                             <p id="detail-desc" class="text-xs text-gray-600 leading-relaxed"></p>
                         </div>
 
                         <div id="detail-itinerary-container">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Jadwal Perjalanan</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">{{ __("Jadwal Perjalanan") }}</p>
                             <div class="relative">
                                 <div class="absolute left-[14px] top-0 bottom-0 w-0.5 bg-slate-200"></div>
                                 <div class="space-y-2">
@@ -445,7 +490,7 @@
 
                         @if($tour->inclusions)
                         <div id="tour-inclusions">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Sudah Termasuk</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">{{ __("Sudah Termasuk") }}</p>
                             <ul class="space-y-1">
                                 @foreach(explode("\n", $tour->inclusions) as $item)
                                     @if(trim($item))
@@ -460,13 +505,13 @@
                         @endif
 
                         <div id="package-included" style="display:none;">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Sudah Termasuk (Paket)</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">{{ __("Sudah Termasuk (Paket)") }}</p>
                             <ul class="space-y-1" id="package-included-list"></ul>
                         </div>
 
                         @if($tour->exclusions)
                         <div id="tour-exclusions">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Tidak Termasuk</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">{{ __("Tidak Termasuk") }}</p>
                             <ul class="space-y-1">
                                 @foreach(explode("\n", $tour->exclusions) as $item)
                                     @if(trim($item))
@@ -481,13 +526,23 @@
                         @endif
 
                         <div id="package-excluded" style="display:none;">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">Tidak Termasuk (Paket)</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1">{{ __("Tidak Termasuk (Paket)") }}</p>
                             <ul class="space-y-1" id="package-excluded-list"></ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <button type="button" id="mobile-detail-trigger" onclick="openDetailPaketMobile()" style="display:none; width:100%; margin-top:12px; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); font-size:13px; font-weight:700; color:#1B3A4B; cursor:pointer;">
+            <span style="display:flex; align-items:center; gap:8px; min-width:0;">
+                <i class="fas fa-info-circle"></i>
+                <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ __("Rincian:") }} <span id="mobile-detail-name"></span></span>
+            </span>
+            <span style="display:flex; align-items:center; gap:6px; color:#64748b; font-size:12px; font-weight:600; flex-shrink:0;">
+                Lihat <i class="fas fa-chevron-right" style="font-size:10px;"></i>
+            </span>
+        </button>
     </div>
 
     {{-- Ulasan --}}
@@ -501,10 +556,10 @@
             $ratings[$r] = ['count' => $count, 'pct' => $pct];
         }
         $sortOptions = [
-            'terbaru' => 'Terbaru',
-            'terlama' => 'Terlama',
-            'rating_tertinggi' => 'Rating Tertinggi',
-            'rating_terendah' => 'Rating Terendah',
+            'terbaru' => __('Terbaru'),
+            'terlama' => __('Terlama'),
+            'rating_tertinggi' => __('Rating Tertinggi'),
+            'rating_terendah' => __('Rating Terendah'),
         ];
         $sortI18n = [
             'terbaru' => 'show.rating.newest',
@@ -513,7 +568,7 @@
             'rating_terendah' => 'show.rating.lowest',
         ];
         $ratingTabs = [
-            '' => 'Semua',
+            '' => __('Semua'),
             '5' => '5 ',
             '4' => '4 ',
             '3' => '3 ',
@@ -522,7 +577,7 @@
         ];
     @endphp
     <div style="margin-top:48px; padding-top:32px; border-top:1px solid #e2e8f0;">
-        <h2 style="font-size:20px; font-weight:700; color:#1B3A4B; margin-bottom:24px;">Ulasan</h2>
+        <h2 style="font-size:20px; font-weight:700; color:#1B3A4B; margin-bottom:24px;">{{ __("Ulasan") }}</h2>
         <div class="review-layout" style="display:flex; gap:40px; align-items:flex-start;">
             <div class="review-summary" style="width:35%; flex-shrink:0;">
                 <div style="padding:24px; background:#f8fafc; border-radius:12px;">
@@ -533,7 +588,7 @@
                                 <i class="fas fa-star" style="{{ $i > round($tour->rating) ? 'opacity:0.2' : '' }}"></i>
                             @endfor
                         </div>
-                        <div style="font-size:14px; color:#64748b;">{{ $totalReviews }} <span>ulasan</span></div>
+                        <div style="font-size:14px; color:#64748b;">{{ $totalReviews }} <span>{{ __("ulasan") }}</span></div>
                     </div>
                     <div style="margin-top:20px;">
                         @foreach($ratingCounts as $r)
@@ -552,12 +607,12 @@
                 <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
                     @foreach($ratingTabs as $key => $label)
                     <a href="{{ request()->fullUrlWithQuery(['rating' => $key ?: null, 'page' => null]) }}" style="padding:6px 14px; font-size:13px; border-radius:20px; text-decoration:none; transition:all 0.2s; font-weight:{{ $ratingFilter == $key ? '600' : '400' }}; background:{{ $ratingFilter == $key ? '#1B3A4B' : '#f1f5f9' }}; color:{{ $ratingFilter == $key ? '#fff' : '#475569' }};">
-                        @if($key === '')<span>Semua</span>@else{{ $label }}@endif @if($key)<i class="fas fa-star" style="font-size:10px;"></i>@endif
+                        @if($key === '')<span>{{ __("Semua") }}</span>@else{{ $label }}@endif @if($key)<i class="fas fa-star" style="font-size:10px;"></i>@endif
                     </a>
                     @endforeach
                 </div>
                 <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-                    <span style="font-size:14px; color:#475569; font-weight:500;">Urutkan:</span>
+                    <span style="font-size:14px; color:#475569; font-weight:500;">{{ __("Urutkan:") }}</span>
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
                         @foreach($sortOptions as $key => $label)
                         <a href="{{ request()->fullUrlWithQuery(['sort' => $key]) }}" style="padding:6px 14px; font-size:13px; border-radius:20px; text-decoration:none; transition:all 0.2s; font-weight:{{ $sort === $key ? '600' : '400' }}; background:{{ $sort === $key ? '#1B3A4B' : '#f1f5f9' }}; color:{{ $sort === $key ? '#fff' : '#475569' }};">
@@ -599,7 +654,7 @@
                     </div>
                 </div>
                 @empty
-                <p style="text-align:center; color:#94a3b8; padding:40px 0;">Belum ada ulasan.</p>
+                <p style="text-align:center; color:#94a3b8; padding:40px 0;">{{ __("Belum ada ulasan.") }}</p>
                 @endforelse
 
                 <div style="margin-top:24px;">
@@ -619,7 +674,7 @@
     {{-- Tour Serupa: di bawah, berjejer horizontal --}}
     @if($relatedTours->count() > 0)
     <div style="margin-top:48px; padding-top:32px; border-top:1px solid #e2e8f0;">
-        <h2 style="font-size:20px; font-weight:700; color:#1B3A4B; margin-bottom:20px;">Tour Serupa</h2>
+        <h2 style="font-size:20px; font-weight:700; color:#1B3A4B; margin-bottom:20px;">{{ __("Tour Serupa") }}</h2>
         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
             @foreach($relatedTours as $rt)
             <a href="{{ route('tours.show', $rt->slug) }}" style="display:block; background:white; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; text-decoration:none; box-shadow:0 2px 8px rgba(0,0,0,0.06); transition:all 0.2s;" onmouseover="this.style.boxShadow='0 8px 24px rgba(27,58,75,0.15)'; this.style.transform='translateY(-3px)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'; this.style.transform='translateY(0)'">
@@ -630,9 +685,9 @@
                 <div style="padding:14px 16px;">
                     <div style="font-size:14px; font-weight:700; color:#1e293b; line-height:1.4; margin-bottom:10px;">{{ $rt->title }}</div>
                     <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <div style="font-size:12px; color:#64748b;"><i class="far fa-clock" style="margin-right:4px;"></i>{{ $rt->duration }} @if($rt->duration_type == 'hours')<span>jam</span>@else<span>hari</span>@endif</div>
+                        <div style="font-size:12px; color:#64748b;"><i class="far fa-clock" style="margin-right:4px;"></i>{{ $rt->duration }} @if($rt->duration_type == 'hours')<span>{{ __("jam") }}</span>@else<span>{{ __("hari") }}</span>@endif</div>
                         <div style="text-align:right;">
-                            <div style="font-size:10px; color:#94a3b8;">Mulai dari</div>
+                            <div style="font-size:10px; color:#94a3b8;">{{ __("Mulai dari") }}</div>
                             <div style="font-size:15px; font-weight:800; color:#1B3A4B;">Rp {{ number_format($rt->price, 0, ',', '.') }}</div>
                         </div>
                     </div>
@@ -649,8 +704,8 @@
 <div id="itinerary-modal" onclick="if(event.target===this)closeItineraryModal()" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.55); align-items:center; justify-content:center; padding:16px;">
     <div style="background:#fff; width:100%; max-width:700px; max-height:85vh; border-radius:16px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #e2e8f0; background:#f8fafc;">
-            <strong id="itinerary-modal-title" style="font-size:13px; color:#1B3A4B;">Jadwal Perjalanan</strong>
-            <button type="button" onclick="closeItineraryModal()" style="background:none; border:none; color:#64748b; font-size:16px; cursor:pointer;" aria-label="Tutup"><i class="fas fa-times"></i></button>
+            <strong id="itinerary-modal-title" style="font-size:13px; color:#1B3A4B;">{{ __("Jadwal Perjalanan") }}</strong>
+            <button type="button" onclick="closeItineraryModal()" style="background:none; border:none; color:#64748b; font-size:16px; cursor:pointer;" aria-label="{{ __("Tutup") }}"><i class="fas fa-times"></i></button>
         </div>
         <div id="itinerary-modal-body" style="padding:16px; overflow-y:auto;"></div>
     </div>
@@ -662,9 +717,25 @@
     }
     window.scrollTo(0, 0);
 
+    function isMobileView() {
+        return window.matchMedia('(max-width: 768px)').matches;
+    }
+
+    function openDetailPaketMobile() {
+        const panel = document.getElementById('panel-detail-paket');
+        if (!panel) return;
+        panel.style.display = 'flex';
+        panel.classList.add('mobile-open');
+        document.body.style.overflow = 'hidden';
+    }
+
     function closeDetailPaket() {
         var panel = document.getElementById('panel-detail-paket');
+        if (!panel) return;
         panel.style.display = 'none';
+        panel.classList.remove('mobile-open');
+        document.body.style.overflow = '';
+        if (isMobileView()) return;
         var top = document.getElementById('tour-top');
         if (top) {
             top.scrollIntoView();
@@ -736,8 +807,8 @@ function renderItinerary(items) {
                 <div class="it-item">
                     <div class="w-7 h-7 rounded-full bg-[#1B3A4B] text-white flex items-center justify-center text-[10px] font-bold shrink-0 z-10">-</div>
                     <div class="flex-1 pb-0.5">
-                        <p class="text-[10px] font-bold text-[#1B3A4B] mb-0.5">Belum ada itinerary</p>
-                        <p class="text-xs text-gray-600">Pilih paket yang memiliki itinerary.</p>
+                        <p class="text-[10px] font-bold text-[#1B3A4B] mb-0.5">{{ __("Belum ada itinerary") }}</p>
+                        <p class="text-xs text-gray-600">{{ __("Pilih paket yang memiliki itinerary.") }}</p>
                     </div>
                 </div>
             `;
@@ -780,7 +851,7 @@ function renderItinerary(items) {
             container.insertAdjacentHTML('beforeend', `
                 <div style="text-align:center; padding:8px 0 0;">
                     <button type="button" onclick="openItineraryModal()" style="background:none; border:1px solid #1B3A4B; color:#1B3A4B; padding:6px 18px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">
-                        Lihat Semua (${items.length} jadwal) <i class="fas fa-expand" style="margin-left:4px; font-size:10px;"></i>
+                        {{ __("Lihat Semua") }} (${items.length} {{ __("jadwal") }}) <i class="fas fa-expand" style="margin-left:4px; font-size:10px;"></i>
                     </button>
                 </div>
             `);
@@ -807,11 +878,11 @@ function renderItinerary(items) {
         if (peserta || durasi) {
             summary += '<div class="grid grid-cols-2 gap-2" style="margin-top:10px;">';
             if (peserta) {
-                summary += '<div class="bg-slate-50 rounded-lg p-2 text-center"><i class="fas fa-users" style="color:#1B3A4B; margin-bottom:2px; font-size:12px;"></i><p class="text-[10px] text-gray-500">Maks Peserta</p><p class="font-bold text-xs text-gray-800">' + peserta + '</p></div>';
+                summary += '<div class="bg-slate-50 rounded-lg p-2 text-center"><i class="fas fa-users" style="color:#1B3A4B; margin-bottom:2px; font-size:12px;"></i><p class="text-[10px] text-gray-500">{{ __("Maks Peserta") }}</p><p class="font-bold text-xs text-gray-800">' + peserta + '</p></div>';
             } else {
                 summary += '<div></div>';
             }
-            summary += '<div class="bg-slate-50 rounded-lg p-2 text-center"><i class="fas fa-clock" style="color:#1B3A4B; margin-bottom:2px; font-size:12px;"></i><p class="text-[10px] text-gray-500">Durasi</p><p class="font-bold text-xs text-gray-800">' + (durasi || '-') + '</p></div>';
+            summary += '<div class="bg-slate-50 rounded-lg p-2 text-center"><i class="fas fa-clock" style="color:#1B3A4B; margin-bottom:2px; font-size:12px;"></i><p class="text-[10px] text-gray-500">{{ __("Durasi") }}</p><p class="font-bold text-xs text-gray-800">' + (durasi || '-') + '</p></div>';
             summary += '</div>';
         }
 
@@ -868,10 +939,10 @@ function renderItinerary(items) {
         const excSource = (pkgExcluded && pkgExcluded.style.display !== 'none') ? pkgExcluded : tourExclusions;
 
         const listsWrap = document.createElement('div');
-        listsWrap.innerHTML = listSectionHtml('Sudah Termasuk', incSource) + listSectionHtml('Tidak Termasuk', excSource);
+        listsWrap.innerHTML = listSectionHtml('{{ __("Sudah Termasuk") }}', incSource) + listSectionHtml('{{ __("Tidak Termasuk") }}', excSource);
         if (listsWrap.children.length) body.appendChild(listsWrap);
 
-        if (title) title.textContent = 'Jadwal Perjalanan (' + count + ')';
+        if (title) title.textContent = '{{ __("Jadwal Perjalanan") }} (' + count + ')';
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
@@ -884,7 +955,29 @@ function renderItinerary(items) {
     }
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeItineraryModal();
+        if (e.key === 'Escape') {
+            closeItineraryModal();
+            if (isMobileView()) closeDetailPaket();
+        }
+    });
+
+    window.addEventListener('resize', function () {
+        const panel = document.getElementById('panel-detail-paket');
+        const trigger = document.getElementById('mobile-detail-trigger');
+        const name = document.getElementById('detail-nama');
+        if (!panel || !trigger || !name) return;
+        const hasSelection = name.textContent.trim() !== '';
+        if (isMobileView()) {
+            if (hasSelection && !panel.classList.contains('mobile-open')) {
+                panel.style.display = 'none';
+                trigger.style.display = 'flex';
+            }
+        } else {
+            trigger.style.display = 'none';
+            panel.classList.remove('mobile-open');
+            document.body.style.overflow = '';
+            if (hasSelection) panel.style.display = 'block';
+        }
     });
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -958,7 +1051,18 @@ function renderItinerary(items) {
                 const pkgItems = pkg?.itinerary_items ? (Array.isArray(pkg.itinerary_items) ? pkg.itinerary_items : (pkg.itinerary_items.items || [])) : [];
                 renderItinerary(pkgItems);
 
-                document.getElementById('panel-detail-paket').style.display = 'block';
+                const detailPanel = document.getElementById('panel-detail-paket');
+                const mobileTrigger = document.getElementById('mobile-detail-trigger');
+                const mobileName = document.getElementById('mobile-detail-name');
+                if (isMobileView()) {
+                    detailPanel.style.display = 'none';
+                    detailPanel.classList.remove('mobile-open');
+                    if (mobileName) mobileName.textContent = pkg.name;
+                    if (mobileTrigger) mobileTrigger.style.display = 'flex';
+                } else {
+                    detailPanel.style.display = 'block';
+                    if (mobileTrigger) mobileTrigger.style.display = 'none';
+                }
             });
         });
     }); 

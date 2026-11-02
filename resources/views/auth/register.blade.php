@@ -1,6 +1,6 @@
 @extends('layouts.tripway')
 
-@section('title', 'Daftar - TripWay')
+@section('title', __('Daftar - TripWay'))
 
 @section('styles')
 <style>
@@ -168,18 +168,18 @@
             <div class="logo-icon">
                 <i class="fas fa-paper-plane"></i>
             </div>
-            <h1>Buat Akun Baru</h1>
-            <p>Daftar dan mulai petualangan Anda</p>
+            <h1>{{ __("Buat Akun Baru") }}</h1>
+            <p>{{ __("Daftar dan mulai petualangan Anda") }}</p>
         </div>
 
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
             <div class="form-group">
-                <label for="name">Nama Lengkap</label>
+                <label for="name">{{ __("Nama Lengkap") }}</label>
                 <div class="input-wrapper">
                     <input id="name" type="text" class="@error('name') is-invalid @enderror"
-                        name="name" value="{{ old('name') }}" placeholder="Nama lengkap Anda"
+                        name="name" value="{{ old('name') }}" placeholder="{{ __("Nama lengkap Anda") }}"
                         required autocomplete="name" autofocus>
                     <i class="fas fa-user"></i>
                 </div>
@@ -189,7 +189,7 @@
             </div>
 
             <div class="form-group">
-                <label for="email">Alamat Email</label>
+                <label for="email">{{ __("Alamat Email") }}</label>
                 <div class="input-wrapper">
                     <input id="email" type="email" class="@error('email') is-invalid @enderror"
                         name="email" value="{{ old('email') }}" placeholder="nama@email.com"
@@ -202,10 +202,10 @@
             </div>
 
             <div class="form-group">
-                <label for="password">Kata Sandi</label>
+                <label for="password">{{ __("Kata Sandi") }}</label>
                 <div class="input-wrapper">
                     <input id="password" type="password" class="@error('password') is-invalid @enderror"
-                        name="password" placeholder="Min. 8 karakter"
+                        name="password" placeholder="{{ __("Min. 8 karakter") }}"
                         required autocomplete="new-password">
                     <i class="fas fa-lock"></i>
                 </div>
@@ -215,31 +215,31 @@
             </div>
 
             <div class="form-group">
-                <label for="password-confirm">Konfirmasi Kata Sandi</label>
+                <label for="password-confirm">{{ __("Konfirmasi Kata Sandi") }}</label>
                 <div class="input-wrapper">
                     <input id="password-confirm" type="password"
-                        name="password_confirmation" placeholder="Ulangi kata sandi"
+                        name="password_confirmation" placeholder="{{ __("Ulangi kata sandi") }}"
                         required autocomplete="new-password">
                     <i class="fas fa-lock"></i>
                 </div>
             </div>
 
             <button type="submit" class="btn-register">
-                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> <span>Daftar Sekarang</span>
+                <i class="fas fa-user-plus" style="margin-right: 8px;"></i> <span>{{ __("Daftar sekarang") }}</span>
             </button>
         </form>
 
-        <div class="login-divider"><span>atau</span></div>
+        <div class="login-divider"><span>{{ __("atau") }}</span></div>
 
         <a href="{{ route('auth.google') }}" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px; border:2px solid #e8e8e8; border-radius:12px; font-size:14px; font-weight:600; color:#444; text-decoration:none; transition:all 0.2s; background:white;" onmouseover="this.style.borderColor='#4285f4'; this.style.background='#f8f9ff'" onmouseout="this.style.borderColor='#e8e8e8'; this.style.background='white'">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px; height:20px;">
-            <span>Daftar dengan Google</span>
+            <span>{{ __("Daftar dengan Google") }}</span>
         </a>
 
         <div class="login-divider" style="margin-top:28px;"></div>
 
         <div class="register-footer">
-            <span>Sudah punya akun?</span> <a href="{{ route('login') }}"><span>Masuk sekarang</span></a>
+            <span>{{ __("Sudah punya akun?") }}</span> <a href="{{ route('login') }}"><span>{{ __("Masuk sekarang") }}</span></a>
         </div>
     </div>
 </div>

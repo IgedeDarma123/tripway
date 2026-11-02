@@ -109,6 +109,12 @@
                                 <td style="padding: 6px 0; color: var(--text-light);">Tanggal Tour</td>
                                 <td style="text-align: right;">{{ $booking->travel_date->format('d M Y') }}</td>
                             </tr>
+                            @if($booking->travel_time)
+                            <tr>
+                                <td style="padding: 6px 0; color: var(--text-light);">Jam Tour (WITA)</td>
+                                <td style="text-align: right;">{{ $booking->travel_time }} WITA</td>
+                            </tr>
+                            @endif
                             <tr>
                                 <td style="padding: 6px 0; color: var(--text-light);">Dewasa</td>
                                 <td style="text-align: right;">{{ $booking->adults }} orang</td>

@@ -1,6 +1,6 @@
 @extends('layouts.tripway')
 
-@section('title', 'Login - TripWay')
+@section('title', __('Login - TripWay'))
 
 @section('styles')
 <style>
@@ -226,7 +226,7 @@
 @section('content')
     <div class="login-page">
         <a href="{{ url('/') }}" class="back-home">
-            <i class="fas fa-arrow-left"></i> <span>Kembali ke Beranda</span>
+            <i class="fas fa-arrow-left"></i> <span>{{ __("Kembali ke Beranda") }}</span>
         </a>
 
         <div class="login-card">
@@ -234,15 +234,15 @@
                 <div class="logo-icon">
                     <i class="fas fa-paper-plane"></i>
                 </div>
-                <h1>Selamat Datang Kembali</h1>
-                <p>Masuk ke akun TripWay Anda</p>
+                <h1>{{ __("Selamat Datang Kembali") }}</h1>
+                <p>{{ __("Masuk ke akun TripWay Anda") }}</p>
             </div>
 
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
                 <div class="form-group">
-                    <label for="email">Alamat Email</label>
+                    <label for="email">{{ __("Alamat Email") }}</label>
                     <div class="input-wrapper">
                         <input id="email" type="email" class="@error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="nama@email.com" required autocomplete="email" autofocus>
                         <i class="fas fa-envelope"></i>
@@ -255,9 +255,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Kata Sandi</label>
+                    <label for="password">{{ __("Kata Sandi") }}</label>
                     <div class="input-wrapper">
-                        <input id="password" type="password" class="@error('password') is-invalid @enderror" name="password" placeholder="••••••••" required autocomplete="current-password">
+                        <input id="password" type="password" class="@error('password') is-invalid @enderror" name="password" placeholder="{{ __("Kata sandi Anda") }}" required autocomplete="current-password">
                         <i class="fas fa-lock"></i>
                     </div>
                     @error('password')
@@ -270,33 +270,33 @@
                 <div class="form-options">
                     <label class="remember-check">
                         <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                        <span>Ingat saya</span>
+                        <span>{{ __("Ingat saya") }}</span>
                     </label>
                     @if (Route::has('password.request'))
                         <a class="forgot-link" href="{{ route('password.request') }}">
-                            <span>Lupa password?</span>
+                            <span>{{ __("Lupa password?") }}</span>
                         </a>
                     @endif
                 </div>
 
                 <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i> <span>Masuk</span>
+                    <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i> <span>{{ __("Masuk") }}</span>
                 </button>
             </form>
 
             <div class="login-divider">
-                <span>atau</span>
+                <span>{{ __("atau") }}</span>
             </div>
 
             <a href="{{ route('auth.google') }}" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px; border:2px solid #e8e8e8; border-radius:12px; font-size:14px; font-weight:600; color:#444; text-decoration:none; transition:all 0.2s; background:white;" onmouseover="this.style.borderColor='#4285f4'; this.style.background='#f8f9ff'" onmouseout="this.style.borderColor='#e8e8e8'; this.style.background='white'">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width:20px; height:20px;">
-                <span>Masuk dengan Google</span>
+                <span>{{ __("Masuk dengan Google") }}</span>
             </a>
 
             <div class="login-divider" style="margin-top:28px;"></div>
 
             <div class="login-footer">
-                <span>Belum punya akun?</span> <a href="{{ route('register') }}"><span>Daftar sekarang</span></a>
+                <span>{{ __("Belum punya akun?") }}</span> <a href="{{ route('register') }}"><span>{{ __("Daftar sekarang") }}</span></a>
             </div>
         </div>
     </div>

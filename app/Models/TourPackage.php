@@ -23,6 +23,7 @@ class TourPackage extends Model
         'sort_order',
         'travel_type',
         'sharing_price',
+        'time_slots',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class TourPackage extends Model
         'original_price' => 'decimal:2',
         'sharing_price' => 'decimal:2',
         'itinerary_items' => 'array',
+        'time_slots' => 'array',
         'is_active' => 'boolean',
     ];
 

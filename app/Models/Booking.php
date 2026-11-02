@@ -16,6 +16,7 @@ class Booking extends Model
         'package_type',
         'quantity',
         'travel_date',
+        'travel_time',
         'adults',
         'children',
         'total_price',

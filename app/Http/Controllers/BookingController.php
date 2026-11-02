@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\BookingConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
@@ -40,6 +41,7 @@ class BookingController extends Controller
             'addon_ids'        => 'nullable|array',
             'addon_ids.*'      => 'exists:tour_package_addons,id',
             'travel_date'      => 'required|date|after_or_equal:today',
+            'travel_time'      => 'nullable|string|max:50',
             'contact_name'     => 'required|string|max:255',
             'contact_email'    => 'required|email|max:255',
             'contact_phone'    => ['required', 'regex:/^[0-9+\-\s()]{7,20}$/'],
@@ -59,6 +61,14 @@ class BookingController extends Controller
         ]);
 
         $package = TourPackage::findOrFail($validated['package_id']);
+
+        $timeSlots = $package->time_slots ?? [];
+        if (!empty($timeSlots) && !in_array($validated['travel_time'] ?? '', $timeSlots, true)) {
+            throw ValidationException::withMessages([
+                'travel_time' => 'Pilih jam ketersediaan yang valid.',
+            ]);
+        }
+
         $travelType = $validated['travel_type'];
         $totalPrice = 0;
         $groupOptionId = null;
@@ -96,6 +106,7 @@ class BookingController extends Controller
             'addon_price'      => $addonPrice,
             'quantity'         => $numPersons,
             'travel_date'      => $validated['travel_date'],
+            'travel_time'      => !empty($validated['travel_time']) ? $validated['travel_time'] : null,
             'adults'           => $numPersons,
             'children'         => 0,
             'total_price'      => $totalPrice,

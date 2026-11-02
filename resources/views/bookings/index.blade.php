@@ -1,6 +1,6 @@
 @extends('layouts.tripway')
 
-@section('title', 'Pesanan Saya - TripWay')
+@section('title', __('Pesanan Saya - TripWay'))
 
 @section('styles')
 <style>
@@ -112,8 +112,8 @@
 @section('content')
     <div class="container">
         <div class="bookings-page">
-            <h1>Pesanan Saya</h1>
-            <p>Kelola dan lihat semua booking aktivitas Anda</p>
+            <h1>{{ __("Pesanan Saya") }}</h1>
+            <p>{{ __("Kelola dan lihat semua booking aktivitas Anda") }}</p>
 
             @if(session('success'))
                 <div style="background: #d4edda; color: #155724; padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 14px;">
@@ -129,7 +129,7 @@
                             <h3>{{ $booking->tour->title }}</h3>
                             <div class="meta">
                                 <span><i class="far fa-calendar"></i> {{ $booking->travel_date->format('d M Y') }}</span>
-                                <span><i class="fas fa-users"></i> {{ $booking->adults + $booking->children }} <span>orang</span></span>
+                                <span><i class="fas fa-users"></i> {{ $booking->adults + $booking->children }} <span>{{ __("orang") }}</span></span>
                                 <span><i class="fas fa-map-marker-alt"></i> {{ $booking->tour->destination->name }}</span>
                             </div>
                             <div class="booking-actions">
@@ -138,31 +138,31 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" onclick="confirmDelete({{ $booking->id }}, '{{ addslashes($booking->tour->title) }}')">
-                                        <i class="fas fa-times"></i> <span>Batalkan Pesanan</span>
+                                        <i class="fas fa-times"></i> <span>{{ __("Batalkan Pesanan") }}</span>
                                     </button>
                                 </form>
                                 @endif
                             </div>
                         </div>
                         <div class="booking-status">
-                            <span class="status-badge status-{{ $booking->status }}">{{ $booking->status }}</span>
+                            <span class="status-badge status-{{ __($booking->status) }}">{{ __($booking->status) }}</span>
                             @if($booking->payment_proof)
                                 <div style="margin-top: 8px; font-size: 11px; color: #155724;">
-                                    <i class="fas fa-check"></i> <span>Bukti uploaded</span>
+                                    <i class="fas fa-check"></i> <span>{{ __("Bukti uploaded") }}</span>
                                 </div>
                             @endif
                             <div class="price">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div>
                             @if($booking->status === 'confirmed')
                                 <a href="{{ route('bookings.ticket', $booking) }}" style="display:block; margin-top:8px; background:#1B3A4B; color:white; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none; text-align:center;">
-                                    <i class="fas fa-file-pdf"></i> <span>Download Tiket</span>
+                                    <i class="fas fa-file-pdf"></i> <span>{{ __("Download Tiket") }}</span>
                                 </a>
                             @elseif(in_array($booking->status, ['pending']) && !$booking->payment_proof)
                                 <a href="{{ route('payment.upload.show', $booking) }}" class="btn btn-sm" style="margin-top: 8px; background: var(--primary); color: white; padding: 6px 12px; border-radius: 4px; font-size: 12px;">
-                                    <i class="fas fa-upload"></i> <span>Upload Bukti</span>
+                                    <i class="fas fa-upload"></i> <span>{{ __("Upload Bukti") }}</span>
                                 </a>
                             @elseif($booking->payment_status === 'pending_verification')
                                 <div style="margin-top:8px; font-size:11px; color:#92400e; background:#fffbeb; padding:5px 10px; border-radius:6px;">
-                                    <i class="fas fa-clock"></i> <span>Menunggu verifikasi</span>
+                                    <i class="fas fa-clock"></i> <span>{{ __("Menunggu verifikasi") }}</span>
                                 </div>
                             @endif
                         </div>
@@ -171,9 +171,9 @@
             @else
                 <div class="empty-state">
                     <i class="fas fa-calendar-times"></i>
-                    <h3>Belum Ada Pesanan</h3>
-                    <p>Anda belum membuat booking apapun. Jelajahi aktivitas seru di Bali dan pesan sekarang!</p>
-                    <a href="{{ route('tours.index') }}" class="btn btn-primary"><span>Jelajahi Tour</span></a>
+                    <h3>{{ __("Belum Ada Pesanan") }}</h3>
+                    <p>{{ __("Anda belum membuat booking apapun. Jelajahi aktivitas seru di Bali dan pesan sekarang!") }}</p>
+                    <a href="{{ route('tours.index') }}" class="btn btn-primary"><span>{{ __("Jelajahi Tour") }}</span></a>
                 </div>
             @endif
         </div>
@@ -185,10 +185,10 @@
         <div style="width:60px; height:60px; background:#fef2f2; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
             <i class="fas fa-exclamation-triangle" style="font-size:24px; color:#dc2626;"></i>
         </div>
-        <h3 style="font-size:18px; font-weight:800; color:#1e293b; margin:0 0 8px;">Batalkan Pesanan?</h3>
-        <p style="font-size:13px; color:#64748b; margin:0 0 6px;">Anda akan membatalkan pesanan:</p>
+        <h3 style="font-size:18px; font-weight:800; color:#1e293b; margin:0 0 8px;">{{ __("Batalkan Pesanan?") }}</h3>
+        <p style="font-size:13px; color:#64748b; margin:0 0 6px;">{{ __("Anda akan membatalkan pesanan:") }}</p>
         <p id="modal-tour-name" style="font-size:14px; font-weight:700; color:#1B3A4B; margin:0 0 20px;"></p>
-        <p style="font-size:12px; color:#ef4444; margin:0 0 24px;">Tindakan ini tidak dapat dibatalkan.</p>
+        <p style="font-size:12px; color:#ef4444; margin:0 0 24px;">{{ __("Tindakan ini tidak dapat dibatalkan.") }}</p>
         <div style="display:flex; gap:10px; justify-content:center;">
             <button onclick="closeModal()" style="flex:1; padding:11px; border-radius:10px; border:1px solid #e2e8f0; background:white; color:#64748b; font-size:14px; font-weight:600; cursor:pointer;">
                 Tidak, Kembali
