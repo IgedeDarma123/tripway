@@ -134,6 +134,29 @@ jobs:
             echo "=== Composer ==="
             composer install --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 || { echo "COMPOSER INSTALL FAILED"; exit 1; }
 
+            echo "=== Pail diagnosis ==="
+            echo "cwd: $(pwd)"
+            echo "vendor-dir: $(composer config vendor-dir 2>&1)"
+            env | grep -i composer || true
+            echo "installed.json pail count: $(grep -c 'laravel/pail' vendor/composer/installed.json 2>/dev/null || echo 0)"
+            ls -d vendor/laravel/pail 2>&1 || true
+            echo "bootstrap/providers.php:"; cat bootstrap/providers.php 2>&1 || true
+            find . -maxdepth 4 -name 'packages.php' -not -path './vendor/*' -printf '%p %TY-%Tm-%Td %TH:%TM\n' 2>/dev/null
+            grep -E '^(APP_|CACHE_|COMPOSER_|LARAVEL_)' .env 2>/dev/null | sed 's/=.*/=<set>/' || true
+
+            echo "=== Clone diagnosis ==="
+            CLONE=$(ls -d /home/u966953872/.git_clones/git_clone_* 2>/dev/null | head -1)
+            echo "CLONE: $CLONE"
+            ls -la "$CLONE" 2>&1 | head -60
+            echo "clone vendor: $(ls -la "$CLONE/vendor/autoload.php" 2>&1)"
+            echo "clone env: $(ls -la "$CLONE/.env" 2>&1)"
+            echo "clone public/build:"; ls -la "$CLONE/public/build" 2>&1 | head -5
+            echo "clone bootstrap/cache:"; ls -la "$CLONE/bootstrap/cache" 2>&1 | head -10
+            echo "clone git head: $(git -C "$CLONE" log -1 --oneline 2>&1)"
+            echo "clone git remote: $(git -C "$CLONE" remote -v 2>&1 | tr '\n' ' ')"
+            echo "clone root index/htaccess:"; ls -la "$CLONE/index.php" "$CLONE/.htaccess" 2>&1
+            echo "--- .builds contents ---"; ls -la /home/u966953872/domains/tripwaytour.com/.builds 2>&1 | head -20
+
             echo "=== Reset bootstrap cache before discovery ==="
             rm -rf bootstrap/cache
             mkdir -p bootstrap/cache
