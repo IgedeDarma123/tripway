@@ -32,6 +32,14 @@ jobs:
         run: |
           SERVER_PATH="$HOME/domains/tripwaytour.com/public_html"
 
+          # strip UTF-8 BOM (PHP json_decode rejects a leading BOM)
+          find lang -name '*.json' -print0 | xargs -0 -r sed -i '1s/^\xEF\xBB\xBF//'
+
+          # validate translation JSON early
+          if command -v jq >/dev/null 2>&1; then
+            find lang -name '*.json' -exec jq empty {} + || { echo "INVALID TRANSLATION JSON"; exit 1; }
+          fi
+
           # prepare temp dir with flattened structure
           rm -rf /tmp/deploy
           mkdir -p /tmp/deploy
