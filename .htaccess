@@ -1,0 +1,63 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Allow ACME / SSL validation
+    RewriteRule ^\.well-known/ - [L]
+
+    # Serve public assets when the repository root is the web root.
+    # The conditions keep this working whether the app is deployed in the
+    # standard layout (public/ present) or the flattened layout (assets at root).
+    RewriteCond %{DOCUMENT_ROOT}/public/build/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public/build/$1 -d
+    RewriteRule ^build/(.*)$ public/build/$1 [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/public/images/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public/images/$1 -d
+    RewriteRule ^images/(.*)$ public/images/$1 [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/public/favicon.ico -f
+    RewriteRule ^favicon\.ico$ public/favicon.ico [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/public/favicon.svg -f
+    RewriteRule ^favicon\.svg$ public/favicon.svg [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/public/robots.txt -f
+    RewriteRule ^robots\.txt$ public/robots.txt [L]
+
+    # Public files under public/
+    RewriteRule ^public/ - [L]
+
+    # Public storage files
+    RewriteCond %{DOCUMENT_ROOT}/storage/app/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/storage/app/public/$1 -d
+    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
+    # Block sensitive application paths
+    RewriteRule ^(?:app|bootstrap|config|database|lang|resources|routes|tests|vendor)(?:/|$) - [F,L]
+    RewriteRule ^storage/(?:app/(?!public)|framework|logs)(?:/|$) - [F,L]
+    RewriteRule ^(?:artisan|composer\.(?:json|lock)|package(?:-lock)?\.json|phpunit\.xml|vite\.config\.js|deploy\.sh)$ - [F,L]
+    RewriteRule ^.*\.(?:md|sh)$ - [F,L]
+    RewriteRule ^\.(?!well-known) - [F,L]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>

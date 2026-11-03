@@ -28,10 +28,8 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Flatten structure for server
+      - name: Prepare translation files
         run: |
-          SERVER_PATH="$HOME/domains/tripwaytour.com/public_html"
-
           # strip UTF-8 BOM (PHP json_decode rejects a leading BOM)
           find lang -name '*.json' -print0 | xargs -0 -r sed -i '1s/^\xEF\xBB\xBF//'
 
@@ -40,30 +38,14 @@ jobs:
             find lang -name '*.json' -exec jq empty {} + || { echo "INVALID TRANSLATION JSON"; exit 1; }
           fi
 
-          # prepare temp dir with flattened structure
-          rm -rf /tmp/deploy
-          mkdir -p /tmp/deploy
-
-          # copy everything from repo (excluding .git, public/)
-          rsync -a \
-            --exclude='.git' \
-            --exclude='public' \
-            --exclude='bootstrap/cache' \
-            --exclude='storage' \
-            . /tmp/deploy/
-
-          # copy public/ contents to root (overwrite index.php, .htaccess, build/, etc.)
-          rsync -a public/ /tmp/deploy/
-
-          # fix index.php paths: remove ../ since everything is at same level
-          sed -i \
-            -e "s|__DIR__.'/\.\./vendor/|__DIR__.'/vendor/|g" \
-            -e "s|__DIR__.'/\.\./bootstrap/|__DIR__.'/bootstrap/|g" \
-            -e "s|__DIR__.'/\.\./storage/|__DIR__.'/storage/|g" \
-            /tmp/deploy/index.php
+          # make sure the committed Vite build exists for the standard layout
+          test -f public/build/manifest.json || { echo "MISSING public/build/manifest.json"; exit 1; }
 
       - name: Sync files to server
         run: |
+          # Deploy the standard Laravel layout. Hostinger serves the repository
+          # root as the web root, so root index.php + .htaccess make it work
+          # regardless of whether our deploy or Hostinger's own deploy wins.
           rsync -avz --delete \
             --exclude='.env' \
             --exclude='storage' \
@@ -71,8 +53,9 @@ jobs:
             --exclude='node_modules' \
             --exclude='.git' \
             --exclude='bootstrap/cache' \
+            --exclude='public/storage' \
             -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
-            /tmp/deploy/ \
+            ./ \
             ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/home/u966953872/domains/tripwaytour.com/public_html/
 
       - name: Server-side commands
@@ -85,14 +68,15 @@ jobs:
           script: |
             cd /home/u966953872/domains/tripwaytour.com/public_html
 
-            echo "=== Disable Hostinger git auto-pull interference ==="
-            if [ -d .git ]; then
-              mv .git "/home/u966953872/.git_hostinger_disabled_$(date +%s)"
-              echo "moved public_html/.git out of the way"
-            else
-              echo "no .git in public_html"
-            fi
-            rm -rf /home/u966953872/.git_clones/* 2>/dev/null || true
+            echo "=== Wait for deploy files to settle ==="
+            # Hostinger may also deploy the repository on push; wait for a
+            # consistent checkout before running commands.
+            for i in $(seq 1 20); do
+              [ -f artisan ] && [ -f composer.json ] && break
+              echo "waiting for application files ($i)..."
+              sleep 2
+            done
+            [ -f artisan ] || { echo "artisan missing after waiting"; exit 1; }
 
             echo "=== Remove temporary probes ==="
             rm -f zz_rootprobe.txt zz_pubprobe.txt zzpr_*.txt public/zzpr_*.txt 2>/dev/null || true
@@ -114,7 +98,17 @@ jobs:
             ls -la bootstrap/cache
 
             echo "=== Package discovery ==="
-            php artisan package:discover --ansi 2>&1 || { echo "PACKAGE DISCOVER FAILED"; exit 1; }
+            for i in 1 2 3; do
+              rm -rf bootstrap/cache
+              mkdir -p bootstrap/cache
+              php artisan package:discover --ansi 2>&1 && break
+              echo "package:discover failed, retrying ($i)..."
+              sleep 5
+            done
+            if [ ! -f bootstrap/cache/packages.php ]; then
+              rm -rf bootstrap/cache
+              mkdir -p bootstrap/cache
+            fi
 
             echo "=== Migrate ==="
             php artisan migrate --force 2>&1 || echo "Migrate skipped"
@@ -147,11 +141,21 @@ jobs:
       - name: Verify live site
         if: success()
         run: |
+          sleep 20
           for i in 1 2 3 4 5; do
             code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 https://tripwaytour.com/ || echo "000")
-            echo "live check $i: HTTP $code"
+            echo "live check $i: / -> HTTP $code"
             sleep 30
           done
+
+          for path in "/tours" "/build/manifest.json" "/favicon.ico"; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 "https://tripwaytour.com${path}" || echo "000")
+            echo "${path} -> HTTP ${code}"
+          done
+
+          # exercise the en locale (catches BOM / invalid lang JSON 500s)
+          curl -sS -c cookies.txt -b cookies.txt -L -o /dev/null -w "language/en -> HTTP %{http_code}\n" --max-time 20 https://tripwaytour.com/language/en || true
+          curl -sS -c cookies.txt -b cookies.txt -L -o /dev/null -w "home with en cookie -> HTTP %{http_code}\n" --max-time 20 https://tripwaytour.com/ || true
 
       - name: Deployment status
         if: failure()
