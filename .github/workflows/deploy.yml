@@ -77,6 +77,15 @@ jobs:
           script: |
             cd /home/u966953872/domains/tripwaytour.com/public_html
 
+            echo "=== Disable Hostinger git auto-pull interference ==="
+            if [ -d .git ]; then
+              mv .git "/home/u966953872/.git_hostinger_disabled_$(date +%s)"
+              echo "moved public_html/.git out of the way"
+            else
+              echo "no .git in public_html"
+            fi
+            rm -rf /home/u966953872/.git_clones/* 2>/dev/null || true
+
             echo "=== Docroot diagnostics ==="
             echo "PWD: $(pwd)"
             echo "WHOAMI: $(whoami)"
@@ -204,6 +213,15 @@ jobs:
             php artisan storage:link 2>&1 || true
 
             echo "=== DEPLOY SUCCESS ==="
+
+      - name: Verify live site
+        if: success()
+        run: |
+          for i in 1 2 3 4 5; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 https://tripwaytour.com/ || echo "000")
+            echo "live check $i: HTTP $code"
+            sleep 30
+          done
 
       - name: Deployment status
         if: failure()
