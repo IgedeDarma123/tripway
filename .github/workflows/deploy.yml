@@ -78,24 +78,16 @@ jobs:
             cd /home/u966953872/domains/tripwaytour.com/public_html
 
             echo "=== Permissions ==="
-            pwd
-            ls -la bootstrap/cache || true
             mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs
             rm -rf bootstrap/cache
             mkdir -p bootstrap/cache
             chmod -R 775 storage bootstrap/cache
 
             echo "=== Composer ==="
-            composer install --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 || echo "COMPOSER INSTALL FAILED"
+            composer install --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 || { echo "COMPOSER INSTALL FAILED"; exit 1; }
 
             echo "=== Package discovery ==="
-            test -d vendor/laravel/pail && echo "PAIL DIR PRESENT" || echo "PAIL DIR ABSENT"
-            grep -c 'laravel/pail' vendor/composer/installed.json || true
-            php artisan package:discover --ansi 2>&1 || echo "PACKAGE DISCOVER FAILED"
-            echo "=== Manifest after discovery ==="
-            ls -la bootstrap/cache || true
-            grep -il pail bootstrap/cache/*.php || echo "no pail in bootstrap/cache"
-            grep -E 'APP_(PACKAGES|SERVICES|CONFIG)_CACHE' .env || echo "no cache path overrides in .env"
+            php artisan package:discover --ansi 2>&1 || { echo "PACKAGE DISCOVER FAILED"; exit 1; }
 
             echo "=== Migrate ==="
             php artisan migrate --force 2>&1 || echo "Migrate skipped"
@@ -127,4 +119,4 @@ jobs:
 
       - name: Deployment status
         if: failure()
-        run: echo "::error::Deploy gagal. Cek secrets & koneksi server."
+        run: echo "::error::Deploy gagal. Cek log step di atas untuk detail error."
