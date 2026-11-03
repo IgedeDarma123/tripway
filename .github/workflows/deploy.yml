@@ -86,53 +86,9 @@ jobs:
             fi
             rm -rf /home/u966953872/.git_clones/* 2>/dev/null || true
 
-            echo "=== Docroot diagnostics ==="
-            echo "PWD: $(pwd)"
-            echo "WHOAMI: $(whoami)"
-            echo "--- current dir ---"
-            ls -la | head -40
-            echo "--- home ---"
-            ls -la /home/u966953872 2>&1 | head -40
-            echo "--- domains ---"
-            ls -la /home/u966953872/domains 2>&1 | head -40
-            echo "--- index.php candidates ---"
-            find /home/u966953872 -maxdepth 4 -name index.php 2>/dev/null | head -30
-            echo "--- public_html candidates ---"
-            ls -la /home/u966953872/public_html 2>&1 | head -40
-            echo "--- .htaccess in cwd ---"
-            [ -f .htaccess ] && cat .htaccess || echo "no .htaccess in cwd"
-            echo "--- domain dir ---"
-            ls -la /home/u966953872/domains/tripwaytour.com 2>&1 | head -30
-            echo "--- root / public probes ---"
-            echo "root-probe $(date -u)" > zz_rootprobe.txt
-            mkdir -p public
-            echo "public-probe $(date -u)" > public/zz_pubprobe.txt
-            ls -la zz_rootprobe.txt public/zz_pubprobe.txt
-            echo "--- .builds tree ---"
-            find .builds -maxdepth 3 -printf '%y %p -> %l\n' 2>/dev/null | head -50
-            echo "--- git_clones tree ---"
-            ls -la /home/u966953872/.git_clones 2>&1 | head -20
-            find /home/u966953872/.git_clones -maxdepth 3 -printf '%y %p -> %l\n' 2>/dev/null | head -40
-            echo "--- place candidate probes ---"
-            for d in /home/u966953872/domains/tripwaytour.com/.builds /home/u966953872/.git_clones/* /home/u966953872/.git_clones/*/public /home/u966953872/domains/tripwaytour.com/public_html/public_html; do
-              if [ -d "$d" ]; then n=$(printf '%s' "$d" | md5sum | cut -c1-6); echo "candidate $(date -u)" > "$d/zzpr_$n.txt"; echo "PLACED $d/zzpr_$n.txt"; fi
-            done
-            echo "--- default 404/index pages ---"
-            find /home/u966953872 -maxdepth 4 \( -name '404.html' -o -name '404.shtml' -o -name 'index.html' \) -printf '%TY-%Tm-%Td %p\n' 2>/dev/null | head -20
-            echo "--- vhost docroot config ---"
-            grep -rs "tripwaytour.com" /etc/apache2/conf.d /usr/local/lsws/conf 2>/dev/null | head -20 || echo "config not readable"
-            echo "--- HTTP check from server ---"
-            curl -skI --max-time 15 https://tripwaytour.com 2>&1 | head -20
-            echo "--- server public IP (obfuscated to bypass masking) ---"
-            SRV_IP=$(curl -s --max-time 10 https://api.ipify.org 2>&1)
-            echo "IP_DASHED: $(printf '%s' "$SRV_IP" | tr '.' '-')"
-            echo "--- server public IPv6 ---"
-            SRV_IP6=$(curl -s -6 --max-time 10 https://api64.ipify.org 2>&1 || true)
-            echo "IP6_DASHED: $(printf '%s' "$SRV_IP6" | tr ':' '-')"
-            echo "--- server resolves domain to ---"
-            getent hosts tripwaytour.com 2>&1 || true
-            echo "--- local vhost via 127.0.0.1 ---"
-            curl -skI --max-time 10 --resolve tripwaytour.com:443:127.0.0.1 https://tripwaytour.com 2>&1 | head -8
+            echo "=== Remove temporary probes ==="
+            rm -f zz_rootprobe.txt zz_pubprobe.txt zzpr_*.txt public/zzpr_*.txt 2>/dev/null || true
+            rm -f /home/u966953872/domains/tripwaytour.com/.builds/zzpr_*.txt 2>/dev/null || true
 
             echo "=== Permissions ==="
             mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs
@@ -142,40 +98,6 @@ jobs:
 
             echo "=== Composer ==="
             composer install --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 || { echo "COMPOSER INSTALL FAILED"; exit 1; }
-
-            echo "=== Pail diagnosis ==="
-            echo "cwd: $(pwd)"
-            echo "vendor-dir: $(composer config vendor-dir 2>&1)"
-            env | grep -i composer || true
-            echo "installed.json pail count: $(grep -c 'laravel/pail' vendor/composer/installed.json 2>/dev/null || echo 0)"
-            ls -d vendor/laravel/pail 2>&1 || true
-            echo "bootstrap/providers.php:"; cat bootstrap/providers.php 2>&1 || true
-            find . -maxdepth 4 -name 'packages.php' -not -path './vendor/*' -printf '%p %TY-%Tm-%Td %TH:%TM\n' 2>/dev/null
-            grep -E '^(APP_|CACHE_|COMPOSER_|LARAVEL_)' .env 2>/dev/null | sed 's/=.*/=<set>/' || true
-
-            echo "=== Clone diagnosis ==="
-            CLONE=$(ls -d /home/u966953872/.git_clones/git_clone_* 2>/dev/null | head -1)
-            echo "CLONE: $CLONE"
-            ls -la "$CLONE" 2>&1 | head -60
-            echo "clone vendor: $(ls -la "$CLONE/vendor/autoload.php" 2>&1)"
-            echo "clone env: $(ls -la "$CLONE/.env" 2>&1)"
-            echo "clone public/build:"; ls -la "$CLONE/public/build" 2>&1 | head -5
-            echo "clone bootstrap/cache:"; ls -la "$CLONE/bootstrap/cache" 2>&1 | head -10
-            echo "clone git head: $(git -C "$CLONE" log -1 --oneline 2>&1)"
-            echo "clone git remote: $(git -C "$CLONE" remote -v 2>&1 | tr '\n' ' ')"
-            echo "clone root index/htaccess:"; ls -la "$CLONE/index.php" "$CLONE/.htaccess" 2>&1
-            echo "--- .builds contents ---"; ls -la /home/u966953872/domains/tripwaytour.com/.builds 2>&1 | head -20
-
-            echo "=== Cron / deploy sources ==="
-            crontab -l 2>&1 | head -40
-            echo "--- .git_clones now ---"; ls -la /home/u966953872/.git_clones 2>&1
-            echo "--- public_html is git? ---"
-            git -C . remote -v 2>&1
-            git -C . log -3 --oneline 2>&1
-            git -C . status --short 2>&1 | head -20
-            stat -c '%y %n' .git/FETCH_HEAD .git/HEAD 2>&1
-            echo "--- probe via public IPv4 from server ---"
-            curl -skI --max-time 10 --resolve tripwaytour.com:443:145.223.108.79 https://tripwaytour.com/zz_rootprobe.txt 2>&1 | head -5
 
             echo "=== Reset bootstrap cache before discovery ==="
             rm -rf bootstrap/cache
