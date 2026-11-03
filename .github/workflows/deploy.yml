@@ -77,6 +77,24 @@ jobs:
           script: |
             cd /home/u966953872/domains/tripwaytour.com/public_html
 
+            echo "=== Docroot diagnostics ==="
+            echo "PWD: $(pwd)"
+            echo "WHOAMI: $(whoami)"
+            echo "--- current dir ---"
+            ls -la | head -40
+            echo "--- home ---"
+            ls -la /home/u966953872 2>&1 | head -40
+            echo "--- domains ---"
+            ls -la /home/u966953872/domains 2>&1 | head -40
+            echo "--- index.php candidates ---"
+            find /home/u966953872 -maxdepth 4 -name index.php 2>/dev/null | head -30
+            echo "--- public_html candidates ---"
+            ls -la /home/u966953872/public_html 2>&1 | head -40
+            echo "--- .htaccess in cwd ---"
+            [ -f .htaccess ] && cat .htaccess || echo "no .htaccess in cwd"
+            echo "--- HTTP check from server ---"
+            curl -skI --max-time 15 https://tripwaytour.com 2>&1 | head -20
+
             echo "=== Permissions ==="
             mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs
             rm -rf bootstrap/cache
