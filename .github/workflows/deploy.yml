@@ -157,6 +157,17 @@ jobs:
             echo "clone root index/htaccess:"; ls -la "$CLONE/index.php" "$CLONE/.htaccess" 2>&1
             echo "--- .builds contents ---"; ls -la /home/u966953872/domains/tripwaytour.com/.builds 2>&1 | head -20
 
+            echo "=== Cron / deploy sources ==="
+            crontab -l 2>&1 | head -40
+            echo "--- .git_clones now ---"; ls -la /home/u966953872/.git_clones 2>&1
+            echo "--- public_html is git? ---"
+            git -C . remote -v 2>&1
+            git -C . log -3 --oneline 2>&1
+            git -C . status --short 2>&1 | head -20
+            stat -c '%y %n' .git/FETCH_HEAD .git/HEAD 2>&1
+            echo "--- probe via public IPv4 from server ---"
+            curl -skI --max-time 10 --resolve tripwaytour.com:443:145.223.108.79 https://tripwaytour.com/zz_rootprobe.txt 2>&1 | head -5
+
             echo "=== Reset bootstrap cache before discovery ==="
             rm -rf bootstrap/cache
             mkdir -p bootstrap/cache
