@@ -89,10 +89,13 @@ jobs:
             composer install --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 || echo "COMPOSER INSTALL FAILED"
 
             echo "=== Package discovery ==="
-            ls -la bootstrap/cache || true
             test -d vendor/laravel/pail && echo "PAIL DIR PRESENT" || echo "PAIL DIR ABSENT"
             grep -c 'laravel/pail' vendor/composer/installed.json || true
             php artisan package:discover --ansi 2>&1 || echo "PACKAGE DISCOVER FAILED"
+            echo "=== Manifest after discovery ==="
+            ls -la bootstrap/cache || true
+            grep -il pail bootstrap/cache/*.php || echo "no pail in bootstrap/cache"
+            grep -E 'APP_(PACKAGES|SERVICES|CONFIG)_CACHE' .env || echo "no cache path overrides in .env"
 
             echo "=== Migrate ==="
             php artisan migrate --force 2>&1 || echo "Migrate skipped"
