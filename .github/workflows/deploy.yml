@@ -92,6 +92,17 @@ jobs:
             ls -la /home/u966953872/public_html 2>&1 | head -40
             echo "--- .htaccess in cwd ---"
             [ -f .htaccess ] && cat .htaccess || echo "no .htaccess in cwd"
+            echo "--- domain dir ---"
+            ls -la /home/u966953872/domains/tripwaytour.com 2>&1 | head -30
+            echo "--- root / public probes ---"
+            echo "root-probe $(date -u)" > zz_rootprobe.txt
+            mkdir -p public
+            echo "public-probe $(date -u)" > public/zz_pubprobe.txt
+            ls -la zz_rootprobe.txt public/zz_pubprobe.txt
+            echo "--- default 404/index pages ---"
+            find /home/u966953872 -maxdepth 4 \( -name '404.html' -o -name '404.shtml' -o -name 'index.html' \) -printf '%TY-%Tm-%Td %p\n' 2>/dev/null | head -20
+            echo "--- vhost docroot config ---"
+            grep -rs "tripwaytour.com" /etc/apache2/conf.d /usr/local/lsws/conf 2>/dev/null | head -20 || echo "config not readable"
             echo "--- HTTP check from server ---"
             curl -skI --max-time 15 https://tripwaytour.com 2>&1 | head -20
             echo "--- server public IP (obfuscated to bypass masking) ---"
@@ -113,6 +124,12 @@ jobs:
 
             echo "=== Composer ==="
             composer install --no-dev --optimize-autoloader --no-interaction --no-scripts 2>&1 || { echo "COMPOSER INSTALL FAILED"; exit 1; }
+
+            echo "=== Reset bootstrap cache before discovery ==="
+            rm -rf bootstrap/cache
+            mkdir -p bootstrap/cache
+            chmod -R 775 bootstrap/cache
+            ls -la bootstrap/cache
 
             echo "=== Package discovery ==="
             php artisan package:discover --ansi 2>&1 || { echo "PACKAGE DISCOVER FAILED"; exit 1; }
