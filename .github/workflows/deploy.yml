@@ -99,6 +99,15 @@ jobs:
             mkdir -p public
             echo "public-probe $(date -u)" > public/zz_pubprobe.txt
             ls -la zz_rootprobe.txt public/zz_pubprobe.txt
+            echo "--- .builds tree ---"
+            find .builds -maxdepth 3 -printf '%y %p -> %l\n' 2>/dev/null | head -50
+            echo "--- git_clones tree ---"
+            ls -la /home/u966953872/.git_clones 2>&1 | head -20
+            find /home/u966953872/.git_clones -maxdepth 3 -printf '%y %p -> %l\n' 2>/dev/null | head -40
+            echo "--- place candidate probes ---"
+            for d in /home/u966953872/domains/tripwaytour.com/.builds /home/u966953872/.git_clones/* /home/u966953872/.git_clones/*/public /home/u966953872/domains/tripwaytour.com/public_html/public_html; do
+              if [ -d "$d" ]; then n=$(printf '%s' "$d" | md5sum | cut -c1-6); echo "candidate $(date -u)" > "$d/zzpr_$n.txt"; echo "PLACED $d/zzpr_$n.txt"; fi
+            done
             echo "--- default 404/index pages ---"
             find /home/u966953872 -maxdepth 4 \( -name '404.html' -o -name '404.shtml' -o -name 'index.html' \) -printf '%TY-%Tm-%Td %p\n' 2>/dev/null | head -20
             echo "--- vhost docroot config ---"
